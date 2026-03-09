@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # tspendly
 
 A new Flutter project.
@@ -15,3 +16,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# Spendly_Graduation_Project
+Expense Tracking Application
+>>>>>>> c4340f4ae9a710910a9ea0b0ce2af39db0b98593
