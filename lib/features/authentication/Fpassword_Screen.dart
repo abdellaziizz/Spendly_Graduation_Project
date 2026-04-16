@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Fpassword extends StatelessWidget {
-  const Fpassword({super.key});
+  final String email;
+  const Fpassword({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class Fpassword extends StatelessWidget {
             ),
             SizedBox(height: 12),
             Text(
-              'Youremail@gmail.com',
+              email,
               style: TextStyle(color: Colors.grey.shade500, fontSize: 20),
             ),
             SizedBox(height: 12),
@@ -37,7 +38,9 @@ class Fpassword extends StatelessWidget {
             ),
             SizedBox(height: 22),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff274C77),
                 fixedSize: const Size(335, 55),

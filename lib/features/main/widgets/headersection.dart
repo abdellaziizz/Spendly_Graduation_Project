@@ -43,6 +43,12 @@ class Headersection extends StatelessWidget {
           backgroundColor: Color(0x40265685),
           child: Icon(Icons.auto_awesome, color: Colors.amber),
         ),
+        SizedBox(width: 20),
+        CircleAvatar(
+          radius: 20,
+          backgroundColor: Color(0x40265685),
+          child: Icon(Icons.document_scanner_outlined, color: Colors.white),
+        ),
       ],
     );
   }

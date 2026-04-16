@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tspendly/features/Profile/container_widget.dart';
-import 'package:tspendly/features/Profile/headsection_widget.dart';
+import 'package:tspendly/features/Profile/Widget/container_widget.dart';
+import 'package:tspendly/features/Profile/Widget/headsection_widget.dart';
 import 'package:tspendly/widgets/toggle.dart';
 
 class ProfileScreen extends StatelessWidget {

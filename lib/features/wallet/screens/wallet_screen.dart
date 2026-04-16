@@ -24,10 +24,7 @@ class _WalletScreenState extends State<WalletScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+
         actions: [
           Image.asset('assets/logo/logo.png', width: 42, height: 42),
           const SizedBox(width: 8),

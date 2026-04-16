@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/budget_model.dart';
+import 'package:tspendly/features/wallet/models/budget_model.dart';
 import '../providers/wallet_provider.dart';
 import 'progress_bar.dart';
 

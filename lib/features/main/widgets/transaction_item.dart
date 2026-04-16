@@ -28,10 +28,14 @@ class TransactionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIncome = data.isIncome;
+
+    // Just for adding (+, green) or (-, red)
     final amountText = isIncome
         ? '+\$ ${_formatNumber(data.amount.abs())}'
         : '-\$ ${_formatNumber(data.amount.abs())}';
-    final amountColor = isIncome ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F);
+    final amountColor = isIncome
+        ? const Color(0xFF2E7D32)
+        : const Color(0xFFD32F2F);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -57,11 +61,7 @@ class TransactionItem extends StatelessWidget {
               color: data.iconBgColor,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              data.icon,
-              color: data.iconColor,
-              size: 24,
-            ),
+            child: Icon(data.icon, color: data.iconColor, size: 24),
           ),
           const SizedBox(width: 14),
 
@@ -81,16 +81,13 @@ class TransactionItem extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   data.subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade500,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                 ),
               ],
             ),
           ),
 
-          // Amount
+          // Amount whether income or expense
           Text(
             amountText,
             style: TextStyle(
@@ -105,14 +102,16 @@ class TransactionItem extends StatelessWidget {
   }
 
   String _formatNumber(double value) {
+    // Check if the number has double value or not
     if (value == value.truncateToDouble()) {
       // Format integers with comma separators
       return value.toInt().toString().replaceAllMapped(
-            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-            (m) => '${m[1]},',
-          );
+        // Putting a comma every 3 digits from the right"
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (m) => '${m[1]},',
+      );
     }
-    // Format decimals
+    // Format decimals. If it has decimals ,converts number to 3 decimal places
     final parts = value.toStringAsFixed(3).split('.');
     final integerPart = parts[0].replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -122,7 +121,7 @@ class TransactionItem extends StatelessWidget {
   }
 }
 
-// --- Sample data matching the mockup ---
+//  Sample Transaction List
 
 final List<TransactionData> sampleTransactions = [
   TransactionData(

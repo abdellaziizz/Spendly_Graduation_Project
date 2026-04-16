@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
-// Whether the user is currently recording
+// Whether the user is currently recording or not
 final isRecordingProvider = StateProvider<bool>((ref) => false);
 
 // Elapsed recording seconds (max 30)

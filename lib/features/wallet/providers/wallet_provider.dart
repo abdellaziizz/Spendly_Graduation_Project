@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import '../models/budget_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tspendly/features/wallet/models/budget_model.dart';
 
 class WalletNotifier extends StateNotifier<List<BudgetModel>> {
   WalletNotifier()

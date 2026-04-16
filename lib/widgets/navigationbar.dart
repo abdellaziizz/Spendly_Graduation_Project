@@ -1,30 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:tspendly/features/Profile/profile_screen.dart';
-import 'package:tspendly/features/Report/report_screen.dart';
-import 'package:tspendly/features/main/screens/home_screen.dart';
-import 'package:tspendly/features/wallet/screens/wallet_screen.dart';
 
-final navigationIndexProvider = StateProvider<int>((ref) => 0);
+/// Scaffold wrapper that provides a persistent bottom navigation bar
+/// using GoRouter's StatefulNavigationShell for tab-based navigation.
+class ScaffoldWithNavbar extends StatelessWidget {
+  const ScaffoldWithNavbar({super.key, required this.navigationShell});
 
-class Navbar extends ConsumerWidget {
-  const Navbar({super.key});
-  static final List<Widget> _widgetOptions = <Widget>[
-    MainScreen(),
-    WalletScreen(),
-    ProfileScreen(),
-    ReportScreen(),
-  ];
+  final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedindex = ref.watch(navigationIndexProvider);
-
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: _widgetOptions.elementAt(selectedindex),
+      body: navigationShell,
       bottomNavigationBar: Container(
         margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
         decoration: BoxDecoration(
@@ -38,18 +26,18 @@ class Navbar extends ConsumerWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsetsGeometry.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: 15,
             vertical: 8,
           ),
           child: GNav(
             gap: 8,
             backgroundColor: Colors.white,
-            tabBackgroundColor: Color(0xff397BBD),
+            tabBackgroundColor: const Color(0xff397BBD),
             color: Colors.grey.shade500,
             activeColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            duration: Duration(milliseconds: 100),
+            duration: const Duration(milliseconds: 100),
             curve: Curves.linear,
             tabs: const [
               GButton(icon: Icons.home, text: 'Home'),
@@ -57,25 +45,17 @@ class Navbar extends ConsumerWidget {
                 icon: Icons.account_balance_wallet_outlined,
                 text: 'Wallet',
               ),
-              GButton(icon: Icons.pie_chart_outline, text: 'report'),
-              GButton(icon: Icons.person_outline, text: 'profile'),
+              GButton(icon: Icons.pie_chart_outline, text: 'Insight'),
+              GButton(icon: Icons.person_outline, text: 'Profile'),
             ],
-            selectedIndex: selectedindex,
+            selectedIndex: navigationShell.currentIndex,
             onTabChange: (index) {
-              switch (index) {
-                case 0:
-                  context.go('/home');
-                  break;
-                case 1:
-                  context.go('/wallet');
-                  break;
-                case 2:
-                  context.go('/report');
-                  break;
-                case 3:
-                  context.go('/profile');
-                  break;
-              }
+              // Use goBranch to switch between navigation branches
+              // while preserving the state of each branch
+              navigationShell.goBranch(
+                index,
+                initialLocation: index == navigationShell.currentIndex,
+              );
             },
           ),
         ),

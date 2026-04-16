@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tspendly/features/wallet/models/goal_model.dart';
+import 'package:tspendly/features/wallet/widgets/setting_goal_pop.dart';
 import '../providers/goal_provider.dart';
 import '../widgets/goal_card.dart';
 
@@ -20,8 +22,15 @@ class GoalsTab extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add goal logic here
+        onPressed: () async {
+          final newGoal = await Navigator.push<GoalModel>(
+            context,
+            MaterialPageRoute(builder: (context) => const AddGoal()),
+          );
+
+          if (newGoal != null) {
+            ref.read(goalProvider.notifier).addGoal(newGoal);
+          }
         },
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -35,3 +44,22 @@ class GoalsTab extends ConsumerWidget {
     );
   }
 }
+
+//  final List<GoalModel> Goals = [];
+
+//   void _openAddGoalSheet() async {
+//     final GoalModel? goalModel = await showModalBottomSheet<GoalModel>(
+//       context: context,
+//       isScrollControlled: true,
+//       backgroundColor: Colors.transparent,
+//       builder: (context) {
+//         return const AddTransactionBottomSheet();
+//       },
+//     );
+
+//     if (goalModel != null) {
+//       setState(() {
+//         _manualTransactions.insert(0, goalModel);
+//       });
+//     }
+//   }

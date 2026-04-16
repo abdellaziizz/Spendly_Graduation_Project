@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import '../models/goal_model.dart';
+import 'package:tspendly/features/wallet/models/goal_model.dart';
 
 class GoalNotifier extends StateNotifier<List<GoalModel>> {
   GoalNotifier()

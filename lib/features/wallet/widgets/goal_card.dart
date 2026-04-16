@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/goal_model.dart';
+import 'package:tspendly/features/wallet/models/goal_model.dart';
 import 'progress_bar.dart';
 
 class GoalCard extends StatelessWidget {
@@ -9,7 +9,7 @@ class GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = goal.targetAmount > 0 
+    final progress = goal.targetAmount > 0
         ? (goal.savedAmount / goal.targetAmount).clamp(0.0, 1.0)
         : 0.0;
 
@@ -44,10 +44,7 @@ class GoalCard extends StatelessWidget {
                   const SizedBox(height: 4.0),
                   Text(
                     'EGP ${goal.savedAmount.toStringAsFixed(2)} / ${goal.targetAmount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12.0,
-                    ),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12.0),
                   ),
                   const SizedBox(height: 8.0),
                   ProgressBar(progress: progress),
