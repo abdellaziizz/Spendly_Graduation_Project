@@ -5,6 +5,7 @@ import 'package:tspendly/features/main/screens/home_screen.dart';
 import 'package:tspendly/features/wallet/screens/wallet_screen.dart';
 import 'package:tspendly/features/Report/report_screen.dart';
 import 'package:tspendly/features/Profile/Screens/profile_screen.dart';
+import 'package:tspendly/features/chatbot/Screens/chat_screen.dart';
 
 // Navigation keys for each branch
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -63,6 +64,12 @@ final GoRouter router = GoRouter(
           ],
         ),
       ],
+    ),
+    // Chatbot route (fullscreen, no bottom nav)
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/chatbot',
+      builder: (context, state) => const ChatScreen(),
     ),
   ],
 );

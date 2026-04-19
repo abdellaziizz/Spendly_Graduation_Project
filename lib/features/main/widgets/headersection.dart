@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class Headersection extends StatelessWidget {
   const Headersection({super.key});
@@ -38,10 +39,13 @@ class Headersection extends StatelessWidget {
           ),
         ),
         Spacer(),
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: Color(0x40265685),
-          child: Icon(Icons.auto_awesome, color: Colors.amber),
+        GestureDetector(
+          onTap: () => context.push('/chatbot'),
+          child: CircleAvatar(
+            radius: 20,
+            backgroundColor: Color(0x40265685),
+            child: Icon(Icons.auto_awesome, color: Colors.amber),
+          ),
         ),
         SizedBox(width: 20),
         CircleAvatar(
