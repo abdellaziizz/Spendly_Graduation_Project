@@ -1,8 +1,8 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiService {
-  static const String _apiKey = "AIzaSyBjRbKFOUS56qMIUVLNDT4pS-6c7OpUePk";
-
+  static final _apiKey = dotenv.env['API_KEY']!;
   late final GenerativeModel _model;
   late final ChatSession _chat;
 

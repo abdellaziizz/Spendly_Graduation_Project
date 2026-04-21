@@ -54,7 +54,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     ref.listen(chatProvider, (_, _) => _scrollToBottom());
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F1E),
+      backgroundColor: const Color(0xffF8F8F8),
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -71,7 +71,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: const Color(0xFF161630),
+      backgroundColor: const Color(0xffF8F8F8),
       elevation: 0,
       centerTitle: false,
       title: Row(
@@ -81,7 +81,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             height: 38,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF6C63FF), Color(0xFF9D4EDD)],
+                colors: [Color(0xff397BBD), Color(0xffff0b396d)],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -96,21 +96,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Spendly AI',
+                'Your CFO',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.3,
                 ),
               ),
-              Text(
-                'Your financial assistant',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                ),
+              Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors
+                          .green, // Use Color(0xFF4CAF50) for a specific shade
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4), // Space between circle and text
+                  const Text(
+                    'Always active',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
               ),
             ],
           ),
@@ -118,10 +128,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       ),
       actions: [
         IconButton(
-          icon: Icon(
-            Icons.refresh_rounded,
-            color: Colors.white.withValues(alpha: 0.7),
-          ),
+          icon: Icon(Icons.refresh_rounded, color: Color(0xff72777A)),
           tooltip: 'New Chat',
           onPressed: () {
             ref.read(chatProvider.notifier).clearChat();
@@ -142,14 +149,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             height: 80,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF6C63FF), Color(0xFF9D4EDD)],
+                colors: [Color(0xff397BBD), Color(0xffff0b396d)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
+                  color: const Color(0xff397BBD).withValues(alpha: 0.3),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -165,7 +172,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           const Text(
             'How can I help you today?',
             style: TextStyle(
-              color: Colors.white,
+              color: Color(0xff397BBD),
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -204,11 +211,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E3A),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
+              gradient: const LinearGradient(
+                colors: [Color(0xff397BBD), Color(0xffFF0B396D)],
               ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xff397BBD)),
             ),
             child: Text(
               s,
@@ -254,7 +261,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               height: 30,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF6C63FF), Color(0xFF9D4EDD)],
+                  colors: [Color(0xff397BBD), Color(0xffff0b396d)],
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -271,8 +278,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: isUser
-                    ? const Color(0xFF6C63FF)
-                    : const Color(0xFF1E1E3A),
+                    ? const Color(0xff006BE5)
+                    : const Color(0xFFF2F4F5),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -283,7 +290,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                     ? [
                         BoxShadow(
                           color: const Color(
-                            0xFF6C63FF,
+                            0xff006BE5,
                           ).withValues(alpha: 0.25),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
@@ -297,9 +304,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   Text(
                     message.text,
                     style: TextStyle(
-                      color: isUser
-                          ? Colors.white
-                          : Colors.white.withValues(alpha: 0.9),
+                      color: isUser ? Colors.white : Color(0xff303437),
                       fontSize: 14.5,
                       height: 1.45,
                     ),
@@ -334,7 +339,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             height: 30,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF6C63FF), Color(0xFF9D4EDD)],
+                colors: [Color(0xff006BE5), Color(0xff397BBD)],
               ),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -372,7 +377,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF161630),
+        color: const Color(0xffF8F8F8),
         border: Border(
           top: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -382,10 +387,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E3A),
+                color: const Color(0xff397BBD),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
+                  color: const Color(0xff006BE5).withValues(alpha: 0.2),
                 ),
               ),
               child: TextField(
@@ -398,10 +403,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                 minLines: 1,
                 decoration: InputDecoration(
                   hintText: 'Ask me anything...',
-                  hintStyle: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    fontSize: 14.5,
-                  ),
+                  hintStyle: TextStyle(color: Colors.white70, fontSize: 14.5),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 18,
@@ -422,7 +424,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                 gradient: isLoading
                     ? null
                     : const LinearGradient(
-                        colors: [Color(0xFF6C63FF), Color(0xFF9D4EDD)],
+                        colors: [Color(0xff397BBD), Color(0xff006BE5)],
                       ),
                 color: isLoading ? const Color(0xFF2A2A4A) : null,
                 borderRadius: BorderRadius.circular(16),

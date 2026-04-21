@@ -24,6 +24,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   bool _isListening = false;
   String _text = '';
 
+  // Language toggle: 'ar' for Arabic, 'en_US' for English
+  String _selectedLocale = 'ar';
+
   // Timer for 30s max
   Timer? _timer;
   int _recordDuration = 0;
@@ -101,6 +104,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         listenFor: Duration(seconds: _maxDuration),
         pauseFor: const Duration(seconds: 5),
         partialResults: true,
+        localeId: _selectedLocale,
       );
 
       _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
@@ -156,9 +160,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Text(
-                'Did you say: $_text',
-                style: const TextStyle(fontSize: 16, color: Color(0xFF1A1A2E)),
+              const Text(
+                'Did you say:',
+                style: TextStyle(fontSize: 14, color: Color(0xFF8E8E93)),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F8FC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E5EA)),
+                ),
+                child: Text(
+                  _text,
+                  textDirection: _selectedLocale == 'ar'
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Color(0xFF1A1A2E),
+                    height: 1.5,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               Container(
@@ -407,7 +432,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               child: Container(color: Colors.black.withOpacity(0.3)),
             ),
 
-          // Floating Mic Button & Timer
+          // Floating Mic Button, Language Toggle & Timer
           Positioned(
             bottom: 40,
             left: 0,
@@ -447,41 +472,84 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ],
                     ),
                   ),
-                GestureDetector(
-                  onTap: () {
-                    if (_isListening) {
-                      _stopListening();
-                    } else {
-                      _startListening();
-                    }
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    width: _isListening ? 70 : 60,
-                    height: _isListening ? 70 : 60,
-                    decoration: BoxDecoration(
-                      color: _isListening
-                          ? Colors.red
-                          : const Color(0xFF397BBD),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              (_isListening
-                                      ? Colors.red
-                                      : const Color(0xFF397BBD))
-                                  .withOpacity(0.4),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Language toggle button (hidden while recording)
+                    if (!_isListening)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedLocale = _selectedLocale == 'ar'
+                                ? 'en_US'
+                                : 'ar';
+                          });
+                        },
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              _selectedLocale == 'ar' ? 'ع' : 'EN',
+                              style: TextStyle(
+                                fontSize: _selectedLocale == 'ar' ? 20 : 14,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF397BBD),
+                              ),
+                            ),
+                          ),
                         ),
-                      ],
+                      ),
+                    if (!_isListening) const SizedBox(width: 16),
+                    // Mic button
+                    GestureDetector(
+                      onTap: () {
+                        if (_isListening) {
+                          _stopListening();
+                        } else {
+                          _startListening();
+                        }
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        width: _isListening ? 70 : 60,
+                        height: _isListening ? 70 : 60,
+                        decoration: BoxDecoration(
+                          color: _isListening
+                              ? Colors.red
+                              : const Color(0xFF397BBD),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  (_isListening
+                                          ? Colors.red
+                                          : const Color(0xFF397BBD))
+                                      .withOpacity(0.4),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          _isListening ? Icons.stop : Icons.mic,
+                          color: Colors.white,
+                          size: _isListening ? 36 : 30,
+                        ),
+                      ),
                     ),
-                    child: Icon(
-                      _isListening ? Icons.stop : Icons.mic,
-                      color: Colors.white,
-                      size: _isListening ? 36 : 30,
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ),
