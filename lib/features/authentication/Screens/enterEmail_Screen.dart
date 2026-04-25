@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tspendly/features/authentication/Fpassword_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/Fpassword_Screen.dart';
+import 'package:tspendly/features/authentication/Service/auth_service.dart';
 
 class Enteremail extends StatefulWidget {
   const Enteremail({super.key});
@@ -11,6 +12,14 @@ class Enteremail extends StatefulWidget {
 class _EnteremailState extends State<Enteremail> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,17 +96,43 @@ class _EnteremailState extends State<Enteremail> {
             ),
             SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          Fpassword(email: _emailController.text.trim()),
-                    ),
-                  );
-                }
-              },
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      if (_formKey.currentState!.validate()) {
+                        setState(() => _isLoading = true);
+
+                        try {
+                          await _authService.forgotPassword(
+                            email: _emailController.text.trim(),
+                          );
+
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Fpassword(
+                                  email: _emailController.text.trim(),
+                                ),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Failed to send reset email: ${e.toString()}',
+                                ),
+                                backgroundColor: Colors.red.shade600,
+                              ),
+                            );
+                          }
+                        } finally {
+                          if (mounted) setState(() => _isLoading = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff274C77),
                 fixedSize: const Size(335, 55),
@@ -105,7 +140,16 @@ class _EnteremailState extends State<Enteremail> {
                   borderRadius: BorderRadiusGeometry.circular(20),
                 ),
               ),
-              child: Text('Submit', style: TextStyle(color: Colors.white)),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Text('Submit', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

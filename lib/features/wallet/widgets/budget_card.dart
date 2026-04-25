@@ -26,10 +26,14 @@ class BudgetCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12.0),
               ),
-              child: Icon(budget.icon, color: Color(0xff0466C8), size: 28),
+              child: Icon(
+                budget.icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 28,
+              ),
             ),
             const SizedBox(width: 16.0),
             Expanded(
@@ -46,7 +50,10 @@ class BudgetCard extends ConsumerWidget {
                   const SizedBox(height: 4.0),
                   Text(
                     'EGP ${budget.spentAmount.toStringAsFixed(2)} of ${budget.limitAmount.toStringAsFixed(2)}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12.0),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      fontSize: 12.0,
+                    ),
                   ),
                   const SizedBox(height: 8.0),
                   ProgressBar(progress: progress),

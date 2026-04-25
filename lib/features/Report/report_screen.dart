@@ -14,7 +14,7 @@ class ReportScreen extends StatelessWidget {
               "Still in progress ",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 20,
               ),
             ),

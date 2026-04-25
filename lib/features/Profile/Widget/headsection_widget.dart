@@ -12,13 +12,13 @@ class Headsection extends StatelessWidget {
       height: 88,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Color(0xffFFFFFF),
+        color: Theme.of(context).colorScheme.surface,
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: Color(0xff397BBD),
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: SvgPicture.asset(
               'assets/icons/User_avatar.svg',
               width: 40,
@@ -26,21 +26,25 @@ class Headsection extends StatelessWidget {
               fit: BoxFit.fill,
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Ahmed Mohamed',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                 ),
               ),
               Text(
                 'mrRobo999@gmail.com',
-                style: TextStyle(color: Color(0xff7F879E), fontSize: 10),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 10,
+                ),
               ),
             ],
           ),

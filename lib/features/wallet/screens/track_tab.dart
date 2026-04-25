@@ -34,13 +34,6 @@ class TrackTab extends ConsumerWidget {
         onPressed: () {
           // Add budget logic here
         },
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          side: const BorderSide(color: Colors.grey, width: 0.5),
-        ),
         child: const Icon(Icons.add),
       ),
     );

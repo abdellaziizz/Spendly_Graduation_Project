@@ -18,26 +18,35 @@ class ContainerWidget extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 6,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
         borderRadius: BorderRadius.circular(12),
-        color: Color(0xffFFFFFF),
+        color: Theme.of(context).colorScheme.surface,
       ),
       height: 55,
       child: Row(
         children: [
-          Icon(icon),
+          Icon(icon, color: Theme.of(context).colorScheme.onSurface),
+          const SizedBox(width: 12),
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-          Spacer(),
+          const Spacer(),
           subtitle != null
-              ? Text(subtitle!, style: TextStyle(color: Color(0xff757575)))
-              : SizedBox.shrink(),
+              ? Text(
+                  subtitle!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
     );

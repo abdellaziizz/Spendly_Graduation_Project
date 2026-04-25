@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tspendly/theme/theme_provider.dart';
 
-class Toggle extends StatefulWidget {
+class Toggle extends ConsumerWidget {
   const Toggle({super.key});
 
   @override
-  State<Toggle> createState() => _ToggleState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+    final isDark = themeMode == ThemeMode.dark;
 
-class _ToggleState extends State<Toggle> {
-  bool isOn = false;
-
-  void toggle() {
-    setState(() {
-      isOn = !isOn;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: toggle,
+      onTap: () {
+        ref.read(themeProvider.notifier).toggleTheme(!isDark);
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         width: 100,
@@ -27,7 +21,7 @@ class _ToggleState extends State<Toggle> {
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50),
-          gradient: isOn
+          gradient: isDark
               ? const LinearGradient(
                   colors: [Color(0xff041326), Color(0xff0E314C)],
                 )
@@ -39,12 +33,12 @@ class _ToggleState extends State<Toggle> {
           children: [
             AnimatedAlign(
               duration: const Duration(milliseconds: 300),
-              alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
+              alignment: isDark ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: isOn ? Colors.white : Colors.yellow,
+                  color: isDark ? Colors.white : Colors.yellow,
                   shape: BoxShape.circle,
                 ),
               ),

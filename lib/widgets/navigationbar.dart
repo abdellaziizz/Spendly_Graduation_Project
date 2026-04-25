@@ -17,7 +17,7 @@ class ScaffoldWithNavbar extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
               blurRadius: 20,
@@ -26,16 +26,13 @@ class ScaffoldWithNavbar extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 8,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: GNav(
             gap: 8,
-            backgroundColor: Colors.white,
-            tabBackgroundColor: const Color(0xff397BBD),
-            color: Colors.grey.shade500,
-            activeColor: Colors.white,
+            backgroundColor: Colors.transparent,
+            tabBackgroundColor: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            activeColor: Theme.of(context).colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             duration: const Duration(milliseconds: 100),
             curve: Curves.linear,

@@ -18,7 +18,7 @@ class ProgressBar extends StatelessWidget {
       child: LinearProgressIndicator(
         value: progress,
         minHeight: 8.0,
-        backgroundColor: Colors.grey[300],
+        backgroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
         valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor()),
       ),
     );

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tspendly/features/authentication/Service/auth_service.dart';
 
 class Fpassword extends StatelessWidget {
   final String email;
-  const Fpassword({super.key, required this.email});
+  Fpassword({super.key, required this.email});
+
+  final _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +55,33 @@ class Fpassword extends StatelessWidget {
             ),
             SizedBox(height: 15),
 
+            // ───────── RESEND EMAIL BUTTON ─────────
             TextButton(
-              onPressed: () {},
+              onPressed: () async {
+                try {
+                  await _authService.forgotPassword(email: email);
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Reset email resent to $email'),
+                        backgroundColor: Colors.green.shade600,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Failed to resend: ${e.toString()}',
+                        ),
+                        backgroundColor: Colors.red.shade600,
+                      ),
+                    );
+                  }
+                }
+              },
               child: Text(
                 'Resend Email',
                 style: TextStyle(color: Color(0xff274C77)),

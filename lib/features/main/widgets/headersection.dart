@@ -10,49 +10,62 @@ class Headersection extends StatelessWidget {
     return Row(
       children: [
         Container(
-          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: Color(0x30265685),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
           ),
-
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 2),
+            padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 12),
             child: Row(
               children: [
-                SizedBox(width: 12),
                 CircleAvatar(
-                  backgroundColor: Color(0x30265685),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                   child: SvgPicture.asset('assets/icons/User_avatar.svg'),
                 ),
-                SizedBox(width: 28),
-
+                const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Hello, Ahmed!"),
-                    Text("Lets save your money"),
+                    Text(
+                      "Hello, Ahmed!",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      "Lets save your money",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
         ),
-        Spacer(),
+        const Spacer(),
         GestureDetector(
           onTap: () => context.push('/chatbot'),
           child: CircleAvatar(
             radius: 20,
-            backgroundColor: Color(0x40265685),
-            child: Icon(Icons.auto_awesome, color: Colors.amber),
+            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            child: const Icon(Icons.auto_awesome, color: Colors.amber),
           ),
         ),
-        SizedBox(width: 20),
+        const SizedBox(width: 12),
         CircleAvatar(
           radius: 20,
-          backgroundColor: Color(0x40265685),
-          child: Icon(Icons.document_scanner_outlined, color: Colors.white),
+          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          child: Icon(
+            Icons.document_scanner_outlined,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
+        const SizedBox(width: 12),
       ],
     );
   }

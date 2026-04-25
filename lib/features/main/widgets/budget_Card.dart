@@ -10,7 +10,7 @@ class BudgetCard extends StatelessWidget {
       height: 220,
       width: 400,
       decoration: BoxDecoration(
-        color: const Color(0xFF2F5D8C),
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(28),
       ),
       child: ClipRRect(

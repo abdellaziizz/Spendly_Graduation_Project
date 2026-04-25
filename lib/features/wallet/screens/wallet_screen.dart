@@ -21,9 +21,7 @@ class _WalletScreenState extends State<WalletScreen> {
     // We use a Scaffold since this is the body content.
     // The bottom navigation bar is handled elsewhere (as per request).
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
 
         actions: [
           Image.asset('assets/logo/logo.png', width: 42, height: 42),

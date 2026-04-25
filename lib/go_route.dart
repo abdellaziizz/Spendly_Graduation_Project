@@ -6,6 +6,10 @@ import 'package:tspendly/features/wallet/screens/wallet_screen.dart';
 import 'package:tspendly/features/Report/report_screen.dart';
 import 'package:tspendly/features/Profile/Screens/profile_screen.dart';
 import 'package:tspendly/features/chatbot/Screens/chat_screen.dart';
+import 'package:tspendly/features/authentication/Screens/Login_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/Registeration_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/enterEmail_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/ResetPassword_Screen.dart';
 
 // Navigation keys for each branch
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -16,8 +20,31 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'profile');
 
 final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/home',
+  initialLocation: '/login',
   routes: [
+    // ───────── AUTH ROUTES (no bottom nav) ─────────
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/login',
+      builder: (context, state) => LoginScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/register',
+      builder: (context, state) => RegisterationScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/forgot-password',
+      builder: (context, state) => const Enteremail(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/reset-password',
+      builder: (context, state) => const ResetPasswordScreen(),
+    ),
+
+    // ───────── MAIN APP ROUTES (with bottom nav) ─────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return ScaffoldWithNavbar(navigationShell: navigationShell);

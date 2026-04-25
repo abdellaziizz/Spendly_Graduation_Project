@@ -48,22 +48,25 @@ class Textform extends ConsumerWidget {
               : null,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color(0xff0000FF)),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color(0xff0000FF)),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color(0xff950606)),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color(0xff950606)),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2),
           ),
-          label: Text(label, style: TextStyle(color: Color(0xff0000FF))),
-          hint: Text(hint, style: TextStyle(color: Colors.grey.shade500)),
+          label: Text(
+            label,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          hintText: hint,
         ),
         obscureText: ispassword ? isObscured : false,
       ),

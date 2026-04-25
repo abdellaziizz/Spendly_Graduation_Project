@@ -15,20 +15,20 @@ class WalletHeader extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Row(
         children: [
-          _buildSegment('Track', 0),
-          _buildSegment('Plan', 1),
-          _buildSegment('Goals', 2),
+          _buildSegment(context, 'Track', 0),
+          _buildSegment(context, 'Plan', 1),
+          _buildSegment(context, 'Goals', 2),
         ],
       ),
     );
   }
 
-  Widget _buildSegment(String title, int index) {
+  Widget _buildSegment(BuildContext context, String title, int index) {
     final isSelected = selectedIndex == index;
     return Expanded(
       child: GestureDetector(
@@ -36,7 +36,7 @@ class WalletHeader extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12.0),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.surface : Colors.transparent,
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: isSelected
                 ? [
@@ -53,7 +53,9 @@ class WalletHeader extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? Colors.black : Colors.grey[600],
+              color: isSelected
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             ),
           ),
         ),

@@ -9,98 +9,95 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffEEF0F2),
-      appBar: AppBar(
-        title: Text(
-          'profile',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+      appBar: AppBar(title: const Text('profile')),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            children: [
+              const Headsection(),
+              ContainerWidget(
+                icon: Icons.email,
+                title: 'Email',
+                subtitle: 'mrRobo999@gmail.com',
+              ),
+              GestureDetector(
+                onTap: () {
+                  //go to currency screen
+                },
+                child: ContainerWidget(
+                  icon: Icons.wallet_outlined,
+                  title: 'Currency type',
+                ),
+              ),
+              ContainerWidget(
+                icon: Icons.person_outline,
+                title: 'Name',
+                subtitle: 'Ahmed Mohamed',
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(context).colorScheme.surface,
+                ),
+                height: 55,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Legal Information',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(context).colorScheme.surface,
+                ),
+                height: 55,
+                child: Row(
+                  children: [
+                    Text(
+                      'Mode',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Toggle(),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Headsection(),
-            ContainerWidget(
-              icon: Icons.email,
-              title: 'Email',
-              subtitle: 'mrRobo999@gmail.com',
-            ),
-            GestureDetector(
-              onTap: () {
-                //go to currency screen
-              },
-              child: ContainerWidget(
-                icon: Icons.wallet_outlined,
-                title: 'Currency type',
-              ),
-            ),
-            ContainerWidget(
-              icon: Icons.person_outline,
-              title: 'Name',
-              subtitle: 'Ahmed Mohamed',
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(12),
-                color: Color(0xffFFFFFF),
-              ),
-              height: 55,
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline_rounded),
-                  Text(
-                    'Legal Information',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(12),
-                color: Color(0xffFFFFFF),
-              ),
-              height: 55,
-              child: Row(
-                children: [
-                  Text(
-                    'Mode',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Spacer(),
-                  Toggle(),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
