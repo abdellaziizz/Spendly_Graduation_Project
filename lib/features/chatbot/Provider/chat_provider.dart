@@ -45,19 +45,58 @@ class ChatNotifier extends StateNotifier<List<Message>> {
       if (shouldInclude && financialData.isNotEmpty) {
         // 1) Immediate local reply
         final local = await mlService.sendMessage(text, financialData: financialData);
+
+        // Append local reply
         state = [...state, Message(text: local, isUser: false)];
 
-        // 2) Background Gemini-enhanced reply appended when ready
-        final ctx = mlService.formatContextForModel(financialData);
-        Future(() async {
-          try {
-            final enhanced = await gemini.sendMessage(text + '\n' + ctx);
-            // Append enhanced reply as a follow-up
-            state = [...state, Message(text: enhanced, isUser: false)];
-          } catch (e) {
-            // ignore Gemini errors silently (local reply already provided)
+        // If Gemini available, append a loading placeholder and replace it
+        try {
+          if ((gemini is GeminiService) && gemini.isAvailable) {
+            final placeholder = Message(
+              text: 'Loading enhanced answer...',
+              isUser: false,
+              isEnhancedLoading: true,
+              isRetryable: true,
+            );
+            state = [...state, placeholder];
+
+            final ctx = mlService.formatContextForModel(financialData);
+            Future(() async {
+              try {
+                final enhanced = await gemini.sendMessage(text + '\n' + ctx);
+                // Replace placeholder with enhanced reply
+                final current = [...state];
+                final idx = current.indexWhere((m) => m.id == placeholder.id);
+                if (idx != -1) {
+                  current[idx] = Message(
+                    id: placeholder.id,
+                    text: enhanced,
+                    isUser: false,
+                    isEnhanced: true,
+                    isRetryable: false,
+                  );
+                  state = current;
+                } else {
+                  state = [...state, Message(text: enhanced, isUser: false, isEnhanced: true)];
+                }
+              } catch (e) {
+                // Update placeholder to indicate failure but keep retry option
+                final current = [...state];
+                final idx = current.indexWhere((m) => m.id == placeholder.id);
+                if (idx != -1) {
+                  current[idx] = Message(
+                    id: placeholder.id,
+                    text: 'Enhanced AI failed. Tap to retry.',
+                    isUser: false,
+                    isEnhancedLoading: false,
+                    isRetryable: true,
+                  );
+                  state = current;
+                }
+              }
+            });
           }
-        });
+        } catch (_) {}
       } else {
         // Non-financial queries go straight to Gemini
         final response = await ref.read(geminiProvider).sendMessage(text);
@@ -71,6 +110,59 @@ class ChatNotifier extends StateNotifier<List<Message>> {
     } finally {
       // Clear loading state
       ref.read(isLoadingProvider.notifier).state = false;
+    }
+  }
+
+  /// Retry an enhanced generation for a previously failed placeholder message.
+  Future<void> retryEnhanced(String placeholderId, String originalUserText) async {
+    final mlService = ref.read(mlChatbotProvider);
+    final gemini = ref.read(geminiProvider);
+    final financialData = ref.read(userFinancialDataProvider);
+
+    if (!(gemini is GeminiService) || !gemini.isAvailable) return;
+
+    // Set the placeholder back to loading state if it exists
+    final current = [...state];
+    final idx = current.indexWhere((m) => m.id == placeholderId);
+    if (idx == -1) return;
+
+    current[idx] = Message(
+      id: placeholderId,
+      text: 'Loading enhanced answer...',
+      isUser: false,
+      isEnhancedLoading: true,
+      isRetryable: true,
+    );
+    state = current;
+
+    final ctx = mlService.formatContextForModel(financialData);
+    try {
+      final enhanced = await gemini.sendMessage(originalUserText + '\n' + ctx);
+      final updated = [...state];
+      final i2 = updated.indexWhere((m) => m.id == placeholderId);
+      if (i2 != -1) {
+        updated[i2] = Message(
+          id: placeholderId,
+          text: enhanced,
+          isUser: false,
+          isEnhanced: true,
+          isRetryable: false,
+        );
+        state = updated;
+      }
+    } catch (e) {
+      final updated = [...state];
+      final i2 = updated.indexWhere((m) => m.id == placeholderId);
+      if (i2 != -1) {
+        updated[i2] = Message(
+          id: placeholderId,
+          text: 'Enhanced AI failed. Tap to retry.',
+          isUser: false,
+          isEnhancedLoading: false,
+          isRetryable: true,
+        );
+        state = updated;
+      }
     }
   }
 

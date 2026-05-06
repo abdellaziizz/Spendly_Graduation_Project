@@ -364,16 +364,47 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatTime(message.timestamp),
-                    style: TextStyle(
-                      color: isUser
-                          ? Colors.white.withValues(alpha: 0.5)
-                          : Colors.white.withValues(alpha: 0.3),
-                      fontSize: 10,
-                    ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatTime(message.timestamp),
+                        style: TextStyle(
+                          color: isUser
+                              ? Colors.white.withValues(alpha: 0.5)
+                              : Colors.white.withValues(alpha: 0.3),
+                          fontSize: 10,
+                        ),
+                      ),
+                      if (message.isEnhancedLoading)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation(
+                                  isUser ? Colors.white : Color(0xff397BBD)),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
+                  if (message.isRetryable)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () {
+                          // Trigger retry using ChatNotifier
+                          ref.read(chatProvider.notifier).retryEnhanced(message.id, _controller.text.trim());
+                        },
+                        icon: const Icon(Icons.refresh_rounded, size: 14),
+                        label: const Text('Retry enhanced answer', style: TextStyle(fontSize: 12)),
+                        style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero),
+                      ),
+                    ),
                 ],
               ),
             ),
