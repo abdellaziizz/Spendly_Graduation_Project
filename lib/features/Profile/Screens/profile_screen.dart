@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tspendly/features/Profile/Widget/container_widget.dart';
 import 'package:tspendly/features/Profile/Widget/headsection_widget.dart';
 import 'package:tspendly/widgets/toggle.dart';
@@ -23,7 +24,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  //go to currency screen
+                  context.go('/currency', extra: true);
                 },
                 child: ContainerWidget(
                   icon: Icons.wallet_outlined,
@@ -35,38 +36,47 @@ class ProfileScreen extends StatelessWidget {
                 title: 'Name',
                 subtitle: 'Ahmed Mohamed',
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                  color: Theme.of(context).colorScheme.surface,
-                ),
-                height: 55,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline_rounded,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Legal Information',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+              GestureDetector(
+                onTap: () {
+                  context.go('/legal');
+                },
+                child: ContainerWidget(
+                  icon: Icons.info_outline_rounded,
+                  title: 'Legal Information',
                 ),
               ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(horizontal: 12),
+              //   margin: const EdgeInsets.symmetric(vertical: 8),
+              //   decoration: BoxDecoration(
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withOpacity(0.1),
+              //         blurRadius: 6,
+              //         offset: const Offset(0, 3),
+              //       ),
+              //     ],
+              //     borderRadius: BorderRadius.circular(12),
+              //     color: Theme.of(context).colorScheme.surface,
+              //   ),
+              //   height: 55,
+              //   child: Row(
+              //     children: [
+              //       Icon(
+              //         Icons.info_outline_rounded,
+              //         color: Theme.of(context).colorScheme.onSurface,
+              //       ),
+              //       const SizedBox(width: 12),
+              //       Text(
+              //         'Legal Information',
+              //         style: TextStyle(
+              //           fontWeight: FontWeight.bold,
+              //           color: Theme.of(context).colorScheme.onSurface,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 margin: const EdgeInsets.symmetric(vertical: 8),

@@ -6,6 +6,7 @@ class GoalModel {
   final double savedAmount;
   final double targetAmount;
   final IconData icon;
+  final DateTime? deadlineDate;
 
   GoalModel({
     required this.id,
@@ -13,6 +14,7 @@ class GoalModel {
     required this.savedAmount,
     required this.targetAmount,
     required this.icon,
+    this.deadlineDate,
   });
 
   GoalModel copyWith({
@@ -21,6 +23,7 @@ class GoalModel {
     double? savedAmount,
     double? targetAmount,
     IconData? icon,
+    DateTime? deadlineDate,
   }) {
     return GoalModel(
       id: id ?? this.id,
@@ -28,6 +31,7 @@ class GoalModel {
       savedAmount: savedAmount ?? this.savedAmount,
       targetAmount: targetAmount ?? this.targetAmount,
       icon: icon ?? this.icon,
+      deadlineDate: deadlineDate ?? this.deadlineDate,
     );
   }
 }

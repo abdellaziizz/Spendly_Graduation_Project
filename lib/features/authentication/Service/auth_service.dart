@@ -1,6 +1,6 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tspendly/main.dart';
+import 'package:tspendly/services/supabase_client.dart';
 
 class AuthService {
   // ───────────────────────── SIGN UP ─────────────────────────
@@ -13,11 +13,15 @@ class AuthService {
     required String lastName,
     String? gender,
   }) async {
-    final res = await supabase.auth.signUp(email: email, password: password);
+    if (supabaseClient == null) {
+      throw Exception('Supabase client not initialized. Please check your setup.');
+    }
+
+    final res = await supabaseClient.auth.signUp(email: email, password: password);
 
     final user = res.user;
     if (user != null) {
-      await supabase.from('users').insert({
+      await supabaseClient.from('users').insert({
         'id': user.id,
         'email': email,
         'displayname': '$firstName $lastName',
@@ -35,7 +39,11 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final res = await supabase.auth.signInWithPassword(
+    if (supabaseClient == null) {
+      throw Exception('Supabase client not initialized. Please check your setup.');
+    }
+
+    final res = await supabaseClient.auth.signInWithPassword(
       email: email,
       password: password,
     );
@@ -46,7 +54,7 @@ class AuthService {
 
   /// Send a magic-link OTP to the given email.
   Future<void> signInWithOtp({required String email}) async {
-    await supabase.auth.signInWithOtp(email: email);
+    await supabaseClient.auth.signInWithOtp(email: email);
   }
 
   /// Verify an email OTP token.
@@ -54,7 +62,7 @@ class AuthService {
     required String email,
     required String token,
   }) async {
-    final res = await supabase.auth.verifyOTP(
+    final res = await supabaseClient.auth.verifyOTP(
       email: email,
       token: token,
       type: OtpType.email,
@@ -66,12 +74,12 @@ class AuthService {
 
   /// Send a password-reset email.
   Future<void> forgotPassword({required String email}) async {
-    await supabase.auth.resetPasswordForEmail(email);
+    await supabaseClient.auth.resetPasswordForEmail(email);
   }
 
   /// Update the password (user must already be authenticated via reset link).
   Future<UserResponse> resetPassword({required String newPassword}) async {
-    final res = await supabase.auth.updateUser(
+    final res = await supabaseClient.auth.updateUser(
       UserAttributes(password: newPassword),
     );
     return res;
@@ -99,7 +107,7 @@ class AuthService {
       throw Exception('No ID token received from Google');
     }
 
-    final res = await supabase.auth.signInWithIdToken(
+    final res = await supabaseClient.auth.signInWithIdToken(
       provider: OAuthProvider.google,
       idToken: idToken,
       accessToken: accessToken,
@@ -112,11 +120,11 @@ class AuthService {
 
   /// Sign the current user out.
   Future<void> signOut() async {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
   }
 
   // ─────────────────────── CURRENT USER ──────────────────────
 
   /// Returns the currently authenticated user, or null.
-  User? get currentUser => supabase.auth.currentUser;
+  User? get currentUser => supabaseClient?.auth?.currentUser;
 }

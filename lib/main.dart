@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as sb;
+import 'package:tspendly/services/supabase_client.dart';
 import 'package:tspendly/go_route.dart';
 import 'package:tspendly/theme/theme.dart';
 import 'package:tspendly/theme/theme_provider.dart';
@@ -12,10 +14,18 @@ void main() async {
   // Load env FIRST so the variables are available for Supabase init
   await dotenv.load(fileName: ".env");
 
-  await Supabase.initialize(
-    url: 'https://bajjqhcqfmvsniszytsf.supabase.co',
-    anonKey: 'sb_publishable_i6MceD8i9QPiYviUu37dCg__O5B9Mzd',
-  );
+  // Initialize Supabase on all platforms
+  try {
+    await sb.Supabase.initialize(
+      url: 'https://bajjqhcqfmvsniszytsf.supabase.co',
+      anonKey: 'sb_publishable_i6MceD8i9QPiYviUu37dCg__O5B9Mzd',
+    );
+  } catch (e) {
+    print('Supabase initialization failed: $e');
+  }
+
+  // Initialize shim that exposes `supabaseClient` (will be set on successful init).
+  await initializeSupabaseClient();
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -38,4 +48,4 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-final supabase = Supabase.instance.client;
+// final supabase = Supabase.instance.client;

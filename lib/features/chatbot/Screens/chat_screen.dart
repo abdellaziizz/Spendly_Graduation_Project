@@ -17,6 +17,61 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   final FocusNode _focusNode = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadFinancialData();
+    });
+  }
+
+  void _loadFinancialData() {
+    final sampleData = {
+      'overrunPrediction': {
+        'will_overrun': false,
+        'confidence': 0.85,
+        'projected_spending': 2800.00,
+        'budget_limit': 3000.00,
+        'current_spending': 2200.00,
+        'risk_level': 'low',
+        'days_left': 15,
+        'daily_rate': 40.0,
+        'message': 'Your budget is on track. Keep up the good spending habits!'
+      },
+      'forecast': {
+        'predicted_amount': 2950.00,
+        'confidence': 0.92,
+        'trend': 'stable',
+        'trend_description': 'Your spending remains stable',
+        'average': 2650.00,
+        'months_analyzed': 4,
+        'min_spending': 2400.00,
+        'max_spending': 3100.00,
+      },
+      'insights': {
+        'budget_insights': [],
+        'spending_patterns': {
+          'Food & Dining': 850.00,
+          'Transportation': 680.00,
+          'Entertainment': 420.00,
+          'Utilities': 250.00,
+        },
+        'recommendations': [],
+        'alerts': [],
+        'summary': 'Your spending is stable with a healthy budget buffer.'
+      },
+      'classifiedExpenses': [
+        {'description': 'Grocery Store', 'amount': 125.50, 'category': 'Food & Dining'},
+        {'description': 'Gas Station', 'amount': 55.00, 'category': 'Transportation'},
+        {'description': 'Movie Tickets', 'amount': 30.00, 'category': 'Entertainment'},
+        {'description': 'Coffee Shop', 'amount': 5.50, 'category': 'Food & Dining'},
+        {'description': 'Electric Bill', 'amount': 125.00, 'category': 'Utilities'},
+      ]
+    };
+
+    ref.read(chatProvider.notifier).updateFinancialData(sampleData);
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();

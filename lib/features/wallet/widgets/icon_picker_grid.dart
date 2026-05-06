@@ -6,57 +6,41 @@ class IconPickerGrid extends ConsumerWidget {
   const IconPickerGrid({super.key});
 
   static const icons = [
-    Icons.child_care,
-    Icons.diamond,
-    Icons.flight,
-    Icons.sports_esports,
-    Icons.account_balance,
-    Icons.home,
-    Icons.beach_access,
-    Icons.checkroom,
+    Icons.savings_outlined,
+    Icons.home_outlined,
+    Icons.directions_car_outlined,
+    Icons.flight_outlined,
+    Icons.card_giftcard_outlined,
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIcon = ref.watch(goalFormProvider).selectedIcon;
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: icons.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-      ),
-      itemBuilder: (context, index) {
-        final icon = icons[index];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: icons.map((icon) {
         final isSelected = selectedIcon == icon;
-
+        
         return GestureDetector(
           onTap: () {
             ref.read(goalFormProvider.notifier).setIcon(icon);
           },
           child: Container(
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected ? Colors.blue : Colors.transparent,
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(blurRadius: 8, color: Colors.black.withOpacity(0.06)),
-              ],
+              color: isSelected ? const Color(0xFF3B38D0) : const Color(0xFFF5F5FA),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               icon,
-              size: 30,
-              color: isSelected ? Colors.blue : Colors.grey,
+              size: 28,
+              color: isSelected ? Colors.white : const Color(0xFF4A4A68),
             ),
           ),
         );
-      },
+      }).toList(),
     );
   }
 }

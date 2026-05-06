@@ -42,7 +42,7 @@ class ScaffoldWithNavbar extends StatelessWidget {
                 icon: Icons.account_balance_wallet_outlined,
                 text: 'Wallet',
               ),
-              GButton(icon: Icons.pie_chart_outline, text: 'Insight'),
+              GButton(icon: Icons.lightbulb_outline, text: 'Insights'),
               GButton(icon: Icons.person_outline, text: 'Profile'),
             ],
             selectedIndex: navigationShell.currentIndex,

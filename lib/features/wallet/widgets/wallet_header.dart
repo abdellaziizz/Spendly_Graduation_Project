@@ -21,8 +21,7 @@ class WalletHeader extends StatelessWidget {
       child: Row(
         children: [
           _buildSegment(context, 'Track', 0),
-          _buildSegment(context, 'Plan', 1),
-          _buildSegment(context, 'Goals', 2),
+          _buildSegment(context, 'Goal', 1),
         ],
       ),
     );
