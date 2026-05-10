@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tspendly/features/Profile/Screens/legal_information_screen.dart';
+import 'package:tspendly/features/authentication/Screens/currency_screen.dart';
 import 'package:tspendly/widgets/navigationbar.dart';
 import 'package:tspendly/features/main/screens/home_screen.dart';
 import 'package:tspendly/features/wallet/screens/wallet_screen.dart';
 import 'package:tspendly/features/Report/report_screen.dart';
 import 'package:tspendly/features/Profile/Screens/profile_screen.dart';
 import 'package:tspendly/features/chatbot/Screens/chat_screen.dart';
-import 'package:tspendly/features/authentication/Screens/Login_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/login_screen.dart';
 import 'package:tspendly/features/authentication/Screens/Registeration_Screen.dart';
-import 'package:tspendly/features/authentication/Screens/enterEmail_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/enter_email_Screen.dart';
 import 'package:tspendly/features/authentication/Screens/ResetPassword_Screen.dart';
 
 // Navigation keys for each branch
@@ -24,6 +26,7 @@ final GoRouter router = GoRouter(
   routes: [
     // ───────── AUTH ROUTES (no bottom nav) ─────────
     GoRoute(
+      //Forces the route to open above everything
       parentNavigatorKey: _rootNavigatorKey,
       path: '/login',
       builder: (context, state) => LoginScreen(),
@@ -44,7 +47,8 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const ResetPasswordScreen(),
     ),
 
-    // ───────── MAIN APP ROUTES (with bottom nav) ─────────
+    // ───────── Bottom Navigation System ─────────
+    //           Each tab keeps its state
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return ScaffoldWithNavbar(navigationShell: navigationShell);
@@ -92,11 +96,25 @@ final GoRouter router = GoRouter(
         ),
       ],
     ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+
+      path: '/legal',
+      builder: (context, state) => LegalInformationScreen(),
+    ),
     // Chatbot route (fullscreen, no bottom nav)
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/chatbot',
       builder: (context, state) => const ChatScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/currency',
+      builder: (context, state) {
+        final isEdit = state.extra as bool? ?? false;
+        return CurrencyScreen(isEdit: isEdit);
+      },
     ),
   ],
 );

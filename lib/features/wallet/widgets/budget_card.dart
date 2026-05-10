@@ -7,7 +7,7 @@ import 'progress_bar.dart';
 class BudgetCard extends ConsumerWidget {
   final BudgetModel budget;
 
-  const BudgetCard({Key? key, required this.budget}) : super(key: key);
+  const BudgetCard({super.key, required this.budget});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

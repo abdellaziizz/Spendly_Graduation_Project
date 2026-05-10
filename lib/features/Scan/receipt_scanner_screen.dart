@@ -9,7 +9,7 @@ import 'receipt_parser.dart';
 import 'receipt_result_screen.dart';
 
 class ReceiptScannerScreen extends StatefulWidget {
-  const ReceiptScannerScreen({Key? key}) : super(key: key);
+  const ReceiptScannerScreen({super.key});
 
   @override
   _ReceiptScannerScreenState createState() => _ReceiptScannerScreenState();

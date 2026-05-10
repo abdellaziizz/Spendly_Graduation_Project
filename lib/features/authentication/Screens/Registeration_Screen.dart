@@ -1,13 +1,13 @@
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/authentication/Screens/Login_Screen.dart';
 import 'package:tspendly/features/authentication/Widget/register_textform.dart';
 import 'package:tspendly/features/authentication/Service/auth_service.dart';
 
 class RegisterationScreen extends StatefulWidget {
-  RegisterationScreen({super.key});
+  const RegisterationScreen({super.key});
 
   @override
   State<RegisterationScreen> createState() => _RegisterationScreenState();
@@ -40,6 +40,7 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -141,11 +142,23 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           initialValue: _selectedGender,
                           fixedWidth: 103,
                           children: {
-                            1: Text('Male', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                            2: Text('Female', style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
+                            1: Text(
+                              'Male',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            2: Text(
+                              'Female',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
                           },
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.05),
                             borderRadius: BorderRadius.circular(32),
                           ),
                           thumbDecoration: BoxDecoration(
@@ -180,8 +193,9 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                 setState(() => _isLoading = true);
 
                                 try {
-                                  final gender =
-                                      _selectedGender == 1 ? 'Male' : 'Female';
+                                  final gender = _selectedGender == 1
+                                      ? 'Male'
+                                      : 'Female';
 
                                   await _authService.signUp(
                                     email: EmailCont.text.trim(),
@@ -200,7 +214,8 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                         backgroundColor: Colors.green.shade600,
                                       ),
                                     );
-                                    context.go('/home');
+                                    // context.go('/home');
+                                    context.go('/currency');
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
@@ -209,12 +224,16 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                         content: Text(
                                           'Registration failed: ${e.toString()}',
                                         ),
-                                        backgroundColor: Theme.of(context).colorScheme.error,
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
                                       ),
                                     );
                                   }
                                 } finally {
-                                  if (mounted) setState(() => _isLoading = false);
+                                  if (mounted) {
+                                    setState(() => _isLoading = false);
+                                  }
                                 }
                               }
                             },
@@ -227,13 +246,24 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                 strokeWidth: 2.5,
                               ),
                             )
-                          : const Text('Register'),
+                          : const Text(
+                              'Register',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                     const SizedBox(height: 20),
 
                     Text(
                       'OR CONTINUE WITH GOOGLE',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.5),
+                      ),
                     ),
                     const SizedBox(height: 12),
 
@@ -249,10 +279,14 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                             ),
                           );
 
-                          await _authService.signInWithGoogle();
+                          final res = await _authService.signInWithGoogle();
 
-                          if (context.mounted) Navigator.of(context).pop();
-                          if (context.mounted) context.go('/home');
+                          // On web, the page redirects — res will be null.
+                          // On mobile, we get a response and navigate.
+                          if (res != null && context.mounted) {
+                            Navigator.of(context).pop();
+                            context.go('/home');
+                          }
                         } catch (e) {
                           if (context.mounted) Navigator.of(context).pop();
 
@@ -262,7 +296,9 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                 content: Text(
                                   'Google sign-in failed: ${e.toString()}',
                                 ),
-                                backgroundColor: Theme.of(context).colorScheme.error,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
                               ),
                             );
                           }
@@ -288,7 +324,9 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           ),
                           Text(
                             'Log in with your Google account',
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
                         ],
                       ),
@@ -300,7 +338,11 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       children: [
                         Text(
                           "Already Have An Account ?",
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.5),
+                          ),
                         ),
                         TextButton(
                           onPressed: () {

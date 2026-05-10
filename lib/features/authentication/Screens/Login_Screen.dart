@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/authentication/Screens/Registeration_Screen.dart';
 import 'package:tspendly/features/authentication/Widget/textform.dart';
-import 'package:tspendly/features/authentication/Screens/enterEmail_Screen.dart';
 import 'package:tspendly/features/authentication/Service/auth_service.dart';
 
 class LoginScreen extends ConsumerWidget {
@@ -24,6 +22,7 @@ class LoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isObscured = ref.watch(obscureTextProvider);
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Form(
@@ -37,7 +36,6 @@ class LoginScreen extends ConsumerWidget {
                   width: 115,
                   fit: BoxFit.contain,
                 ),
-                const SizedBox(height: 16),
                 Text(
                   'Spendly',
                   style: TextStyle(
@@ -74,7 +72,9 @@ class LoginScreen extends ConsumerWidget {
                   child: TextButton(
                     child: Text(
                       'Forgot Your Password ?',
-                      style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     onPressed: () {
                       context.push('/forgot-password');
@@ -95,9 +95,8 @@ class LoginScreen extends ConsumerWidget {
                         showDialog(
                           context: context,
                           barrierDismissible: false,
-                          builder: (_) => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                          builder: (_) =>
+                              const Center(child: CircularProgressIndicator()),
                         );
 
                         await _authService.signIn(
@@ -118,20 +117,33 @@ class LoginScreen extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Login failed: ${e.toString()}'),
-                              backgroundColor: Theme.of(context).colorScheme.error,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
                             ),
                           );
                         }
                       }
                     }
                   },
-                  child: const Text('Login'),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
 
                 Text(
                   'OR CONTINUE WITH GOOGLE',
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.5),
+                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -142,24 +154,28 @@ class LoginScreen extends ConsumerWidget {
                       showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (_) => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
+                        builder: (_) =>
+                            const Center(child: CircularProgressIndicator()),
                       );
 
-                      await _authService.signInWithGoogle();
+                      final res = await _authService.signInWithGoogle();
 
-                      if (context.mounted) Navigator.of(context).pop();
-                      if (context.mounted) context.go('/home');
+                      if (res != null && context.mounted) {
+                        Navigator.of(context).pop();
+                        context.go('/home');
+                      }
                     } catch (e) {
                       if (context.mounted) Navigator.of(context).pop();
 
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content:
-                                Text('Google sign-in failed: ${e.toString()}'),
-                            backgroundColor: Theme.of(context).colorScheme.error,
+                            content: Text(
+                              'Google sign-in failed: ${e.toString()}',
+                            ),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
                           ),
                         );
                       }
@@ -185,7 +201,9 @@ class LoginScreen extends ConsumerWidget {
                       ),
                       Text(
                         'Log in with your Google account',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                     ],
                   ),
@@ -197,7 +215,11 @@ class LoginScreen extends ConsumerWidget {
                   children: [
                     Text(
                       "Don't have an account ?",
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.5),
+                      ),
                     ),
                     TextButton(
                       onPressed: () {

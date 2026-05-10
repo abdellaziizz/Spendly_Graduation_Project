@@ -212,7 +212,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xff397BBD), Color(0xffFF0B396D)],
+                colors: [Color(0xff397BBD), Color(0xffff0b396d)],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: const Color(0xff397BBD)),

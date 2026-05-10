@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ProgressBar extends StatelessWidget {
   final double progress; // 0.0 to 1.0
 
-  const ProgressBar({Key? key, required this.progress}) : super(key: key);
+  const ProgressBar({super.key, required this.progress});
 
   Color _getProgressColor() {
     if (progress < 0.5) return Colors.green;

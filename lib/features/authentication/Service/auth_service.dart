@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tspendly/main.dart';
@@ -79,10 +80,28 @@ class AuthService {
 
   // ─────────────────────── GOOGLE SIGN-IN ────────────────────
 
-  /// Native Google Sign-In → exchange ID token with Supabase.
-  Future<AuthResponse> signInWithGoogle() async {
-    /// TODO: Replace with your actual Web Client ID from Google Cloud Console
-    const webClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+    /// Google Sign-In: uses Supabase OAuth redirect on web,
+  /// native Google Sign-In on mobile.
+  ///
+  /// On web this triggers a full-page redirect — the app will reload
+  /// after the user completes sign-in, and Supabase will automatically
+  /// pick up the session. Returns null on web.
+  ///
+  /// On mobile it returns the AuthResponse directly.
+  Future<AuthResponse?> signInWithGoogle() async {
+    if (kIsWeb) {
+      // ── WEB: Supabase OAuth redirect (works on any port) ──
+      await supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: Uri.base.origin,  // redirects back to current origin
+      );
+      // The page will redirect — this code won't continue.
+      return null;
+    }
+
+    // ── MOBILE: Native Google Sign-In flow ──
+    const webClientId =
+        '109313319438-i3g78fq78ko1b1r86aev5l7odsv6iur9.apps.googleusercontent.com';
 
     final googleSignIn = GoogleSignIn(serverClientId: webClientId);
 

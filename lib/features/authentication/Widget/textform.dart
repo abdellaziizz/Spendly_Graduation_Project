@@ -17,7 +17,7 @@ class Textform extends ConsumerWidget {
   final StateProvider<bool> obscureTextProvider;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isObscured = ref.watch(obscureTextProvider!);
+    final isObscured = ref.watch(obscureTextProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: TextFormField(

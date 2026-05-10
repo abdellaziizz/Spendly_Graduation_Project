@@ -6,7 +6,7 @@ import '../providers/goal_provider.dart';
 import '../widgets/goal_card.dart';
 
 class GoalsTab extends ConsumerWidget {
-  const GoalsTab({Key? key}) : super(key: key);
+  const GoalsTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -4,7 +4,7 @@ import 'receipt_parser.dart';
 class ReceiptResultScreen extends StatelessWidget {
   final ReceiptData receiptData;
 
-  const ReceiptResultScreen({Key? key, required this.receiptData}) : super(key: key);
+  const ReceiptResultScreen({super.key, required this.receiptData});
 
   @override
   Widget build(BuildContext context) {

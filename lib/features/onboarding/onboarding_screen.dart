@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tspendly/features/onboarding/Providers/onboard_provider.dart';
-import 'package:tspendly/features/authentication/Screens/Login_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/login_screen.dart';
 import 'package:tspendly/widgets/onboarding_page_widget.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {

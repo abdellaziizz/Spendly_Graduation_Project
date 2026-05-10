@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tspendly/features/authentication/Screens/Fpassword_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/forget_password_screen.dart';
 import 'package:tspendly/features/authentication/Service/auth_service.dart';
 
 class Enteremail extends StatefulWidget {

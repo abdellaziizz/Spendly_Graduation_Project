@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
@@ -11,6 +12,7 @@ import 'package:tspendly/features/main/widgets/transaction_item.dart';
 import 'package:tspendly/features/main/utils/voice_parser.dart';
 import 'package:tspendly/features/main/transaction_model.dart';
 import 'package:tspendly/features/main/transaction_bottom.dart';
+import 'package:tspendly/features/main/providers/transaction_provider.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -32,25 +34,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   int _recordDuration = 0;
   final int _maxDuration = 30;
 
-  // Manual transactions list
-  final List<TransactionModel> _manualTransactions = [];
-
-  void _openAddTransactionSheet() async {
-    final TransactionModel? newTransaction =
-        await showModalBottomSheet<TransactionModel>(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return const AddTransactionBottomSheet();
-          },
-        );
-
-    if (newTransaction != null) {
-      setState(() {
-        _manualTransactions.insert(0, newTransaction);
-      });
-    }
+  void _openAddTransactionSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return const AddTransactionBottomSheet();
+      },
+    );
   }
 
   @override
@@ -123,7 +115,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     _timer?.cancel();
     await _speech.stop();
     setState(() => _isListening = false);
-
+    await Future.delayed(const Duration(milliseconds: 300));
     if (_text.isNotEmpty) {
       _showConfirmationSheet();
     }
@@ -298,6 +290,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final manualTransactions = ref.watch(transactionProvider);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -308,10 +302,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             left: 0,
             right: 0,
             child: Image.asset(
-              'assets/images/mesh-gradient.png',
+              'assets/images/main background.png',
               fit: BoxFit.cover,
               height: 320,
             ),
+            // child: Image.asset(
+            //   'assets/images/mesh-gradient.png',
+            //
+            // ),
           ),
 
           SafeArea(
@@ -408,7 +406,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         const SizedBox(height: 6),
 
                         // Manually added transactions
-                        ..._manualTransactions.map((tx) {
+                        ...manualTransactions.map((tx) {
                           final isIncome = tx.type == 'income';
                           return TransactionItem(
                             data: TransactionData(
@@ -478,7 +476,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '${_formatDuration(_recordDuration)} / 0:${_maxDuration}',
+                          '${_formatDuration(_recordDuration)} / 0:$_maxDuration',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,

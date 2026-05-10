@@ -5,7 +5,7 @@ import 'progress_bar.dart';
 class GoalCard extends StatelessWidget {
   final GoalModel goal;
 
-  const GoalCard({Key? key, required this.goal}) : super(key: key);
+  const GoalCard({super.key, required this.goal});
 
   @override
   Widget build(BuildContext context) {

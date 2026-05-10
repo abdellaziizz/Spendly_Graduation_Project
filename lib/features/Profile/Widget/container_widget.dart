@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ContainerWidget extends StatelessWidget {
-  ContainerWidget({
+  const ContainerWidget({
     super.key,
     required this.icon,
     required this.title,
