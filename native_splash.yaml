@@ -1,0 +1,11 @@
+flutter_native_splash:
+  android: true
+  web: true
+  ios: true
+
+  background_image: "assets/images/splash_background.png"
+  image: "assets/logo/logo.png"
+
+  android_12: 
+    image: "assets/logo/Spendly logo 1.png"
+    icon_background_color: "#FFFFFF"

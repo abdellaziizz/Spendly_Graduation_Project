@@ -1,69 +1,53 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart';
 import 'package:tspendly/features/wallet/models/goal_model.dart';
+import 'package:tspendly/main.dart';
 
-class GoalNotifier extends StateNotifier<List<GoalModel>> {
-  GoalNotifier()
-    : super([
-        GoalModel(
-          id: '1',
-          title: 'Having A Baby',
-          savedAmount: 1000.0,
-          targetAmount: 2000.0,
-          icon: Icons.child_care,
-        ),
-        GoalModel(
-          id: '2',
-          title: 'Getting Married',
-          savedAmount: 2000.0,
-          targetAmount: 10000.0,
-          icon: Icons.favorite,
-        ),
-        GoalModel(
-          id: '3',
-          title: 'Travel to Spain',
-          savedAmount: 3000.0,
-          targetAmount: 20000.0,
-          icon: Icons.flight_takeoff,
-        ),
-        GoalModel(
-          id: '4',
-          title: 'Buying Playstation 5',
-          savedAmount: 3000.0,
-          targetAmount: 20000.0,
-          icon: Icons.sports_esports,
-        ),
-        GoalModel(
-          id: '5',
-          title: 'Vacation',
-          savedAmount: 3000.0,
-          targetAmount: 20000.0,
-          icon: Icons.beach_access,
-        ),
-      ]);
-
-  void addGoal(GoalModel goal) {
-    state = [...state, goal];
+/// Fetches and manages goals from public.goals in Supabase.
+class GoalNotifier extends AsyncNotifier<List<GoalModel>> {
+  @override
+  Future<List<GoalModel>> build() async {
+    return _fetchGoals();
   }
 
-  void updateGoalProgress(String id, double additionalAmount) {
-    state = [
-      for (final goal in state)
-        if (goal.id == id)
-          goal.copyWith(
-            savedAmount: (goal.savedAmount + additionalAmount).clamp(
-              0.0,
-              goal.targetAmount,
-            ),
-          )
-        else
-          goal,
-    ];
+  Future<List<GoalModel>> _fetchGoals() async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return [];
+
+    final data = await supabase
+        .from('goals')
+        .select()
+        .eq('users_id', userId)
+        .order('created_at', ascending: false);
+
+    return (data as List<dynamic>)
+        .map((e) => GoalModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Insert a new goal into Supabase then refresh the list.
+  Future<void> addGoal(GoalModel goal) async {
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    await supabase.from('goals').insert(goal.toInsertJson(userId: userId));
+
+    // Re-fetch to get the DB-generated id and any server-side defaults.
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(_fetchGoals);
+  }
+
+  /// Update saved progress for a goal in Supabase.
+  Future<void> updateGoalProgress(String id, double newAmount) async {
+    await supabase
+        .from('goals')
+        .update({'current_amount': newAmount})
+        .eq('id', id);
+
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(_fetchGoals);
   }
 }
 
-final goalProvider = StateNotifierProvider<GoalNotifier, List<GoalModel>>((
-  ref,
-) {
-  return GoalNotifier();
-});
+final goalProvider = AsyncNotifierProvider<GoalNotifier, List<GoalModel>>(
+  GoalNotifier.new,
+);

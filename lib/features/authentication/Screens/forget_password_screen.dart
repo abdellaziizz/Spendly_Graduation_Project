@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tspendly/features/authentication/Service/auth_service.dart';
 
+// this is not forget password . it's just confirmation that email is sent
 class Fpassword extends StatelessWidget {
   final String email;
   Fpassword({super.key, required this.email});
@@ -42,7 +44,7 @@ class Fpassword extends StatelessWidget {
             SizedBox(height: 22),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                context.go('/login');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff274C77),
@@ -73,9 +75,7 @@ class Fpassword extends StatelessWidget {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          'Failed to resend: ${e.toString()}',
-                        ),
+                        content: Text('Failed to resend: ${e.toString()}'),
                         backgroundColor: Colors.red.shade600,
                       ),
                     );

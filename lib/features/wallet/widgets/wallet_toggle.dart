@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class WalletHeader extends StatelessWidget {
+class WalletToggle extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onTabChanged;
 
-  const WalletHeader({
+  const WalletToggle({
     Key? key,
     required this.selectedIndex,
     required this.onTabChanged,
@@ -21,8 +21,7 @@ class WalletHeader extends StatelessWidget {
       child: Row(
         children: [
           _buildSegment(context, 'Track', 0),
-          _buildSegment(context, 'Plan', 1),
-          _buildSegment(context, 'Goals', 2),
+          _buildSegment(context, 'Goal', 1),
         ],
       ),
     );
@@ -36,7 +35,9 @@ class WalletHeader extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12.0),
           decoration: BoxDecoration(
-            color: isSelected ? Theme.of(context).colorScheme.surface : Colors.transparent,
+            color: isSelected
+                ? Theme.of(context).colorScheme.surface
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: isSelected
                 ? [

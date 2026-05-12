@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tspendly/features/main/widgets/set_budget_bottom_sheet.dart';
+import 'package:tspendly/features/main/providers/budget_provider.dart';
 
-class BudgetCard extends StatelessWidget {
+class BudgetCard extends ConsumerWidget {
   const BudgetCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final budget = ref.watch(budgetProvider);
+
+    String formatAmount(double amount) {
+      String str = amount.toStringAsFixed(2);
+      List<String> parts = str.split('.');
+      String formattedWhole = parts[0].replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+      return '$formattedWhole.${parts[1]}';
+    }
+    
     return Container(
       margin: const EdgeInsets.all(16),
       height: 220,
       width: 400,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: Color(0xff265685),
         borderRadius: BorderRadius.circular(28),
       ),
       child: ClipRRect(
@@ -45,14 +58,45 @@ class BudgetCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Remaining Budget",
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Remaining Budget",
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
+                      ),
+
+                      GestureDetector(
+                        onTap:  () {
+                          showSetBudgetSheet(context);
+                        },
+                        child: Container(
+
+                          height: 47,
+                          width: 120,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Color(0xff397BBD),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(Icons.settings, color: Colors.white, size: 16),
+                              SizedBox(width: 8),
+                              Text(
+                                "Set Budget",
+                                style: TextStyle(color: Colors.white, fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "\$132,000.00",
-                    style: TextStyle(
+                  Text(
+                    "\$${formatAmount(budget)}",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -104,4 +148,12 @@ class BudgetCard extends StatelessWidget {
       ),
     );
   }
+}
+void showSetBudgetSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => const SetBudgetSheet(),
+  );
 }

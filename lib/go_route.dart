@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:tspendly/features/Profile/Screens/legal_information_screen.dart';
+import 'package:tspendly/features/authentication/Screens/currency_screen.dart';
+import 'package:tspendly/features/authentication/Service/go_router_refresh_stream.dart';
 import 'package:tspendly/widgets/navigationbar.dart';
 import 'package:tspendly/features/main/screens/home_screen.dart';
 import 'package:tspendly/features/wallet/screens/wallet_screen.dart';
 import 'package:tspendly/features/Report/report_screen.dart';
 import 'package:tspendly/features/Profile/Screens/profile_screen.dart';
 import 'package:tspendly/features/chatbot/Screens/chat_screen.dart';
-import 'package:tspendly/features/authentication/Screens/Login_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/login_screen.dart';
 import 'package:tspendly/features/authentication/Screens/Registeration_Screen.dart';
-import 'package:tspendly/features/authentication/Screens/enterEmail_Screen.dart';
+import 'package:tspendly/features/authentication/Screens/enter_email_Screen.dart';
 import 'package:tspendly/features/authentication/Screens/ResetPassword_Screen.dart';
 
 // Navigation keys for each branch
@@ -18,12 +22,58 @@ final _walletNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'wallet');
 final _reportNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'report');
 final _profileNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'profile');
 
+/// Routes that do NOT require authentication.
+const _publicRoutes = <String>[
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+];
+
 final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/login',
+  initialLocation: '/home',
+
+  // ───────── REFRESH LISTENABLE ─────────
+  // Re-evaluate redirect logic whenever the auth state changes
+  // (sign-in, sign-out, token refresh, password recovery, etc.).
+  refreshListenable: GoRouterRefreshStream(
+    Supabase.instance.client.auth.onAuthStateChange,
+  ),
+
+  // ───────── REDIRECT GUARD ─────────
+  redirect: (BuildContext context, GoRouterState state) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final isLoggedIn = session != null;
+    final currentPath = state.matchedLocation;
+
+    final isPublicRoute = _publicRoutes.contains(currentPath);
+
+    // ── Not authenticated ──
+    if (!isLoggedIn) {
+      // Allow access to public (auth) routes.
+      if (isPublicRoute) return null;
+      // Everything else → redirect to login.
+      return '/login';
+    }
+
+    // ── Authenticated ──
+    // If the user is on a login/register page, send them to home.
+    // Exception: /reset-password is allowed even when authenticated
+    // (the user arrives here via the password recovery deep link
+    // which sets a temporary session).
+    if (isPublicRoute && currentPath != '/reset-password') {
+      return '/home';
+    }
+
+    // Allow navigation to proceed.
+    return null;
+  },
+
   routes: [
     // ───────── AUTH ROUTES (no bottom nav) ─────────
     GoRoute(
+      //Forces the route to open above everything
       parentNavigatorKey: _rootNavigatorKey,
       path: '/login',
       builder: (context, state) => LoginScreen(),
@@ -44,7 +94,8 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const ResetPasswordScreen(),
     ),
 
-    // ───────── MAIN APP ROUTES (with bottom nav) ─────────
+    // ───────── Bottom Navigation System ─────────
+    //           Each tab keeps its state
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return ScaffoldWithNavbar(navigationShell: navigationShell);
@@ -92,11 +143,25 @@ final GoRouter router = GoRouter(
         ),
       ],
     ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+
+      path: '/legal',
+      builder: (context, state) => LegalInformationScreen(),
+    ),
     // Chatbot route (fullscreen, no bottom nav)
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/chatbot',
       builder: (context, state) => const ChatScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/currency',
+      builder: (context, state) {
+        final isEdit = state.extra as bool? ?? false;
+        return CurrencyScreen(isEdit: isEdit);
+      },
     ),
   ],
 );

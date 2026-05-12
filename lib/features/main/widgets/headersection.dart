@@ -16,7 +16,7 @@ class Headersection extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 12),
+            padding: const EdgeInsets.only(right: 71,left: 12,top: 14 ,bottom: 14),
             child: Row(
               children: [
                 CircleAvatar(
@@ -37,7 +37,7 @@ class Headersection extends StatelessWidget {
                     Text(
                       "Lets save your money",
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),

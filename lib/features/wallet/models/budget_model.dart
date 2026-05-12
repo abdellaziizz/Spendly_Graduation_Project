@@ -6,6 +6,7 @@ class BudgetModel {
   final double spentAmount;
   final double limitAmount;
   final IconData icon;
+  final Color? color;
 
   BudgetModel({
     required this.id,
@@ -13,6 +14,7 @@ class BudgetModel {
     required this.spentAmount,
     required this.limitAmount,
     required this.icon,
+    this.color,
   });
 
   BudgetModel copyWith({
@@ -21,6 +23,7 @@ class BudgetModel {
     double? spentAmount,
     double? limitAmount,
     IconData? icon,
+    Color? color,
   }) {
     return BudgetModel(
       id: id ?? this.id,
@@ -28,6 +31,7 @@ class BudgetModel {
       spentAmount: spentAmount ?? this.spentAmount,
       limitAmount: limitAmount ?? this.limitAmount,
       icon: icon ?? this.icon,
+      color: color ?? this.color,
     );
   }
 }
