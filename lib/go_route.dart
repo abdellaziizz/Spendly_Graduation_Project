@@ -14,6 +14,9 @@ import 'package:tspendly/features/authentication/Screens/login_screen.dart';
 import 'package:tspendly/features/authentication/Screens/Registeration_Screen.dart';
 import 'package:tspendly/features/authentication/Screens/enter_email_Screen.dart';
 import 'package:tspendly/features/authentication/Screens/ResetPassword_Screen.dart';
+import 'package:tspendly/features/Scan/scan_receipt_screen.dart';
+import 'package:tspendly/features/Scan/scan_result_screen.dart';
+import 'package:tspendly/features/Scan/receipt_parser.dart';
 
 // Navigation keys for each branch
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -161,6 +164,20 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         final isEdit = state.extra as bool? ?? false;
         return CurrencyScreen(isEdit: isEdit);
+      },
+    ),
+    // ── Receipt Scan routes ─────────────────────────────────────────────────
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/scan-receipt',
+      builder: (context, state) => const ScanReceiptScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/scan-result',
+      builder: (context, state) {
+        final data = state.extra as ParsedReceiptData;
+        return ScanResultScreen(initialData: data);
       },
     ),
   ],

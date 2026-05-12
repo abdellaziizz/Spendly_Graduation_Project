@@ -57,12 +57,15 @@ class Headersection extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-          child: Icon(
-            Icons.document_scanner_outlined,
-            color: Theme.of(context).colorScheme.onSurface,
+        GestureDetector(
+          onTap: () => context.push('/scan-receipt'),
+          child: CircleAvatar(
+            radius: 20,
+            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            child: Icon(
+              Icons.document_scanner_outlined,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
         const SizedBox(width: 12),
