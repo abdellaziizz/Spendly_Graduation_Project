@@ -1,6 +1,6 @@
 {
-    "name": "tspendly",
-    "short_name": "tspendly",
+    "name": "spendly",
+    "short_name": "spendly",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

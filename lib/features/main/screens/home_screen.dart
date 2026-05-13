@@ -6,13 +6,13 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 
-import 'package:tspendly/features/main/widgets/budget_Card.dart';
-import 'package:tspendly/features/main/widgets/headersection.dart';
-import 'package:tspendly/features/main/widgets/transaction_item.dart';
-import 'package:tspendly/features/main/utils/voice_parser.dart';
-import 'package:tspendly/features/main/transaction_model.dart';
-import 'package:tspendly/features/main/transaction_bottom.dart';
-import 'package:tspendly/features/main/providers/transaction_provider.dart';
+import 'package:spendly/features/main/widgets/budget_Card.dart';
+import 'package:spendly/features/main/widgets/headersection.dart';
+import 'package:spendly/features/main/widgets/transaction_item.dart';
+import 'package:spendly/features/main/utils/voice_parser.dart';
+import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/main/transaction_bottom.dart';
+import 'package:spendly/features/main/providers/transaction_provider.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});

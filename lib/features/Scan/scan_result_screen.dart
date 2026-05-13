@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/Scan/receipt_parser.dart';
-import 'package:tspendly/features/Scan/scan_receipt_provider.dart';
+import 'package:spendly/features/Scan/receipt_parser.dart';
+import 'package:spendly/features/Scan/scan_receipt_provider.dart';
 
 /// Screen 2 — Shows OCR-parsed fields for user review + confirm / cancel.
 /// The user can edit all 4 fields before saving.

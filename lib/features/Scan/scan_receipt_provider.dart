@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tspendly/features/Scan/ocr_service.dart';
-import 'package:tspendly/features/Scan/receipt_parser.dart';
-import 'package:tspendly/features/main/providers/transaction_provider.dart';
-import 'package:tspendly/features/main/transaction_model.dart';
+import 'package:spendly/features/Scan/ocr_service.dart';
+import 'package:spendly/features/Scan/receipt_parser.dart';
+import 'package:spendly/features/main/providers/transaction_provider.dart';
+import 'package:spendly/features/main/transaction_model.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE

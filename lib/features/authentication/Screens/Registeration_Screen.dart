@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/authentication/Widget/register_textform.dart';
-import 'package:tspendly/features/authentication/Service/auth_service.dart';
+import 'package:spendly/features/authentication/Widget/register_textform.dart';
+import 'package:spendly/features/authentication/Service/auth_service.dart';
 
 class RegisterationScreen extends StatefulWidget {
   RegisterationScreen({super.key});
@@ -58,7 +58,7 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       fit: BoxFit.contain,
                     ),
                     Text(
-                      'Spendly',
+                      'spendly',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

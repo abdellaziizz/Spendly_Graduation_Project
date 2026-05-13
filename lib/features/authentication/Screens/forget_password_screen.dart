@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/authentication/Service/auth_service.dart';
+import 'package:spendly/features/authentication/Service/auth_service.dart';
 
 // this is not forget password . it's just confirmation that email is sent
 class Fpassword extends StatelessWidget {

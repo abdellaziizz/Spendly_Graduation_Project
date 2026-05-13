@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tspendly/go_route.dart';
-import 'package:tspendly/theme/theme.dart';
-import 'package:tspendly/theme/theme_provider.dart';
-import 'package:tspendly/features/authentication/providers/deep_link_providers.dart';
+import 'package:spendly/go_route.dart';
+import 'package:spendly/theme/theme.dart';
+import 'package:spendly/theme/theme_provider.dart';
+import 'package:spendly/features/authentication/providers/deep_link_providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

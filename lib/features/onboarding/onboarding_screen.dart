@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/onboarding/Providers/onboard_provider.dart';
-import 'package:tspendly/features/authentication/Screens/login_screen.dart';
-import 'package:tspendly/widgets/onboarding_page_widget.dart';
+import 'package:spendly/features/onboarding/Providers/onboard_provider.dart';
+import 'package:spendly/features/authentication/Screens/login_screen.dart';
+import 'package:spendly/widgets/onboarding_page_widget.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -98,7 +98,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     titlePart1: 'Track Expenses',
                     titlePart2: 'easily',
                     subtitle:
-                        'Spendly automates your expense tracking so you can focus on what matter most',
+                        'spendly automates your expense tracking so you can focus on what matter most',
                   ),
                   OnboardingPageWidget(
                     imagePath: 'assets/images/onboarding2.jpg',

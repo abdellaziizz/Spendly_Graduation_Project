@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tspendly/main.dart';
+import 'package:spendly/main.dart';
 
-/// Centralized authentication service for the Spendly application.
+/// Centralized authentication service for the spendly application.
 /// All Supabase auth operations are encapsulated here to keep
 /// the UI layer decoupled from the auth implementation.
 class AuthService {

@@ -3,7 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/Scan/scan_receipt_provider.dart';
+import 'package:spendly/features/Scan/scan_receipt_provider.dart';
 
 /// Screen 1 — Camera preview + capture + OCR.
 /// Mirrors the Figma mockup: receipt frame overlay, corner brackets, scan line,

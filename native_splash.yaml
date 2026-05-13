@@ -7,5 +7,5 @@ flutter_native_splash:
   image: "assets/logo/logo.png"
 
   android_12: 
-    image: "assets/logo/Spendly logo 1.png"
+    image: "assets/logo/spendly logo 1.png"
     icon_background_color: "#FFFFFF"

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'transaction_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/main/providers/transaction_provider.dart';
+import 'package:spendly/features/main/providers/transaction_provider.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});

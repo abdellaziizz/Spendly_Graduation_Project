@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/wallet/models/goal_model.dart';
-import 'package:tspendly/features/wallet/providers/goal_form_provider.dart';
-import 'package:tspendly/features/wallet/providers/goal_provider.dart';
-import 'package:tspendly/features/wallet/widgets/icon_picker_grid.dart';
+import 'package:spendly/features/wallet/models/goal_model.dart';
+import 'package:spendly/features/wallet/providers/goal_form_provider.dart';
+import 'package:spendly/features/wallet/providers/goal_provider.dart';
+import 'package:spendly/features/wallet/widgets/icon_picker_grid.dart';
 
 /// Bottom sheet for creating a new savings goal.
 /// Inserts directly into public.goals via the [goalProvider] notifier.

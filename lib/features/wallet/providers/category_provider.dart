@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/wallet/models/budget_model.dart';
+import 'package:spendly/features/wallet/models/budget_model.dart';
 
 class CategoryNotifier extends StateNotifier<List<BudgetModel>> {
   CategoryNotifier()
