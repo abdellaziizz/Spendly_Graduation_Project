@@ -19,7 +19,8 @@ class OcrService {
           imageFile.path,
           filename: fileName,
         ),
-        'language': 'eng', // Support Arabic and English simultaneously
+
+        'language': 'ara', // Support Arabic and English simultaneously
         'isOverlayRequired': false,
         'detectOrientation': true,
         'scale': true,
