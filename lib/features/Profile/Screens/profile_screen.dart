@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/Profile/Widget/container_widget.dart';
-import 'package:tspendly/features/Profile/Widget/headsection_widget.dart';
-import 'package:tspendly/features/authentication/Service/auth_service.dart';
-import 'package:tspendly/widgets/toggle.dart';
+import 'package:spendly/features/Profile/Widget/container_widget.dart';
+import 'package:spendly/features/Profile/Widget/headsection_widget.dart';
+import 'package:spendly/features/authentication/Service/auth_service.dart';
+import 'package:spendly/widgets/toggle.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

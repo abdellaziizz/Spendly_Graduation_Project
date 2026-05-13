@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tspendly/features/wallet/models/goal_model.dart';
+import 'package:spendly/features/wallet/models/goal_model.dart';
 
 /// A premium goal card matching the Figma mockup.
 class GoalCard extends StatelessWidget {

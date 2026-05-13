@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tspendly/go_route.dart';
+import 'package:spendly/go_route.dart';
 
 class DeepLinkService {
   StreamSubscription<AuthState>? _sub;

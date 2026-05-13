@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/main/providers/budget_provider.dart';
+import 'package:spendly/features/main/providers/budget_provider.dart';
 
 class SetBudgetSheet extends ConsumerStatefulWidget {
   const SetBudgetSheet({super.key});

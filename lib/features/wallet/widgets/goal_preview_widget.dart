@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/wallet/models/goal_model.dart';
+import 'package:spendly/features/wallet/models/goal_model.dart';
 import '../providers/goal_form_provider.dart';
 
 /// A small preview card shown while the user fills the Add Goal form.

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/wallet/providers/goal_provider.dart';
-import 'package:tspendly/features/wallet/widgets/goal_card.dart';
-import 'package:tspendly/features/wallet/widgets/setting_goal_pop.dart';
+import 'package:spendly/features/wallet/providers/goal_provider.dart';
+import 'package:spendly/features/wallet/widgets/goal_card.dart';
+import 'package:spendly/features/wallet/widgets/setting_goal_pop.dart';
 
 class GoalsTab extends ConsumerWidget {
   const GoalsTab({super.key});

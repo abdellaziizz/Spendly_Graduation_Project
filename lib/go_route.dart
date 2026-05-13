@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tspendly/features/Profile/Screens/legal_information_screen.dart';
-import 'package:tspendly/features/authentication/Screens/currency_screen.dart';
-import 'package:tspendly/features/authentication/Service/go_router_refresh_stream.dart';
-import 'package:tspendly/widgets/navigationbar.dart';
-import 'package:tspendly/features/main/screens/home_screen.dart';
-import 'package:tspendly/features/wallet/screens/wallet_screen.dart';
-import 'package:tspendly/features/Report/report_screen.dart';
-import 'package:tspendly/features/Profile/Screens/profile_screen.dart';
-import 'package:tspendly/features/chatbot/Screens/chat_screen.dart';
-import 'package:tspendly/features/authentication/Screens/login_screen.dart';
-import 'package:tspendly/features/authentication/Screens/Registeration_Screen.dart';
-import 'package:tspendly/features/authentication/Screens/enter_email_Screen.dart';
-import 'package:tspendly/features/authentication/Screens/ResetPassword_Screen.dart';
-import 'package:tspendly/features/Scan/scan_receipt_screen.dart';
-import 'package:tspendly/features/Scan/scan_result_screen.dart';
-import 'package:tspendly/features/Scan/receipt_parser.dart';
+import 'package:spendly/features/Profile/Screens/legal_information_screen.dart';
+import 'package:spendly/features/authentication/Screens/currency_screen.dart';
+import 'package:spendly/features/authentication/Service/go_router_refresh_stream.dart';
+import 'package:spendly/widgets/navigationbar.dart';
+import 'package:spendly/features/main/screens/home_screen.dart';
+import 'package:spendly/features/wallet/screens/wallet_screen.dart';
+import 'package:spendly/features/Report/report_screen.dart';
+import 'package:spendly/features/Profile/Screens/profile_screen.dart';
+import 'package:spendly/features/chatbot/Screens/chat_screen.dart';
+import 'package:spendly/features/authentication/Screens/login_screen.dart';
+import 'package:spendly/features/authentication/Screens/Registeration_Screen.dart';
+import 'package:spendly/features/authentication/Screens/enter_email_Screen.dart';
+import 'package:spendly/features/authentication/Screens/ResetPassword_Screen.dart';
+import 'package:spendly/features/Scan/scan_receipt_screen.dart';
+import 'package:spendly/features/Scan/scan_result_screen.dart';
+import 'package:spendly/features/Scan/receipt_parser.dart';
 
 // Navigation keys for each branch
 final _rootNavigatorKey = GlobalKey<NavigatorState>();

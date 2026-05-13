@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tspendly/features/authentication/Service/auth_service.dart';
+import 'package:spendly/features/authentication/Service/auth_service.dart';
 
 /// Screen for entering a new password after clicking the reset link.
 class ResetPasswordScreen extends StatefulWidget {

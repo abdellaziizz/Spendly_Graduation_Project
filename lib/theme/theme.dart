@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tspendly/theme/colors.dart';
-import 'package:tspendly/theme/custom_theme/elevated_button_theme.dart';
-import 'package:tspendly/theme/custom_theme/text_theme.dart';
-import 'package:tspendly/theme/custom_theme/text_field_theme.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/custom_theme/elevated_button_theme.dart';
+import 'package:spendly/theme/custom_theme/text_theme.dart';
+import 'package:spendly/theme/custom_theme/text_field_theme.dart';
 
 class AppTheme {
   AppTheme._();

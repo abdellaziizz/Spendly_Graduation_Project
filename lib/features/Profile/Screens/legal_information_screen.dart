@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tspendly/features/Profile/Model/InfoCardModel%20.dart';
-import 'package:tspendly/features/Profile/Widget/legal_widget.dart';
+import 'package:spendly/features/Profile/Model/InfoCardModel%20.dart';
+import 'package:spendly/features/Profile/Widget/legal_widget.dart';
 
 class LegalInformationScreen extends StatelessWidget {
   LegalInformationScreen({super.key});
@@ -10,7 +10,7 @@ class LegalInformationScreen extends StatelessWidget {
       title: 'Privacy Policy',
       icon: Icons.shield_outlined,
       subtitle1:
-          'Spendly is designed with privacy at its core. We do not sell your personal data to third parties. Your financial information is used solely to provide personalized insights and automated categorization.',
+          'spendly is designed with privacy at its core. We do not sell your personal data to third parties. Your financial information is used solely to provide personalized insights and automated categorization.',
       subtitle2:
           'We collect minimal identification data required to maintain your account and sync acrossdevices. For detailed information on data retention and your right to be forgotten, please review the full document.',
       iconColor: Color(0xff3525CD),
@@ -20,7 +20,7 @@ class LegalInformationScreen extends StatelessWidget {
       title: 'Terms of Service',
       icon: Icons.gavel_outlined,
       subtitle1:
-          "By using Spendly's voice input features, you acknowledge that voice data is processed using encrypted cloud computing to ensure high accuracy. This data is anonymized immediately after transcription.",
+          "By using spendly's voice input features, you acknowledge that voice data is processed using encrypted cloud computing to ensure high accuracy. This data is anonymized immediately after transcription.",
       subtitle2:
           "Automated categorization is an assistive tool; users are responsible for verifying the accuracy of their financial records for tax and legal purposes.",
       iconColor: Color(0xff006F66),
@@ -38,7 +38,7 @@ class LegalInformationScreen extends StatelessWidget {
       title: 'Third-Party Licenses',
       icon: Icons.connect_without_contact,
       subtitle1:
-          "Spendly is built upon the shoulders of the open-source community. View credits for the libraries that make our platform possible.",
+          "spendly is built upon the shoulders of the open-source community. View credits for the libraries that make our platform possible.",
       iconColor: Color(0xff006F66),
       iconBgColor: Color(0xff86F2E4),
     ),

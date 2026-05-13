@@ -17,7 +17,7 @@ class GeminiService {
         maxOutputTokens: 1024,
       ),
       systemInstruction: Content.text(
-        'You are Spendly AI Assistant — a friendly, concise, and helpful '
+        'You are spendly AI Assistant — a friendly, concise, and helpful '
         'financial assistant. Help users with budgeting tips, expense tracking '
         'advice, savings strategies, and general financial literacy. '
         'Keep responses clear, actionable, and under 200 words unless the user '

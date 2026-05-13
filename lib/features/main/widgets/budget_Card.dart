@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/main/widgets/set_budget_bottom_sheet.dart';
-import 'package:tspendly/features/main/providers/budget_provider.dart';
+import 'package:spendly/features/main/widgets/set_budget_bottom_sheet.dart';
+import 'package:spendly/features/main/providers/budget_provider.dart';
 
 class BudgetCard extends ConsumerWidget {
   const BudgetCard({super.key});

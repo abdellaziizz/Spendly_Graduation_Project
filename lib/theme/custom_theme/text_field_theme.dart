@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tspendly/theme/colors.dart';
+import 'package:spendly/theme/colors.dart';
 
 class TTextFieldTheme {
   TTextFieldTheme._();

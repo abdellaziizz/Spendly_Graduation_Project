@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/chatbot/Model/chat_message.dart';
-import 'package:tspendly/features/chatbot/Service/gemini_service.dart';
+import 'package:spendly/features/chatbot/Model/chat_message.dart';
+import 'package:spendly/features/chatbot/Service/gemini_service.dart';
 
 /// Provider for the GeminiService singleton instance.
 final geminiProvider = Provider<GeminiService>((ref) => GeminiService());

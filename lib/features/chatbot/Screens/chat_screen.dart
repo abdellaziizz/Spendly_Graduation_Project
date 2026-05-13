@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tspendly/features/chatbot/Model/chat_message.dart';
-import 'package:tspendly/features/chatbot/Provider/chat_provider.dart';
+import 'package:spendly/features/chatbot/Model/chat_message.dart';
+import 'package:spendly/features/chatbot/Provider/chat_provider.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});

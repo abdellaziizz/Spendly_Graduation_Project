@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:tspendly/features/Scan/core/dio_client.dart';
+import 'package:spendly/features/Scan/core/dio_client.dart';
 
 /// Sends a receipt image to OCR.Space and returns the extracted plain text.
 /// Uses the existing [DioClient] which already has the API key baked in.
@@ -19,7 +19,7 @@ class OcrService {
           imageFile.path,
           filename: fileName,
         ),
-        'language': 'ara,eng', // Support Arabic and English simultaneously
+        'language': 'ara+eng', // Support Arabic and English simultaneously
         'isOverlayRequired': false,
         'detectOrientation': true,
         'scale': true,
