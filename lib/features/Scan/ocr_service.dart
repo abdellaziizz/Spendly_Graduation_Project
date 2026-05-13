@@ -19,7 +19,7 @@ class OcrService {
           imageFile.path,
           filename: fileName,
         ),
-        'language': 'ara+eng', // Support Arabic and English simultaneously
+        'language': 'ara', // Support Arabic and English simultaneously
         'isOverlayRequired': false,
         'detectOrientation': true,
         'scale': true,
@@ -30,9 +30,7 @@ class OcrService {
       final response = await _dio.post(
         '', // Base URL already set in DioClient
         data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-        ),
+        options: Options(contentType: 'multipart/form-data'),
       );
 
       final data = response.data;

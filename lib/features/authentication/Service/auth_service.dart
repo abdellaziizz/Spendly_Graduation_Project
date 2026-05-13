@@ -136,23 +136,38 @@ class AuthService {
   // ─────────────────────── GOOGLE SIGN-IN ────────────────────
 
   /// Native Google Sign-In → exchange ID token with Supabase.
+  ///
+  /// Uses google_sign_in v7 API: singleton instance, initialize(),
+  /// authenticate(), and separate authorization for access tokens.
   Future<AuthResponse> signInWithGoogle() async {
     /// TODO: Replace with your actual Web Client ID from Google Cloud Console
-    const webClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+    const webClientId = '109313319438-kfbmemjulol58eb63voh3glesb8urbtr.apps.googleusercontent.com';
 
-    final googleSignIn = GoogleSignIn(serverClientId: webClientId);
+    final googleSignIn = GoogleSignIn.instance;
 
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw Exception('Google sign-in was cancelled');
-    }
+    // Initialize must be called exactly once before any other method.
+    await googleSignIn.initialize(
+      serverClientId: webClientId,
+    );
 
-    final googleAuth = await googleUser.authentication;
-    final idToken = googleAuth.idToken;
-    final accessToken = googleAuth.accessToken;
+    // Authenticate — throws GoogleSignInException on failure/cancel
+    final googleUser = await googleSignIn.authenticate();
+
+    // Get the ID token from the authentication result
+    final idToken = googleUser.authentication.idToken;
 
     if (idToken == null) {
       throw Exception('No ID token received from Google');
+    }
+
+    // Optionally get an access token via authorization
+    String? accessToken;
+    try {
+      final authorization = await googleUser.authorizationClient
+          .authorizeScopes(<String>['email', 'profile']);
+      accessToken = authorization.accessToken;
+    } catch (_) {
+      // Access token is not strictly required for Supabase signInWithIdToken
     }
 
     final res = await supabase.auth.signInWithIdToken(
