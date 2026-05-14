@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendly/features/main/providers/main_finance_provider.dart';
+import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/Scan/ocr_service.dart';
 import 'package:spendly/features/Scan/receipt_parser.dart';
@@ -82,7 +84,10 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
       if (userId == null) throw Exception('User not authenticated.');
 
       // ① Resolve category_id (required by schema for expense transactions)
-      final categoryId = await _resolveOrCreateCategory(userId, data.categoryName);
+      final categoryId = await _resolveOrCreateCategory(
+        userId,
+        data.categoryName,
+      );
 
       // ② Insert transaction into public.transactions
       //    Column names taken verbatim from spendly_schema.sql
@@ -108,7 +113,8 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
         dateTime: DateTime.now(),
       );
       _ref.read(transactionProvider.notifier).addTransaction(localModel);
-
+      _ref.invalidate(transactionsListProvider);
+      _ref.invalidate(mainFinanceProvider);
       state = const ScanSaved();
     } catch (e) {
       state = ScanError('Failed to save: $e');
@@ -119,7 +125,9 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
   /// Creates one with a default icon if it doesn't exist yet.
   /// Returns the category UUID needed for the composite FK.
   Future<String> _resolveOrCreateCategory(
-      String userId, String categoryName) async {
+    String userId,
+    String categoryName,
+  ) async {
     // Query the user's categories for a matching name
     final existing = await _supabase
         .from('categories')
@@ -136,11 +144,7 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
     final iconName = _defaultIconFor(categoryName);
     final inserted = await _supabase
         .from('categories')
-        .insert({
-          'users_id': userId,
-          'name': categoryName,
-          'icon': iconName,
-        })
+        .insert({'users_id': userId, 'name': categoryName, 'icon': iconName})
         .select('id')
         .single();
 
@@ -179,5 +183,5 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
 
 final scanReceiptProvider =
     StateNotifierProvider<ScanReceiptNotifier, ScanReceiptState>((ref) {
-  return ScanReceiptNotifier(ref);
-});
+      return ScanReceiptNotifier(ref);
+    });

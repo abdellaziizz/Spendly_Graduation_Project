@@ -4,6 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:spendly/features/main/CategoryRepository.dart';
+import 'package:spendly/features/main/providers/main_finance_provider.dart';
+import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'dart:async';
 
 import 'package:spendly/features/main/widgets/budget_Card.dart';
@@ -13,6 +16,7 @@ import 'package:spendly/features/main/utils/voice_parser.dart';
 import 'package:spendly/features/main/transaction_model.dart';
 import 'package:spendly/features/main/transaction_bottom.dart';
 import 'package:spendly/features/main/providers/transaction_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -235,12 +239,46 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Expense Added!')),
+
+                        final supabase = Supabase.instance.client;
+                        final userId = supabase.auth.currentUser?.id;
+                        if (userId == null) return;
+
+                        // Voice always creates an EXPENSE (per app spec)
+                        final categoryId = await resolveOrCreateCategory(
+                          supabase,
+                          userId,
+                          extractedData.category,
                         );
-                        // TODO: Save to database via Riverpod
+
+                        // SQL:
+                        // INSERT INTO public.transactions
+                        //   (users_id, type, amount, title, description, category_id, input_method)
+                        // VALUES ($userId, 'expense', $amount, $title, $desc, $catId, 'voice');
+                        await supabase.from('transactions').insert({
+                          'users_id': userId,
+                          'type': 'expense',
+                          'amount': extractedData.amount > 0
+                              ? extractedData.amount
+                              : 1.0,
+                          'title': extractedData.title.isNotEmpty
+                              ? extractedData.title
+                              : 'Voice Expense',
+                          'description': extractedData.description,
+                          'category_id': categoryId,
+                          'input_method': 'voice',
+                        });
+
+                        ref.invalidate(transactionsListProvider);
+                        ref.invalidate(mainFinanceProvider);
+
+                        // if (mounted) {
+                        //   ScaffoldMessenger.of(context).showSnackBar(
+                        //     const SnackBar(content: Text('Expense Added!')),
+                        //   );
+                        // }
                       },
                       child: const Text(
                         'YES',
@@ -290,284 +328,326 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final manualTransactions = ref.watch(transactionProvider);
+    final txAsync = ref.watch(transactionsListProvider);
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Background gradient image (only show in light mode or adjust for dark)
-          // if (Theme.of(context).brightness == Brightness.light)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Image.asset(
-              'assets/images/main background.png',
-              fit: BoxFit.cover,
-              height: 320,
-            ),
-            // child: Image.asset(
-            //   'assets/images/mesh-gradient.png',
-            //
-            // ),
-          ),
+    return txAsync.when(
+      data: (transactions) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Image.asset(
+                  'assets/images/main background.png',
+                  fit: BoxFit.cover,
+                  height: 320,
+                ),
+              ),
 
-          SafeArea(
-            child: Column(
-              children: [
-                const Headersection(),
-                const BudgetCard(),
+              SafeArea(
+                child: Column(
+                  children: [
+                    const Headersection(),
+                    const BudgetCard(),
 
-                // Transactions section
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 8,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Transactions',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
+                    // Transactions section
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
                               ),
-                              GestureDetector(
-                                onTap: _openAddTransactionSheet,
-                                child: Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Transactions',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
                                       color: Theme.of(
                                         context,
                                       ).colorScheme.onSurface,
                                     ),
-                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                    size: 20,
+                                  GestureDetector(
+                                    onTap: _openAddTransactionSheet,
+                                    child: Container(
+                                      width: 36,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 4,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Recent Transactions',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  context.go('/seeall');
-                                },
-                                child: const Text(
-                                  'See all',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xFF397BBD),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-
-                        // Manually added transactions
-                        ...manualTransactions.map((tx) {
-                          final isIncome = tx.type == 'income';
-                          return TransactionItem(
-                            data: TransactionData(
-                              title: tx.title,
-                              subtitle: tx.description.isNotEmpty
-                                  ? tx.description
-                                  : tx.category,
-                              amount: isIncome ? tx.amount : -tx.amount,
-                              icon: _getCategoryIcon(tx.category),
-                              iconBgColor: _getCategoryColor(
-                                tx.category,
-                              ).withOpacity(0.1),
-                              iconColor: _getCategoryColor(tx.category),
-                            ),
-                          );
-                        }),
-
-                        // Sample transaction items
-                        ...sampleTransactions.map(
-                          (tx) => TransactionItem(data: tx),
-                        ),
-
-                        // Add padding so bottom items aren't obscured by FAB
-                        const SizedBox(height: 120),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Dim overlay when recording
-          if (_isListening)
-            Positioned.fill(
-              child: Container(color: Colors.black.withOpacity(0.3)),
-            ),
-
-          // Floating Mic Button, Language Toggle & Timer
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                if (_isListening)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${_formatDuration(_recordDuration)} / 0:${_maxDuration}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Language toggle button (hidden while recording)
-                    if (!_isListening)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedLocale = _selectedLocale == 'ar'
-                                ? 'en_US'
-                                : 'ar';
-                          });
-                        },
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              _selectedLocale == 'ar' ? 'ع' : 'EN',
-                              style: TextStyle(
-                                fontSize: _selectedLocale == 'ar' ? 20 : 14,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF397BBD),
+                                ],
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    if (!_isListening) const SizedBox(width: 16),
-                    // Mic button
-                    GestureDetector(
-                      onTap: () {
-                        if (_isListening) {
-                          _stopListening();
-                        } else {
-                          _startListening();
-                        }
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        width: _isListening ? 70 : 60,
-                        height: _isListening ? 70 : 60,
-                        decoration: BoxDecoration(
-                          color: _isListening
-                              ? Colors.red
-                              : const Color(0xFF397BBD),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  (_isListening
-                                          ? Colors.red
-                                          : const Color(0xFF397BBD))
-                                      .withOpacity(0.4),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Recent Transactions',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      //Add see all transaction screen
+                                      // context.go('/seeall');
+                                    },
+                                    child: const Text(
+                                      'See all',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFF397BBD),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(height: 6),
+                            transactions.isEmpty
+                                ? const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 40),
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          const Icon(
+                                            Icons.flag_outlined,
+                                            size: 64,
+                                            color: Color(0xFFCCCCDD),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'No Transactions yet',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF1A1A2E),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Text(
+                                            'Set your first Transaction\nand start tracking your progress.',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                              height: 1.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : Column(
+                                    children: transactions.map((tx) {
+                                      final isIncome = tx.type == 'income';
+                                      return TransactionItem(
+                                        data: TransactionData(
+                                          title: tx.title,
+                                          subtitle: tx.description.isNotEmpty
+                                              ? tx.description
+                                              : tx.category,
+                                          amount: isIncome
+                                              ? tx.amount
+                                              : -tx.amount,
+                                          icon: _getCategoryIcon(tx.category),
+                                          iconBgColor: _getCategoryColor(
+                                            tx.category,
+                                          ).withOpacity(0.1),
+                                          iconColor: _getCategoryColor(
+                                            tx.category,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+
+                            // Add padding so bottom items aren't obscured by FAB
+                            const SizedBox(height: 120),
                           ],
-                        ),
-                        child: Icon(
-                          _isListening ? Icons.stop : Icons.mic,
-                          color: Colors.white,
-                          size: _isListening ? 36 : 30,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+
+              // Dim overlay when recording
+              if (_isListening)
+                Positioned.fill(
+                  child: Container(color: Colors.black.withOpacity(0.3)),
+                ),
+
+              // Floating Mic Button, Language Toggle & Timer
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Column(
+                  children: [
+                    if (_isListening)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${_formatDuration(_recordDuration)} / 0:${_maxDuration}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Language toggle button (hidden while recording)
+                        if (!_isListening)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedLocale = _selectedLocale == 'ar'
+                                    ? 'en_US'
+                                    : 'ar';
+                              });
+                            },
+                            child: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.15),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  _selectedLocale == 'ar' ? 'ع' : 'EN',
+                                  style: TextStyle(
+                                    fontSize: _selectedLocale == 'ar' ? 20 : 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF397BBD),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (!_isListening) const SizedBox(width: 16),
+                        // Mic button
+                        GestureDetector(
+                          onTap: () {
+                            if (_isListening) {
+                              _stopListening();
+                            } else {
+                              _startListening();
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: _isListening ? 70 : 60,
+                            height: _isListening ? 70 : 60,
+                            decoration: BoxDecoration(
+                              color: _isListening
+                                  ? Colors.red
+                                  : const Color(0xFF397BBD),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      (_isListening
+                                              ? Colors.red
+                                              : const Color(0xFF397BBD))
+                                          .withOpacity(0.4),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              _isListening ? Icons.stop : Icons.mic,
+                              color: Colors.white,
+                              size: _isListening ? 36 : 30,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.all(32),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text('Failed to load transactions: $e'),
       ),
     );
   }
