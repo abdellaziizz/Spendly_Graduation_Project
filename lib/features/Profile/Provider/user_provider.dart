@@ -1,19 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class UserInfo {
-  final String firstName;
+class ProfileInfo {
+  final String fullName;
   final String gender;
   final String email;
 
-  UserInfo({
-    required this.firstName,
+  ProfileInfo({
+    required this.fullName,
     required this.gender,
     required this.email,
   });
 }
 
-final userInfoProvider = FutureProvider<UserInfo>((ref) async {
+final profileNameProvider = FutureProvider<ProfileInfo>((ref) async {
   final supabase = Supabase.instance.client;
   // RLS: auth.uid() = id — no extra filter needed
   final data = await supabase
@@ -24,10 +24,7 @@ final userInfoProvider = FutureProvider<UserInfo>((ref) async {
   final fullName = (data['full_name'] as String? ?? '').trim();
   final gender = (data['gender'] as String? ?? 'male').trim();
   final email = (data['email'] as String? ?? '').trim();
-  final firstName = fullName.split(' ').first.isEmpty
-      ? 'User'
-      : fullName.split(' ').first;
+
   // Return first word only
-  return UserInfo(firstName: firstName, gender: gender, email: email);
-  ;
+  return ProfileInfo(fullName: fullName, gender: gender, email: email);
 });

@@ -11,8 +11,9 @@ class Headersection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userInfoProvider);
     return userAsync.when(
-      data: (name) {
-        final displayName = name.firstName;
+      data: (user) {
+        final displayName = user.firstName;
+        final gender = user.gender;
         return Row(
           children: [
             Container(
@@ -34,7 +35,19 @@ class Headersection extends ConsumerWidget {
                       backgroundColor: Theme.of(
                         context,
                       ).colorScheme.primary.withOpacity(0.2),
-                      child: SvgPicture.asset('assets/icons/User_avatar.svg'),
+                      child: gender == "male"
+                          ? SvgPicture.asset(
+                              'assets/icons/User_avatar.svg',
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.fill,
+                            )
+                          : SvgPicture.asset(
+                              'assets/icons/female_avatar.svg',
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.fill,
+                            ),
                     ),
                     const SizedBox(width: 12),
                     Column(
