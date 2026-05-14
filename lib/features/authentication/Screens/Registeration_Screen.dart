@@ -280,7 +280,7 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                             ),
                           );
 
-                          await _authService.signInWithGoogle();
+                          // await _authService.signInWithGoogle();
 
                           if (context.mounted) Navigator.of(context).pop();
                           if (context.mounted) context.go('/home');

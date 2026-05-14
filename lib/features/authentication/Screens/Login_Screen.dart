@@ -158,7 +158,7 @@ class LoginScreen extends ConsumerWidget {
                             const Center(child: CircularProgressIndicator()),
                       );
 
-                      await _authService.signInWithGoogle();
+                      // await _authService.signInWithGoogle();
 
                       if (context.mounted) Navigator.of(context).pop();
                       if (context.mounted) context.go('/home');

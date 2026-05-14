@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/main/providers/budget_provider.dart';
+import 'package:spendly/features/main/providers/main_finance_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SetBudgetSheet extends ConsumerStatefulWidget {
   const SetBudgetSheet({super.key});
@@ -237,14 +239,44 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final amount =
                       double.tryParse(
                         _amountController.text.replaceAll(',', ''),
                       ) ??
                       0.0;
-                  ref.read(budgetProvider.notifier).state = amount;
-                  Navigator.pop(context);
+
+                  if (amount <= 0) return;
+
+                  final supabase = Supabase.instance.client;
+                  final userId = supabase.auth.currentUser?.id;
+                  if (userId == null) return;
+
+                  final now = DateTime.now();
+                  final monthStr =
+                      '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
+
+                  // Upsert: insert or update if month already exists
+                  // Maps to: INSERT ... ON CONFLICT (users_id, budget_month) DO UPDATE
+                  await supabase.from('monthly_budgets').upsert({
+                    'users_id': userId,
+                    'budget_month': monthStr,
+                    'amount': amount,
+                  }, onConflict: 'users_id,budget_month');
+
+                  // Keep local state in sync
+                  // ref.read(budgetProvider.notifier).state = amount;
+                  // Invalidate the finance provider so BudgetCard refreshes
+                  ref.invalidate(mainFinanceProvider);
+
+                  if (context.mounted) Navigator.pop(context);
+                  // final amount =
+                  //     double.tryParse(
+                  //       _amountController.text.replaceAll(',', ''),
+                  //     ) ??
+                  //     0.0;
+                  // ref.read(budgetProvider.notifier).state = amount;
+                  // Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3730A3), // Deep purple

@@ -136,33 +136,33 @@ class AuthService {
   // ─────────────────────── GOOGLE SIGN-IN ────────────────────
 
   /// Native Google Sign-In → exchange ID token with Supabase.
-  Future<AuthResponse> signInWithGoogle() async {
-    /// TODO: Replace with your actual Web Client ID from Google Cloud Console
-    const webClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+  // Future<AuthResponse> signInWithGoogle() async {
+  //   /// TODO: Replace with your actual Web Client ID from Google Cloud Console
+  //   const webClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
 
-    final googleSignIn = GoogleSignIn(serverClientId: webClientId);
+  //   final googleSignIn = GoogleSignIn(serverClientId: webClientId);
 
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw Exception('Google sign-in was cancelled');
-    }
+  //   final googleUser = await googleSignIn.signIn();
+  //   if (googleUser == null) {
+  //     throw Exception('Google sign-in was cancelled');
+  //   }
 
-    final googleAuth = await googleUser.authentication;
-    final idToken = googleAuth.idToken;
-    final accessToken = googleAuth.accessToken;
+  //   final googleAuth = await googleUser.authentication;
+  //   final idToken = googleAuth.idToken;
+  //   final accessToken = googleAuth.accessToken;
 
-    if (idToken == null) {
-      throw Exception('No ID token received from Google');
-    }
+  //   if (idToken == null) {
+  //     throw Exception('No ID token received from Google');
+  //   }
 
-    final res = await supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-    );
+  //   final res = await supabase.auth.signInWithIdToken(
+  //     provider: OAuthProvider.google,
+  //     idToken: idToken,
+  //     accessToken: accessToken,
+  //   );
 
-    return res;
-  }
+  //   return res;
+  // }
 
   // ─────────────────────────── SIGN OUT ──────────────────────
 
