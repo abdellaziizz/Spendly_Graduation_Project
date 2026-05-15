@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/Profile/Widget/container_widget.dart';
 import 'package:spendly/features/Profile/Widget/headsection_widget.dart';
 import 'package:spendly/features/authentication/Service/auth_service.dart';
+import 'package:spendly/features/authentication/Screens/currency_screen.dart';
+import 'package:spendly/features/authentication/Model/currency_data.dart';
 import 'package:spendly/widgets/toggle.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyIndex = ref.watch(selectedCurrencyProvider);
+    final currencySubtitle = currencyIndex != -1 
+        ? '${allCurrencies[currencyIndex].code} ${allCurrencies[currencyIndex].flag}' 
+        : 'Not set';
+
     return Scaffold(
       appBar: AppBar(title: const Text('profile')),
       body: SingleChildScrollView(
@@ -30,6 +38,7 @@ class ProfileScreen extends StatelessWidget {
                 child: ContainerWidget(
                   icon: Icons.wallet_outlined,
                   title: 'Currency type',
+                  subtitle: currencySubtitle,
                 ),
               ),
               ContainerWidget(
@@ -84,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 6,
                       offset: const Offset(0, 3),
                     ),
