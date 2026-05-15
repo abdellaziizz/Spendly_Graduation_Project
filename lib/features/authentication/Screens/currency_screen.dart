@@ -44,16 +44,12 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
     if (_searchQuery.isEmpty) return allCurrencies;
     final q = _searchQuery.toLowerCase();
     return allCurrencies
+<<<<<<< HEAD
         .where(
-          (c) =>
-              c.name.toLowerCase().contains(q) ||
-              c.code.toLowerCase().contains(q) ||
-              c.symbol.contains(q),
-        )
-        .toList();
-  }
-
-  List<CurrencyInfo> get _popularCurrencies {
+      return allCurrencies.where((c) =>
+          c.name.toLowerCase().contains(q) ||
+          c.code.toLowerCase().contains(q) ||
+          c.symbol.contains(q)).toList();
     return _popularCodes
         .map((code) => allCurrencies.firstWhere((c) => c.code == code))
         .toList();
@@ -64,7 +60,6 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
 
     if (selectedIndex == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a currency first")),
       );
       return;
     }
@@ -80,31 +75,20 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
     // ✅ THIS IS THE FIX
     if (!context.mounted) return;
     Future<void> _saveCurrency(BuildContext context, WidgetRef ref) async {
-      final selectedIndex = ref.read(selectedCurrencyProvider);
-
-      if (selectedIndex == -1) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please select a currency first")),
-        );
-        return;
-      }
-
-      final currency = allCurrencies[selectedIndex];
-      final user = Supabase.instance.client.auth.currentUser;
-
-      await Supabase.instance.client
-          .from('users')
-          .update({'currency': currency.code})
-          .eq('id', user!.id);
-
-      // ✅ THIS IS THE FIX
-      if (!context.mounted) return;
-
-      if (widget.isEdit) {
-        context.pop(); // back to profile
+=======
+      if (widget.isEdit && context.canPop()) {
+        context.pop();
       } else {
-        context.go('/home'); // onboarding finished
+        context.go('/home');
       }
+    
+    // The original code unconditionally did context.go('/home');
+    // For editing, you might want context.pop() depending on your router setup.
+    if (widget.isEdit && context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/home');
+>>>>>>> 75bed72 (adding world currencies--currency subtitle)
     }
   }
 
@@ -122,20 +106,14 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
     final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     // Use the original primary color or the dark theme's primary color
-    final primaryColor = isDark
-        ? AppColors.buttonDark
-        : const Color(0xff00365A);
-    final searchBgColor = isDark
-        ? AppColors.darkSurface
-        : const Color(0xFFF5F5F7);
+  final primaryColor = isDark ? AppColors.buttonDark : const Color(0xff00365A);
+  final searchBgColor = isDark ? AppColors.darkSurface : const Color(0xFFF5F5F7);
     final tileBgColor = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? Colors.grey.shade800 : Colors.grey.shade200;
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: widget.isEdit
-          ? AppBar(title: const Text("Change Currency"))
-          : null,
+      appBar: widget.isEdit ? AppBar(title: const Text("Change Currency")) : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -179,11 +157,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                   prefixIcon: Icon(Icons.search, color: subtitleColor),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: Icon(
-                            Icons.clear,
-                            size: 18,
-                            color: subtitleColor,
-                          ),
+                          icon: Icon(Icons.clear, size: 18, color: subtitleColor),
                           onPressed: () {
                             _searchController.clear();
                             setState(() => _searchQuery = '');
@@ -216,6 +190,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                         ),
                       ),
                     ),
+<<<<<<< HEAD
                     ..._popularCurrencies.map(
                       (c) => _buildCurrencyTile(
                         c,
@@ -243,6 +218,33 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                         ),
                       ),
                     ),
+=======
+                    ..._popularCurrencies.map((c) => _buildCurrencyTile(
+                          c, 
+                          selectedIndex, 
+                          primaryColor, 
+                          tileBgColor, 
+                          borderColor, 
+                          textColor, 
+                          subtitleColor
+                        )),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Divider(color: borderColor),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        'All Currencies',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: subtitleColor,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+>>>>>>> 75bed72 (adding world currencies--currency subtitle)
                   ],
 
                   if (filtered.isEmpty)
@@ -256,6 +258,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                       ),
                     ),
 
+<<<<<<< HEAD
                   ...filtered.map(
                     (c) => _buildCurrencyTile(
                       c,
@@ -267,6 +270,17 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                       subtitleColor,
                     ),
                   ),
+=======
+                  ...filtered.map((c) => _buildCurrencyTile(
+                        c, 
+                        selectedIndex, 
+                        primaryColor, 
+                        tileBgColor, 
+                        borderColor, 
+                        textColor, 
+                        subtitleColor
+                      )),
+>>>>>>> 75bed72 (adding world currencies--currency subtitle)
                   const SizedBox(height: 16),
                 ],
               ),
@@ -296,9 +310,13 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+<<<<<<< HEAD
                       color: selectedIndex == -1 && isDark
                           ? Colors.grey.shade500
                           : Colors.white,
+=======
+                      color: selectedIndex == -1 && isDark ? Colors.grey.shade500 : Colors.white,
+>>>>>>> 75bed72 (adding world currencies--currency subtitle)
                     ),
                   ),
                 ),
@@ -311,7 +329,11 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
   }
 
   Widget _buildCurrencyTile(
+<<<<<<< HEAD
     CurrencyInfo currency,
+=======
+    CurrencyInfo currency, 
+>>>>>>> 75bed72 (adding world currencies--currency subtitle)
     int selectedIndex,
     Color primaryColor,
     Color tileBgColor,
@@ -344,7 +366,14 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
         child: Row(
           children: [
             // Flag emoji
+<<<<<<< HEAD
             Text(currency.flag, style: const TextStyle(fontSize: 28)),
+=======
+            Text(
+              currency.flag,
+              style: const TextStyle(fontSize: 28),
+            ),
+>>>>>>> 75bed72 (adding world currencies--currency subtitle)
             const SizedBox(width: 14),
 
             // Name + code
@@ -363,7 +392,14 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '${currency.code}  •  ${currency.symbol}',
+<<<<<<< HEAD
                     style: TextStyle(fontSize: 12, color: subtitleColor),
+=======
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: subtitleColor,
+                    ),
+>>>>>>> 75bed72 (adding world currencies--currency subtitle)
                   ),
                 ],
               ),
