@@ -10,6 +10,7 @@ class Headersection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userInfoProvider);
+
     return userAsync.when(
       data: (user) {
         final displayName = user.firstName;
