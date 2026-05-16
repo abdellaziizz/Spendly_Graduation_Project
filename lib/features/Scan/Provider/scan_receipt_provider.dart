@@ -3,14 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:spendly/features/Scan/ocr_service.dart';
-import 'package:spendly/features/Scan/receipt_parser.dart';
+import 'package:spendly/features/Scan/Service/ocr_service.dart';
+import 'package:spendly/features/Scan/Service/receipt_parser.dart';
 import 'package:spendly/features/main/providers/transaction_provider.dart';
 import 'package:spendly/features/main/transaction_model.dart';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────────────────────────────────────
 
 /// All possible states the receipt-scan flow can be in.
 sealed class ScanReceiptState {
@@ -49,10 +45,6 @@ class ScanError extends ScanReceiptState {
   const ScanError(this.message);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NOTIFIER
-// ─────────────────────────────────────────────────────────────────────────────
-
 class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
   ScanReceiptNotifier(this._ref) : super(const ScanInitial());
 
@@ -68,10 +60,8 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
       final rawText = await _ocr.extractText(imageFile);
       final parsed = ReceiptParser.parse(rawText);
       state = ScanParsed(parsed);
-    } on OcrException catch (e) {
-      state = ScanError(e.message);
     } catch (e) {
-      state = ScanError('Unexpected error: $e');
+      state = ScanError('OCR failed: $e');
     }
   }
 

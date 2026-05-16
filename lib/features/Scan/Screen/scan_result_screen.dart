@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/features/Scan/receipt_parser.dart';
-import 'package:spendly/features/Scan/scan_receipt_provider.dart';
+import 'package:spendly/features/Scan/Service/receipt_parser.dart';
+import 'package:spendly/features/Scan/Provider/scan_receipt_provider.dart';
 
 /// Screen 2 — Shows OCR-parsed fields for user review + confirm / cancel.
 /// The user can edit all 4 fields before saving.
@@ -27,8 +27,9 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
     super.initState();
     final d = widget.initialData;
     _titleCtrl = TextEditingController(text: d.title);
-    _amountCtrl =
-        TextEditingController(text: d.amount > 0 ? d.amount.toStringAsFixed(2) : '');
+    _amountCtrl = TextEditingController(
+      text: d.amount > 0 ? d.amount.toStringAsFixed(2) : '',
+    );
     _categoryCtrl = TextEditingController(text: d.categoryName);
     _descriptionCtrl = TextEditingController(text: d.description);
   }
@@ -70,8 +71,9 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red.shade700));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: Colors.red.shade700),
+    );
   }
 
   @override
@@ -125,8 +127,11 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
                       color: const Color(0xFFF5F5F5),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.document_scanner_outlined,
-                        color: Colors.black54, size: 22),
+                    child: const Icon(
+                      Icons.document_scanner_outlined,
+                      color: Colors.black54,
+                      size: 22,
+                    ),
                   ),
                 ],
               ),
@@ -147,8 +152,11 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
                         shape: BoxShape.circle,
                         color: Color(0xFF4CAF50),
                       ),
-                      child: const Icon(Icons.check_rounded,
-                          color: Colors.white, size: 52),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 52,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -165,7 +173,9 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 4),
+                        horizontal: 20,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF9F9F9),
                         borderRadius: BorderRadius.circular(16),
@@ -184,10 +194,12 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
                             controller: _amountCtrl,
                             hint: '0.00',
                             keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
+                              decimal: true,
+                            ),
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d+\.?\d{0,2}'))
+                                RegExp(r'^\d+\.?\d{0,2}'),
+                              ),
                             ],
                           ),
                           const _Divider(),
@@ -218,7 +230,9 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
               child: isSaving
                   ? const Center(
                       child: CircularProgressIndicator(
-                          color: Color(0xFF1B3A5C)))
+                        color: Color(0xFF1B3A5C),
+                      ),
+                    )
                   : Row(
                       children: [
                         Expanded(
@@ -302,7 +316,9 @@ class _EditableRow extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: hint,
                 hintStyle: const TextStyle(
-                    color: Colors.black26, fontWeight: FontWeight.normal),
+                  color: Colors.black26,
+                  fontWeight: FontWeight.normal,
+                ),
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
@@ -345,9 +361,7 @@ class _ActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: filled ? const Color(0xFF1B3A5C) : Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: filled
-              ? null
-              : Border.all(color: const Color(0xFFDDDDDD)),
+          border: filled ? null : Border.all(color: const Color(0xFFDDDDDD)),
         ),
         child: Text(
           label,

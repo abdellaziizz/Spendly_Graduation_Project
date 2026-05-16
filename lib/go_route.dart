@@ -14,9 +14,9 @@ import 'package:spendly/features/authentication/Screens/login_screen.dart';
 import 'package:spendly/features/authentication/Screens/Registeration_Screen.dart';
 import 'package:spendly/features/authentication/Screens/enter_email_Screen.dart';
 import 'package:spendly/features/authentication/Screens/ResetPassword_Screen.dart';
-import 'package:spendly/features/Scan/scan_receipt_screen.dart';
-import 'package:spendly/features/Scan/scan_result_screen.dart';
-import 'package:spendly/features/Scan/receipt_parser.dart';
+import 'package:spendly/features/Scan/Screen/scan_receipt_screen.dart';
+import 'package:spendly/features/Scan/Screen/scan_result_screen.dart';
+import 'package:spendly/features/Scan/Service/receipt_parser.dart';
 
 // Navigation keys for each branch
 final _rootNavigatorKey = GlobalKey<NavigatorState>();

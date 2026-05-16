@@ -24,7 +24,7 @@ class Headersection extends ConsumerWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.only(
-                  right: 71,
+                  right: 65,
                   left: 12,
                   top: 14,
                   bottom: 14,

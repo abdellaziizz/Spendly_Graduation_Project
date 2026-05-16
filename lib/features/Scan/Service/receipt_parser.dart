@@ -2,7 +2,8 @@
 class ParsedReceiptData {
   final String title;
   final double amount;
-  final String categoryName; // human-readable name used to look up/create the category
+  final String
+  categoryName; // human-readable name used to look up/create the category
   final String description;
 
   const ParsedReceiptData({
@@ -34,64 +35,166 @@ class ReceiptParser {
   // ── English keyword → category name ──────────────────────────────────────
   static const Map<String, List<String>> _enKeywords = {
     'Food / Dining': [
-      'restaurant', 'cafe', 'coffee', 'burger', 'pizza', 'dining',
-      'grill', 'kitchen', 'bakery', 'food', 'meal', 'lunch', 'dinner',
-      'breakfast', 'thai', 'sushi', 'shawarma',
+      'restaurant',
+      'cafe',
+      'coffee',
+      'burger',
+      'pizza',
+      'dining',
+      'grill',
+      'kitchen',
+      'bakery',
+      'food',
+      'meal',
+      'lunch',
+      'dinner',
+      'breakfast',
+      'thai',
+      'sushi',
+      'shawarma',
     ],
     'Groceries': [
-      'supermarket', 'grocery', 'groceries', 'market', 'walmart',
-      'carrefour', 'hypermarket', 'store', 'shop',
+      'supermarket',
+      'grocery',
+      'groceries',
+      'market',
+      'walmart',
+      'carrefour',
+      'hypermarket',
+      'store',
+      'shop',
     ],
     'Transportation': [
-      'uber', 'lyft', 'taxi', 'fuel', 'gas', 'petrol', 'parking',
-      'bus', 'train', 'metro', 'flight', 'ticket', 'transport',
+      'uber',
+      'lyft',
+      'taxi',
+      'fuel',
+      'gas',
+      'petrol',
+      'parking',
+      'bus',
+      'train',
+      'metro',
+      'flight',
+      'ticket',
+      'transport',
     ],
     'Bills & Subscriptions': [
-      'bill', 'invoice', 'subscription', 'internet', 'netflix',
-      'spotify', 'electricity', 'water', 'utility', 'telecom',
+      'bill',
+      'invoice',
+      'subscription',
+      'internet',
+      'netflix',
+      'spotify',
+      'electricity',
+      'water',
+      'utility',
+      'telecom',
     ],
     'Shopping': [
-      'amazon', 'mall', 'clothes', 'clothing', 'shoe', 'fashion',
-      'retail', 'purchase', 'buy', 'order',
+      'amazon',
+      'mall',
+      'clothes',
+      'clothing',
+      'shoe',
+      'fashion',
+      'retail',
+      'purchase',
+      'buy',
+      'order',
     ],
     'Health': [
-      'pharmacy', 'clinic', 'hospital', 'doctor', 'dental',
-      'medicine', 'medical', 'lab', 'test',
+      'pharmacy',
+      'clinic',
+      'hospital',
+      'doctor',
+      'dental',
+      'medicine',
+      'medical',
+      'lab',
+      'test',
     ],
     'Gym / Fitness': [
-      'gym', 'fitness', 'sport', 'workout', 'yoga', 'pilates',
-      'protein', 'supplement',
+      'gym',
+      'fitness',
+      'sport',
+      'workout',
+      'yoga',
+      'pilates',
+      'protein',
+      'supplement',
     ],
   };
 
   // ── Arabic keyword → category name ───────────────────────────────────────
   static const Map<String, List<String>> _arKeywords = {
     'Food / Dining': [
-      'مطعم', 'كافيه', 'قهوة', 'بيتزا', 'برجر', 'وجبة', 'طعام',
-      'أكل', 'اكل', 'غداء', 'عشاء', 'فطور', 'شاورما', 'مشويات',
-      'فول', 'كشري', 'دليفري', 'توصيل',
+      'مطعم',
+      'كافيه',
+      'قهوة',
+      'بيتزا',
+      'برجر',
+      'وجبة',
+      'طعام',
+      'أكل',
+      'اكل',
+      'غداء',
+      'عشاء',
+      'فطور',
+      'شاورما',
+      'مشويات',
+      'فول',
+      'كشري',
+      'دليفري',
+      'توصيل',
     ],
     'Groceries': [
-      'سوبرماركت', 'سوبر ماركت', 'بقالة', 'خضار', 'فاكهة', 'سوق',
-      'هايبر', 'كارفور', 'لبن', 'حليب', 'خبز', 'عيش', 'بيض',
+      'سوبرماركت',
+      'سوبر ماركت',
+      'بقالة',
+      'خضار',
+      'فاكهة',
+      'سوق',
+      'هايبر',
+      'كارفور',
+      'لبن',
+      'حليب',
+      'خبز',
+      'عيش',
+      'بيض',
     ],
     'Transportation': [
-      'أوبر', 'اوبر', 'كريم', 'تاكسي', 'بنزين', 'وقود', 'طيران',
-      'مواصلات', 'مترو', 'باص', 'قطار', 'تذكرة', 'موقف',
+      'أوبر',
+      'اوبر',
+      'كريم',
+      'تاكسي',
+      'بنزين',
+      'وقود',
+      'طيران',
+      'مواصلات',
+      'مترو',
+      'باص',
+      'قطار',
+      'تذكرة',
+      'موقف',
     ],
     'Bills & Subscriptions': [
-      'فاتورة', 'فواتير', 'اشتراك', 'إنترنت', 'نت', 'نتفلكس',
-      'كهرباء', 'مياه', 'غاز', 'تليفون', 'موبايل', 'شحن',
+      'فاتورة',
+      'فواتير',
+      'اشتراك',
+      'إنترنت',
+      'نت',
+      'نتفلكس',
+      'كهرباء',
+      'مياه',
+      'غاز',
+      'تليفون',
+      'موبايل',
+      'شحن',
     ],
-    'Shopping': [
-      'ملابس', 'أحذية', 'تسوق', 'بضاعة', 'قميص', 'جلباب', 'شنطة',
-    ],
-    'Health': [
-      'صيدلية', 'دواء', 'طبيب', 'مستشفى', 'عيادة', 'تحليل', 'أشعة',
-    ],
-    'Gym / Fitness': [
-      'جيم', 'نادي', 'رياضة', 'تمرين', 'لياقة', 'بروتين',
-    ],
+    'Shopping': ['ملابس', 'أحذية', 'تسوق', 'بضاعة', 'قميص', 'جلباب', 'شنطة'],
+    'Health': ['صيدلية', 'دواء', 'طبيب', 'مستشفى', 'عيادة', 'تحليل', 'أشعة'],
+    'Gym / Fitness': ['جيم', 'نادي', 'رياضة', 'تمرين', 'لياقة', 'بروتين'],
   };
 
   /// Convert Arabic-Indic digits (٠١٢٣٤٥٦٧٨٩) → ASCII digits
@@ -104,29 +207,29 @@ class ReceiptParser {
     return result;
   }
 
-  /// Extract the largest numeric value from the text — the receipt total.
   static double _parseAmount(String text) {
     final normalized = _normalizeDigits(text);
+    final lines = normalized.split('\n');
 
-    // Match numbers like: 43.97 | 1,200 | 43,97 | 100
-    final regex = RegExp(r'\b\d{1,3}(?:[,\.]\d{3})*(?:[,\.]\d{1,2})?\b');
-    final matches = regex.allMatches(normalized);
+    final totalRegex = RegExp(
+      r'(total|subtotal|amount|grand total|الإجمالي|المجموع)[^\d]*([\d\.,]+)',
+      caseSensitive: false,
+    );
 
-    double best = 0.0;
-    for (final m in matches) {
-      // Normalise thousands-separator vs decimal point
-      var raw = m.group(0)!;
-      // If comma appears as thousands separator (e.g. 1,200) remove it
-      // If only one comma/dot and ≤2 digits after it → it's decimal
-      raw = raw.replaceAll(',', '.');
-      // Remove duplicate dots
-      final dotCount = '.'.allMatches(raw).length;
-      if (dotCount > 1) {
-        // Keep only the last dot
-        final lastDot = raw.lastIndexOf('.');
-        raw = raw.replaceAll('.', '');
-        raw = '${raw.substring(0, lastDot - (dotCount - 1))}.${raw.substring(lastDot - (dotCount - 1))}';
+    for (final line in lines) {
+      final m = totalRegex.firstMatch(line);
+      if (m != null) {
+        final raw = m.group(2)!.replaceAll(',', '.');
+        final val = double.tryParse(raw);
+        if (val != null) return val;
       }
+    }
+
+    // fallback to your old logic
+    final regex = RegExp(r'\b\d+(?:[\.,]\d{1,2})?\b');
+    double best = 0.0;
+    for (final m in regex.allMatches(normalized)) {
+      final raw = m.group(0)!.replaceAll(',', '.');
       final val = double.tryParse(raw);
       if (val != null && val > best) best = val;
     }

@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendly/features/Scan/scan_receipt_provider.dart';
+import 'package:spendly/features/Scan/Provider/scan_receipt_provider.dart';
 
 /// Screen 1 — Camera preview + capture + OCR.
 /// Mirrors the Figma mockup: receipt frame overlay, corner brackets, scan line,
@@ -39,17 +40,19 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _scanLineAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _scanLineCtrl, curve: Curves.easeInOut),
-    );
+    _scanLineAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _scanLineCtrl, curve: Curves.easeInOut));
 
     _progressCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     );
-    _progressAnim = Tween<double>(begin: 0, end: 0.85).animate(
-      CurvedAnimation(parent: _progressCtrl, curve: Curves.easeOut),
-    );
+    _progressAnim = Tween<double>(
+      begin: 0,
+      end: 0.85,
+    ).animate(CurvedAnimation(parent: _progressCtrl, curve: Curves.easeOut));
 
     _initCamera();
   }
@@ -97,9 +100,32 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
       await ref.read(scanReceiptProvider.notifier).scanImage(imageFile);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Capture failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Capture failed: $e')));
+      }
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        final imageFile = File(pickedFile.path);
+
+        // Start fake progress animation for UX
+        _progressCtrl.forward(from: 0);
+
+        // Trigger OCR via provider
+        await ref.read(scanReceiptProvider.notifier).scanImage(imageFile);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gallery selection failed: $e')));
       }
     }
   }
@@ -173,8 +199,11 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
                         color: Colors.black45,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.chevron_left,
-                          color: Colors.white, size: 28),
+                      child: const Icon(
+                        Icons.chevron_left,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                     ),
                   ),
                   // Receipt icon (decorative, matches Figma)
@@ -185,8 +214,11 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
                       color: Colors.black45,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.document_scanner_outlined,
-                        color: Colors.white, size: 22),
+                    child: const Icon(
+                      Icons.document_scanner_outlined,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                 ],
               ),
@@ -196,33 +228,59 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
           // ── Loading overlay while OCR runs ────────────────────────────────
           if (isScanning) _ScanLoadingOverlay(progressAnim: _progressAnim),
 
-          // ── Bottom capture button ─────────────────────────────────────────
+          // ── Bottom capture and gallery buttons ────────────────────────────
           if (_cameraReady && !isScanning)
             Positioned(
               bottom: 48,
               left: 0,
               right: 0,
-              child: Center(
-                child: GestureDetector(
-                  onTap: _captureAndScan,
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFF4CAF50),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4CAF50).withOpacity(0.45),
-                          blurRadius: 18,
-                          spreadRadius: 2,
-                        ),
-                      ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 56), // spacer for symmetry
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: _captureAndScan,
+                    child: Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF4CAF50),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF4CAF50).withOpacity(0.45),
+                            blurRadius: 18,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
-                    child: const Icon(Icons.camera_alt_rounded,
-                        color: Colors.white, size: 32),
                   ),
-                ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: _pickFromGallery,
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black45,
+                      ),
+                      child: const Icon(
+                        Icons.photo_library_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 32),
+                ],
               ),
             ),
         ],
@@ -352,28 +410,48 @@ class _FrameCorners extends StatelessWidget {
             left: 0,
             top: 0,
             child: _Corner(
-                hDir: 1, vDir: 1, size: corner, thickness: thickness, color: color),
+              hDir: 1,
+              vDir: 1,
+              size: corner,
+              thickness: thickness,
+              color: color,
+            ),
           ),
           // Top-right
           Positioned(
             right: 0,
             top: 0,
             child: _Corner(
-                hDir: -1, vDir: 1, size: corner, thickness: thickness, color: color),
+              hDir: -1,
+              vDir: 1,
+              size: corner,
+              thickness: thickness,
+              color: color,
+            ),
           ),
           // Bottom-left
           Positioned(
             left: 0,
             bottom: 0,
             child: _Corner(
-                hDir: 1, vDir: -1, size: corner, thickness: thickness, color: color),
+              hDir: 1,
+              vDir: -1,
+              size: corner,
+              thickness: thickness,
+              color: color,
+            ),
           ),
           // Bottom-right
           Positioned(
             right: 0,
             bottom: 0,
             child: _Corner(
-                hDir: -1, vDir: -1, size: corner, thickness: thickness, color: color),
+              hDir: -1,
+              vDir: -1,
+              size: corner,
+              thickness: thickness,
+              color: color,
+            ),
           ),
         ],
       ),
@@ -399,18 +477,23 @@ class _Corner extends StatelessWidget {
       height: size,
       child: CustomPaint(
         painter: _CornerPainter(
-            hDir: hDir, vDir: vDir, thickness: thickness, color: color),
+          hDir: hDir,
+          vDir: vDir,
+          thickness: thickness,
+          color: color,
+        ),
       ),
     );
   }
 }
 
 class _CornerPainter extends CustomPainter {
-  const _CornerPainter(
-      {required this.hDir,
-      required this.vDir,
-      required this.thickness,
-      required this.color});
+  const _CornerPainter({
+    required this.hDir,
+    required this.vDir,
+    required this.thickness,
+    required this.color,
+  });
   final double hDir, vDir, thickness;
   final Color color;
 
@@ -464,7 +547,9 @@ class _ScanLoadingOverlay extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 8),
+                          horizontal: 20,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF4CAF50),
                           borderRadius: BorderRadius.circular(20),
@@ -486,7 +571,8 @@ class _ScanLoadingOverlay extends StatelessWidget {
                           minHeight: 8,
                           backgroundColor: const Color(0xFFE0E0E0),
                           valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFF4CAF50)),
+                            Color(0xFF4CAF50),
+                          ),
                         ),
                       ),
                     ],
@@ -496,10 +582,7 @@ class _ScanLoadingOverlay extends StatelessWidget {
               const SizedBox(height: 16),
               const Text(
                 'Reading your receipt…',
-                style: TextStyle(
-                  color: Color(0xFF555555),
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: Color(0xFF555555), fontSize: 13),
               ),
             ],
           ),
@@ -522,8 +605,11 @@ class _ErrorPlaceholder extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.camera_alt_outlined,
-                color: Colors.white54, size: 56),
+            const Icon(
+              Icons.camera_alt_outlined,
+              color: Colors.white54,
+              size: 56,
+            ),
             const SizedBox(height: 16),
             Text(
               message,

@@ -136,80 +136,52 @@ class AuthService {
   // ─────────────────────── GOOGLE SIGN-IN ────────────────────
 
   /// Native Google Sign-In → exchange ID token with Supabase.
+  ///
+  /// Uses google_sign_in v7 API: singleton instance, initialize(),
+  /// authenticate(), and separate authorization for access tokens.
+  Future<AuthResponse> signInWithGoogle() async {
+    /// TODO: Replace with your actual Web Client ID from Google Cloud Console
+    const webClientId = '109313319438-kfbmemjulol58eb63voh3glesb8urbtr.apps.googleusercontent.com';
 
-  //   Future<AuthResponse> signInWithGoogle() async {
-  //     const webClientId = '109313319438-kfbmemjulol58eb63voh3glesb8urbtr.apps.googleusercontent.com';
+    final googleSignIn = GoogleSignIn.instance;
 
-  //     final googleSignIn = GoogleSignIn.instance;
+    // Initialize must be called exactly once before any other method.
+    await googleSignIn.initialize(
+      serverClientId: webClientId,
+    );
 
-  //     // Initialize must be called exactly once before any other method.
-  //     await googleSignIn.initialize(
-  //       serverClientId: webClientId,
-  //     );
+    // Authenticate — throws GoogleSignInException on failure/cancel
+    final googleUser = await googleSignIn.authenticate();
 
-  //     // Authenticate — throws GoogleSignInException on failure/cancel
-  //     final googleUser = await googleSignIn.authenticate();
+    // Get the ID token from the authentication result
+    final idToken = googleUser.authentication.idToken;
 
-  //     // Get the ID token from the authentication result
-  //     final idToken = googleUser.authentication.idToken;
+    if (idToken == null) {
+      throw Exception('No ID token received from Google');
+    }
 
-  //   Future<AuthResponse> signInWithGoogle() async {
-  //     /// TODO: Replace with your actual Web Client ID from Google Cloud Console
-  //     const webClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+    // Optionally get an access token via authorization
+    String? accessToken;
+    try {
+      final authorization = await googleUser.authorizationClient
+          .authorizeScopes(<String>['email', 'profile']);
+      accessToken = authorization.accessToken;
+    } catch (_) {
+      // Access token is not strictly required for Supabase signInWithIdToken
+    }
 
-  //     final googleSignIn = GoogleSignIn(serverClientId: webClientId);
+    final res = await supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: accessToken,
+    );
 
-  //     final googleUser = await googleSignIn.signIn();
-  //     if (googleUser == null) {
-  //       throw Exception('Google sign-in was cancelled');
-  //     }
+    return res;
+  }
 
-  //     final googleAuth = await googleUser.authentication;
-  //     final idToken = googleAuth.idToken;
-  //     final accessToken = googleAuth.accessToken;
+  // ─────────────────────────── SIGN OUT ──────────────────────
 
-  //     if (idToken == null) {
-  //       throw Exception('No ID token received from Google');
-  //     }
-
-  //     // Optionally get an access token via authorization
-  //     String? accessToken;
-  //     try {
-  //       final authorization = await googleUser.authorizationClient
-  //           .authorizeScopes(<String>['email', 'profile']);
-  //       accessToken = authorization.accessToken;
-  //     } catch (_) {
-  //       // Access token is not strictly required for Supabase signInWithIdToken
-  //     }
-
-  //     final res = await supabase.auth.signInWithIdToken(
-  //       provider: OAuthProvider.google,
-  //       idToken: idToken,
-  //       accessToken: accessToken,
-  //     );
-  //     final res = await supabase.auth.signInWithIdToken(
-  //       provider: OAuthProvider.google,
-  //       idToken: idToken,
-  //       accessToken: accessToken,
-  //     );
-
-  //     return res;
-  //   }
-
-  //   // ─────────────────────────── SIGN OUT ──────────────────────
-
-  //   /// Sign the current user out and end the session.
-
-  //   // ─────────────────────── AUTH STATE ────────────────────────
-
-  //   /// Returns the currently authenticated [User], or `null`.
-  //   User? get currentUser => supabase.auth.currentUser;
-
-  //   Stream<AuthState> get authStateChanges => supabase.auth.onAuthStateChange;
-
-  //   /// Returns `true` if there is an active session.
-  //   bool isLoggedIn() => supabase.auth.currentSession != null;
-  // }
+  /// Sign the current user out and end the session.
   Future<void> signOut() async {
     try {
       await supabase.auth.signOut();
@@ -219,4 +191,14 @@ class AuthService {
       throw Exception('Sign-out failed: $e');
     }
   }
+
+  // ─────────────────────── AUTH STATE ────────────────────────
+
+  /// Returns the currently authenticated [User], or `null`.
+  User? get currentUser => supabase.auth.currentUser;
+
+  Stream<AuthState> get authStateChanges => supabase.auth.onAuthStateChange;
+
+  /// Returns `true` if there is an active session.
+  bool isLoggedIn() => supabase.auth.currentSession != null;
 }

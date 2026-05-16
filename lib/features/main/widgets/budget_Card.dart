@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spendly/features/Profile/Model/InfoCardModel%20.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/widgets/set_budget_bottom_sheet.dart';
-import 'package:spendly/features/main/providers/budget_provider.dart';
 
 class BudgetCard extends ConsumerWidget {
   const BudgetCard({super.key});
@@ -24,7 +22,10 @@ class BudgetCard extends ConsumerWidget {
 
     return financeAsync.when(
       loading: () => const CircularProgressIndicator(color: Colors.white),
-      error: (e, _) => Text('Error', style: TextStyle(color: Colors.white)),
+      error: (e, _) {
+        print(e.toString());
+        return Text(e.toString(), style: TextStyle(color: Colors.white));
+      },
       data: (finance) {
         final netbalance = finance.netBalance;
         final income = finance.totalIncome;
@@ -102,7 +103,7 @@ class BudgetCard extends ConsumerWidget {
                                     color: Colors.white,
                                     size: 16,
                                   ),
-                                  SizedBox(width: 8),
+                                  SizedBox(width: 2),
                                   Text(
                                     "Set Budget",
                                     style: TextStyle(
