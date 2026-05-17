@@ -77,19 +77,37 @@ def predict_overrun():
             pass
         logger.info(f'predict_overrun: risk_level type={type(prediction.risk_level)} value={prediction.risk_level}')
         
-        # Defensive: ensure riskLevel is serializable (string)
+        # Defensive: build a safe dict to avoid enum/string attribute errors
         try:
-            pred_dict = prediction.to_dict()
-            pred_dict['riskLevel'] = getattr(prediction.risk_level, 'value', str(prediction.risk_level))
+            def _safe_value(obj):
+                try:
+                    return obj.value
+                except Exception:
+                    try:
+                        return str(obj)
+                    except Exception:
+                        return None
+
+            pred_dict = {
+                'willOverrun': getattr(prediction, 'will_overrun', False),
+                'confidence': getattr(prediction, 'confidence', 0.0),
+                'projectedSpending': getattr(prediction, 'projected_spending', 0.0),
+                'budgetLimit': getattr(prediction, 'budget_limit', None),
+                'daysRemaining': getattr(prediction, 'days_remaining', None),
+                'riskLevel': _safe_value(getattr(prediction, 'risk_level', None)),
+                'message': getattr(prediction, 'message', '')
+            }
         except Exception:
             pred_dict = {'willOverrun': getattr(prediction, 'will_overrun', False)}
 
         return jsonify(pred_dict)
     
     except Exception as e:
+        tb = traceback.format_exc()
         traceback.print_exc()
-        logger.error(f'predict_overrun error: {e}')
-        return jsonify({'error': str(e)}), 400
+        logger.error(f'predict_overrun error: {e}\n{tb}')
+        # Include traceback in response for debugging (remove in production)
+        return jsonify({'error': str(e), 'trace': tb}), 400
 
 
 @predictions_bp.route('/predict-overrun', methods=['GET'])
@@ -105,6 +123,66 @@ def predict_overrun_get():
         'message': 'Sample prediction response'
     }
     return jsonify(sample)
+
+
+@predictions_bp.route('/predict-overrun-safe', methods=['POST'])
+def predict_overrun_safe():
+    """Safe prediction endpoint that builds JSON manually to avoid encoder issues."""
+    try:
+        data = request.get_json() or {}
+
+        # Basic input extraction with defaults
+        current_spending = float(data.get('currentSpending', 0))
+        budget_limit = float(data.get('budgetLimit', 0))
+        days_in_month = int(data.get('daysInMonth', 30))
+        current_day = int(data.get('currentDay', 1))
+
+        # Convert expenses defensively
+        expenses = []
+        for exp in data.get('expenses', []) or []:
+            try:
+                expenses.append(ExpenseData(
+                    date=datetime.fromisoformat(exp.get('date')) if exp.get('date') else datetime.now(),
+                    amount=float(exp.get('amount', 0)),
+                    category=exp.get('category', ''),
+                    description=exp.get('description', '')
+                ))
+            except Exception:
+                continue
+
+        prediction = OverrunPredictor.predict_overrun(
+            current_spending=current_spending,
+            budget_limit=budget_limit,
+            daily_expenses=expenses,
+            days_in_month=days_in_month,
+            current_day=current_day
+        )
+
+        # Build plain JSON-serializable dict
+        resp = {
+            'willOverrun': bool(getattr(prediction, 'will_overrun', False)),
+            'confidence': float(getattr(prediction, 'confidence', 0.0)),
+            'projectedSpending': float(getattr(prediction, 'projected_spending', 0.0)),
+            'budgetLimit': float(getattr(prediction, 'budget_limit', 0.0)) if getattr(prediction, 'budget_limit', None) is not None else None,
+            'daysRemaining': int(getattr(prediction, 'days_remaining', 0)),
+            'riskLevel': (getattr(prediction, 'risk_level').value
+                          if hasattr(getattr(prediction, 'risk_level', None), 'value')
+                          else str(getattr(prediction, 'risk_level', ''))),
+            'message': str(getattr(prediction, 'message', ''))
+        }
+
+        # Return with manual JSON serialization to avoid framework encoders
+        from flask import make_response
+        import json as _json
+        body = _json.dumps(resp, ensure_ascii=False)
+        r = make_response(body, 200)
+        r.headers['Content-Type'] = 'application/json; charset=utf-8'
+        return r
+
+    except Exception as e:
+        import traceback as _tb
+        tb = _tb.format_exc()
+        return jsonify({'error': str(e), 'trace': tb}), 400
 
 
 @predictions_bp.route('/forecast-monthly', methods=['POST'])

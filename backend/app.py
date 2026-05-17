@@ -21,6 +21,9 @@ def create_app():
     """Create and configure the Flask application"""
     
     app = Flask(__name__)
+    # Enable debug and propagate exceptions for local troubleshooting
+    app.debug = True
+    app.config['PROPAGATE_EXCEPTIONS'] = True
     
     # Enable CORS for all routes
     CORS(app, resources={
@@ -60,6 +63,7 @@ if __name__ == '__main__':
     app = create_app()
     app.run(
         host='0.0.0.0',
-        port=int(os.environ.get('PORT', 5000)),
+        # Use 5001 by default for local debug to avoid conflicts
+        port=int(os.environ.get('PORT', 5001)),
         debug=os.environ.get('FLASK_ENV') == 'development'
     )

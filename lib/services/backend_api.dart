@@ -6,7 +6,14 @@ class BackendApi {
   BackendApi._(this._dio);
 
   static BackendApi create() {
-    final baseUrl = dotenv.env['BACKEND_URL'] ?? 'http://127.0.0.1:5000';
+    // Use local debug backend on port 5001 by default (safe endpoint available)
+    // On web, dotenv may not be initialized, so just use the default
+    String baseUrl = 'http://127.0.0.1:5001';
+    try {
+      baseUrl = dotenv.env['BACKEND_URL'] ?? baseUrl;
+    } catch (e) {
+      // dotenv not initialized (normal on web), use default
+    }
     final dio = Dio(BaseOptions(baseUrl: baseUrl, connectTimeout: Duration(milliseconds: 5000)));
     return BackendApi._(dio);
   }
@@ -19,7 +26,8 @@ class BackendApi {
   }
 
   Future<Map<String, dynamic>> predictOverrun(Map<String, dynamic> payload) async {
-    final resp = await _dio.post('/api/predictions/predict-overrun', data: payload);
+    // Call the safe endpoint to avoid serialization issues during local debugging
+    final resp = await _dio.post('/api/predictions/predict-overrun-safe', data: payload);
     return Map<String, dynamic>.from(resp.data);
   }
 
