@@ -129,7 +129,7 @@ final GoRouter router = GoRouter(
           navigatorKey: _reportNavigatorKey,
           routes: [
             GoRoute(
-              path: '/report',
+              path: '/insights',
               builder: (context, state) => const ReportScreen(),
             ),
           ],
@@ -148,7 +148,11 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
-
+      path: '/report',
+      redirect: (context, state) => '/insights',
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
       path: '/legal',
       builder: (context, state) => LegalInformationScreen(),
     ),
