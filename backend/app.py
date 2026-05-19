@@ -3,8 +3,11 @@ Spendly Backend - Flask API for Insights and Reports
 """
 from flask import Flask, jsonify
 from flask_cors import CORS
+
 import sys
 import os
+
+# Load environment variables from .env file
 
 # Add parent directory to path to import backend module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -63,7 +66,7 @@ if __name__ == '__main__':
     app = create_app()
     app.run(
         host='0.0.0.0',
-        # Use 5001 by default for local debug to avoid conflicts
-        port=int(os.environ.get('PORT', 5001)),
+        # Use 5000 by default as specified in .env.example
+        port=int(os.environ.get('PORT', 5000)),
         debug=os.environ.get('FLASK_ENV') == 'development'
     )

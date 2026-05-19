@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/authentication/Model/currency_data.dart';
 import 'package:spendly/theme/colors.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final selectedCurrencyProvider = StateProvider<int>((ref) => -1);
 
@@ -20,7 +21,18 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
   String _searchQuery = '';
 
   // Popular currencies shown at the top
-  static const _popularCodes = ['EGP', 'USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD', 'JPY', 'CNY', 'INR'];
+  static const _popularCodes = [
+    'EGP',
+    'USD',
+    'EUR',
+    'GBP',
+    'SAR',
+    'AED',
+    'KWD',
+    'JPY',
+    'CNY',
+    'INR',
+  ];
 
   @override
   void dispose() {
@@ -32,10 +44,12 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
     if (_searchQuery.isEmpty) return allCurrencies;
     final q = _searchQuery.toLowerCase();
     return allCurrencies
-        .where((c) =>
-            c.name.toLowerCase().contains(q) ||
-            c.code.toLowerCase().contains(q) ||
-            c.symbol.contains(q))
+        .where(
+          (c) =>
+              c.name.toLowerCase().contains(q) ||
+              c.code.toLowerCase().contains(q) ||
+              c.symbol.contains(q),
+        )
         .toList();
   }
 
@@ -47,19 +61,50 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
 
   Future<void> _saveCurrency(BuildContext context, WidgetRef ref) async {
     final selectedIndex = ref.read(selectedCurrencyProvider);
+
     if (selectedIndex == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a currency first")),
       );
       return;
     }
-    
-    // The original code unconditionally did context.go('/home');
-    // For editing, you might want context.pop() depending on your router setup.
-    if (widget.isEdit && context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/home');
+
+    final currency = allCurrencies[selectedIndex];
+    final user = Supabase.instance.client.auth.currentUser;
+
+    await Supabase.instance.client
+        .from('users')
+        .update({'currency': currency.code})
+        .eq('id', user!.id);
+
+    // ✅ THIS IS THE FIX
+    if (!context.mounted) return;
+    Future<void> _saveCurrency(BuildContext context, WidgetRef ref) async {
+      final selectedIndex = ref.read(selectedCurrencyProvider);
+
+      if (selectedIndex == -1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please select a currency first")),
+        );
+        return;
+      }
+
+      final currency = allCurrencies[selectedIndex];
+      final user = Supabase.instance.client.auth.currentUser;
+
+      await Supabase.instance.client
+          .from('users')
+          .update({'currency': currency.code})
+          .eq('id', user!.id);
+
+      // ✅ THIS IS THE FIX
+      if (!context.mounted) return;
+
+      if (widget.isEdit) {
+        context.pop(); // back to profile
+      } else {
+        context.go('/home'); // onboarding finished
+      }
     }
   }
 
@@ -71,18 +116,26 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black87);
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : Colors.black87);
     final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
-    
+
     // Use the original primary color or the dark theme's primary color
-    final primaryColor = isDark ? AppColors.buttonDark : const Color(0xff00365A);
-    final searchBgColor = isDark ? AppColors.darkSurface : const Color(0xFFF5F5F7);
+    final primaryColor = isDark
+        ? AppColors.buttonDark
+        : const Color(0xff00365A);
+    final searchBgColor = isDark
+        ? AppColors.darkSurface
+        : const Color(0xFFF5F5F7);
     final tileBgColor = isDark ? AppColors.darkSurface : Colors.white;
     final borderColor = isDark ? Colors.grey.shade800 : Colors.grey.shade200;
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: widget.isEdit ? AppBar(title: const Text("Change Currency")) : null,
+      appBar: widget.isEdit
+          ? AppBar(title: const Text("Change Currency"))
+          : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -126,7 +179,11 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                   prefixIcon: Icon(Icons.search, color: subtitleColor),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: Icon(Icons.clear, size: 18, color: subtitleColor),
+                          icon: Icon(
+                            Icons.clear,
+                            size: 18,
+                            color: subtitleColor,
+                          ),
                           onPressed: () {
                             _searchController.clear();
                             setState(() => _searchQuery = '');
@@ -159,15 +216,17 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                         ),
                       ),
                     ),
-                    ..._popularCurrencies.map((c) => _buildCurrencyTile(
-                          c, 
-                          selectedIndex, 
-                          primaryColor, 
-                          tileBgColor, 
-                          borderColor, 
-                          textColor, 
-                          subtitleColor
-                        )),
+                    ..._popularCurrencies.map(
+                      (c) => _buildCurrencyTile(
+                        c,
+                        selectedIndex,
+                        primaryColor,
+                        tileBgColor,
+                        borderColor,
+                        textColor,
+                        subtitleColor,
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Divider(color: borderColor),
@@ -197,15 +256,17 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                       ),
                     ),
 
-                  ...filtered.map((c) => _buildCurrencyTile(
-                        c, 
-                        selectedIndex, 
-                        primaryColor, 
-                        tileBgColor, 
-                        borderColor, 
-                        textColor, 
-                        subtitleColor
-                      )),
+                  ...filtered.map(
+                    (c) => _buildCurrencyTile(
+                      c,
+                      selectedIndex,
+                      primaryColor,
+                      tileBgColor,
+                      borderColor,
+                      textColor,
+                      subtitleColor,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -235,7 +296,9 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: selectedIndex == -1 && isDark ? Colors.grey.shade500 : Colors.white,
+                      color: selectedIndex == -1 && isDark
+                          ? Colors.grey.shade500
+                          : Colors.white,
                     ),
                   ),
                 ),
@@ -248,7 +311,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
   }
 
   Widget _buildCurrencyTile(
-    CurrencyInfo currency, 
+    CurrencyInfo currency,
     int selectedIndex,
     Color primaryColor,
     Color tileBgColor,
@@ -281,10 +344,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
         child: Row(
           children: [
             // Flag emoji
-            Text(
-              currency.flag,
-              style: const TextStyle(fontSize: 28),
-            ),
+            Text(currency.flag, style: const TextStyle(fontSize: 28)),
             const SizedBox(width: 14),
 
             // Name + code
@@ -303,10 +363,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '${currency.code}  •  ${currency.symbol}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: subtitleColor,
-                    ),
+                    style: TextStyle(fontSize: 12, color: subtitleColor),
                   ),
                 ],
               ),
