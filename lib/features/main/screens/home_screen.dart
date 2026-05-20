@@ -393,6 +393,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                   final isIncome = tx.type == 'income';
                                   return TransactionItem(
                                     data: TransactionData(
+                                      id: tx.id,
                                       title: tx.title,
                                       subtitle: tx.description.isNotEmpty
                                           ? tx.description
@@ -407,6 +408,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                       iconColor:
                                           _getCategoryColor(tx.category),
                                     ),
+                                    onDelete: () async {
+                                      await ref.read(transactionsListProvider.notifier).deleteTransaction(tx.id);
+                                      await ref.read(mainFinanceProvider.notifier).refreshFinance();
+                                    },
+                                    onEdit: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (_) => AddTransactionBottomSheet(transactionToEdit: tx),
+                                      );
+                                    },
                                   );
                                 }).toList(),
                               ),

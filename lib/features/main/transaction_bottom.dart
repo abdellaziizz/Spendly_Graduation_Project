@@ -11,8 +11,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:spendly/features/main/transaction_model.dart';
+
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
-  const AddTransactionBottomSheet({super.key});
+  final TransactionModel? transactionToEdit;
+  const AddTransactionBottomSheet({super.key, this.transactionToEdit});
 
   @override
   ConsumerState<AddTransactionBottomSheet> createState() =>
@@ -34,6 +37,29 @@ class _AddTransactionBottomSheetState
     {'name': 'Dining Out', 'icon': Icons.restaurant_outlined},
     {'name': 'Leisure',    'icon': Icons.movie_creation_outlined},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.transactionToEdit != null) {
+      final tx = widget.transactionToEdit!;
+      _selectedType = tx.type == 'expense' ? 0 : 1;
+      _selectedCategory = tx.category.isNotEmpty ? tx.category : null;
+      _amountController.text = tx.amount.toString();
+      _titleController.text = tx.title;
+      _descriptionController.text = tx.description;
+
+      if (_selectedCategory != null) {
+        final exists = _categories.any((c) => c['name'] == _selectedCategory);
+        if (!exists) {
+          _categories.add({
+            'name': _selectedCategory,
+            'icon': Icons.category_outlined,
+          });
+        }
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -67,7 +93,7 @@ class _AddTransactionBottomSheetState
       );
     }
 
-    await supabase.from('transactions').insert({
+    final dataMap = {
       'users_id':    userId,
       'type':        isExpense ? 'expense' : 'income',
       'amount':      amount,
@@ -75,10 +101,16 @@ class _AddTransactionBottomSheetState
       'description': _descriptionController.text.trim(),
       'category_id': categoryId,
       'input_method': 'manual',
-    });
+    };
 
-    ref.invalidate(transactionsListProvider);
-    ref.invalidate(mainFinanceProvider);
+    if (widget.transactionToEdit == null) {
+      await supabase.from('transactions').insert(dataMap);
+    } else {
+      await supabase.from('transactions').update(dataMap).eq('id', widget.transactionToEdit!.id);
+    }
+
+    await ref.read(transactionsListProvider.notifier).refresh();
+    await ref.read(mainFinanceProvider.notifier).refreshFinance();
 
     if (mounted) Navigator.pop(context);
   }
@@ -124,7 +156,7 @@ class _AddTransactionBottomSheetState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Add Transaction',
+                  widget.transactionToEdit == null ? 'Add Transaction' : 'Edit Transaction',
                   style: context.textTheme.headlineSmall,
                 ),
                 IconButton(
