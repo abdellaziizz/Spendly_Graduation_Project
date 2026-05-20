@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/chatbot/Model/chat_message.dart';
 import 'package:spendly/features/chatbot/Provider/chat_provider.dart';
+import 'package:spendly/theme/app_gradients.dart';
+import 'package:spendly/theme/app_radius.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -12,9 +16,9 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen>
     with TickerProviderStateMixin {
-  final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  final FocusNode _focusNode = FocusNode();
+  final TextEditingController _controller      = TextEditingController();
+  final ScrollController      _scrollController = ScrollController();
+  final FocusNode             _focusNode        = FocusNode();
 
   @override
   void dispose() {
@@ -39,7 +43,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   Future<void> _handleSend() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-
     _controller.clear();
     _focusNode.requestFocus();
     await ref.read(chatProvider.notifier).sendMessage(text);
@@ -47,31 +50,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   @override
   Widget build(BuildContext context) {
-    final messages = ref.watch(chatProvider);
+    final messages  = ref.watch(chatProvider);
     final isLoading = ref.watch(isLoadingProvider);
 
-    // Auto-scroll when messages change
     ref.listen(chatProvider, (_, _) => _scrollToBottom());
 
     return Scaffold(
-      backgroundColor: const Color(0xffF8F8F8),
-      appBar: _buildAppBar(),
+      backgroundColor: context.isDark
+          ? AppColors.chatBgDark
+          : AppColors.chatBgLight,
+      appBar: _buildAppBar(context),
       body: Column(
         children: [
           Expanded(
             child: messages.isEmpty
-                ? _buildEmptyState()
-                : _buildMessageList(messages, isLoading),
+                ? _buildEmptyState(context)
+                : _buildMessageList(context, messages, isLoading),
           ),
-          _buildInputArea(isLoading),
+          _buildInputArea(context, isLoading),
         ],
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xffF8F8F8),
+      backgroundColor: context.isDark
+          ? AppColors.chatBgDark
+          : AppColors.chatBgLight,
       elevation: 0,
       centerTitle: false,
       title: Row(
@@ -80,10 +86,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xff397BBD), Color(0xffff0b396d)],
-              ),
-              borderRadius: BorderRadius.circular(12),
+              gradient: AppGradients.chatBot,
+              borderRadius: AppRadius.mdBorderRadius,
             ),
             child: const Icon(
               Icons.auto_awesome,
@@ -95,12 +99,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Your CFO',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
+                style: context.textTheme.titleMedium?.copyWith(
                   letterSpacing: 0.3,
                 ),
               ),
@@ -110,15 +111,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                     width: 8,
                     height: 8,
                     decoration: const BoxDecoration(
-                      color: Colors
-                          .green, // Use Color(0xFF4CAF50) for a specific shade
+                      color: AppColors.success,
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 4), // Space between circle and text
-                  const Text(
+                  const SizedBox(width: 4),
+                  Text(
                     'Always active',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: context.textTheme.labelSmall,
                   ),
                 ],
               ),
@@ -128,18 +128,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.refresh_rounded, color: Color(0xff72777A)),
+          icon: Icon(Icons.refresh_rounded, color: context.subtitleColor),
           tooltip: 'New Chat',
-          onPressed: () {
-            ref.read(chatProvider.notifier).clearChat();
-          },
+          onPressed: () => ref.read(chatProvider.notifier).clearChat(),
         ),
         const SizedBox(width: 4),
       ],
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -148,15 +146,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xff397BBD), Color(0xffff0b396d)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24),
+              gradient: AppGradients.chatBot,
+              borderRadius: AppRadius.xxlBorderRadius,
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xff397BBD).withValues(alpha: 0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 24,
                   offset: const Offset(0, 8),
                 ),
@@ -169,30 +163,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'How can I help you today?',
-            style: TextStyle(
-              color: Color(0xff397BBD),
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
+            style: context.textTheme.headlineSmall?.copyWith(
+              color: context.colors.primary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Ask me about budgeting, saving, or expenses',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.45),
-              fontSize: 14,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: context.subtitleColor,
             ),
           ),
           const SizedBox(height: 36),
-          _buildSuggestionChips(),
+          _buildSuggestionChips(context),
         ],
       ),
     );
   }
 
-  Widget _buildSuggestionChips() {
+  Widget _buildSuggestionChips(BuildContext context) {
     final suggestions = [
       '💰 How to save more?',
       '📊 Budget tips',
@@ -211,16 +202,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xff397BBD), Color(0xffFF0B396D)],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xff397BBD)),
+              gradient: AppGradients.chatBot,
+              borderRadius: AppRadius.fullBorderRadius,
             ),
             child: Text(
               s,
               style: const TextStyle(
-                color: Colors.white70,
+                color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -231,28 +219,35 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     );
   }
 
-  Widget _buildMessageList(List<Message> messages, bool isLoading) {
+  Widget _buildMessageList(
+      BuildContext context, List<Message> messages, bool isLoading) {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       itemCount: messages.length + (isLoading ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == messages.length && isLoading) {
-          return _buildTypingIndicator();
+          return _buildTypingIndicator(context);
         }
-        return _buildMessageBubble(messages[index]);
+        return _buildMessageBubble(context, messages[index]);
       },
     );
   }
 
-  Widget _buildMessageBubble(Message message) {
-    final isUser = message.isUser;
+  Widget _buildMessageBubble(BuildContext context, Message message) {
+    final isUser   = message.isUser;
+    final aiBubble = context.isDark
+        ? AppColors.chatAiBubbleDark
+        : AppColors.chatAiBubbleLight;
+    final aiTextColor = context.isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: isUser
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isUser) ...[
@@ -260,10 +255,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               width: 30,
               height: 30,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xff397BBD), Color(0xffff0b396d)],
-                ),
-                borderRadius: BorderRadius.circular(10),
+                gradient: AppGradients.chatBot,
+                borderRadius: AppRadius.smBorderRadius,
               ),
               child: const Icon(
                 Icons.auto_awesome,
@@ -277,21 +270,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isUser
-                    ? const Color(0xff006BE5)
-                    : const Color(0xFFF2F4F5),
+                color: isUser ? AppColors.chatUserBubble : aiBubble,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(18),
-                  topRight: const Radius.circular(18),
-                  bottomLeft: Radius.circular(isUser ? 18 : 4),
+                  topLeft:     const Radius.circular(18),
+                  topRight:    const Radius.circular(18),
+                  bottomLeft:  Radius.circular(isUser ? 18 : 4),
                   bottomRight: Radius.circular(isUser ? 4 : 18),
                 ),
                 boxShadow: isUser
                     ? [
                         BoxShadow(
-                          color: const Color(
-                            0xff006BE5,
-                          ).withValues(alpha: 0.25),
+                          color: AppColors.chatUserBubble.withValues(alpha: 0.25),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -304,7 +293,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                   Text(
                     message.text,
                     style: TextStyle(
-                      color: isUser ? Colors.white : Color(0xff303437),
+                      color: isUser ? Colors.white : aiTextColor,
                       fontSize: 14.5,
                       height: 1.45,
                     ),
@@ -315,7 +304,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                     style: TextStyle(
                       color: isUser
                           ? Colors.white.withValues(alpha: 0.5)
-                          : Colors.white.withValues(alpha: 0.3),
+                          : context.hintColor,
                       fontSize: 10,
                     ),
                   ),
@@ -329,7 +318,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     );
   }
 
-  Widget _buildTypingIndicator() {
+  Widget _buildTypingIndicator(BuildContext context) {
+    final aiBubble = context.isDark
+        ? AppColors.chatAiBubbleDark
+        : AppColors.chatAiBubbleLight;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -338,10 +331,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             width: 30,
             height: 30,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xff006BE5), Color(0xff397BBD)],
-              ),
-              borderRadius: BorderRadius.circular(10),
+              gradient: AppGradients.chatBot,
+              borderRadius: AppRadius.smBorderRadius,
             ),
             child: const Icon(
               Icons.auto_awesome,
@@ -353,12 +344,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E3A),
+              color: aiBubble,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(18),
+                topLeft:     Radius.circular(18),
+                topRight:    Radius.circular(18),
                 bottomRight: Radius.circular(18),
-                bottomLeft: Radius.circular(4),
+                bottomLeft:  Radius.circular(4),
               ),
             ),
             child: const _TypingDots(),
@@ -368,7 +359,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     );
   }
 
-  Widget _buildInputArea(bool isLoading) {
+  Widget _buildInputArea(BuildContext context, bool isLoading) {
+    final bgColor = context.isDark ? AppColors.chatBgDark : AppColors.chatBgLight;
+
     return Container(
       padding: EdgeInsets.only(
         left: 16,
@@ -377,9 +370,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xffF8F8F8),
+        color: bgColor,
         border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
+          top: BorderSide(
+            color: context.colors.outline.withValues(alpha: 0.5),
+          ),
         ),
       ),
       child: Row(
@@ -387,24 +382,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xff397BBD),
-                borderRadius: BorderRadius.circular(24),
+                color: context.colors.surfaceContainerHighest,
+                borderRadius: AppRadius.fullBorderRadius,
                 border: Border.all(
-                  color: const Color(0xff006BE5).withValues(alpha: 0.2),
+                  color: context.colors.primary.withValues(alpha: 0.2),
                 ),
               ),
               child: TextField(
                 controller: _controller,
                 focusNode: _focusNode,
-                style: const TextStyle(color: Colors.white, fontSize: 14.5),
+                style: TextStyle(
+                  color: context.onSurface,
+                  fontSize: 14.5,
+                ),
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _handleSend(),
                 maxLines: 4,
                 minLines: 1,
                 decoration: InputDecoration(
                   hintText: 'Ask me anything...',
-                  hintStyle: TextStyle(color: Colors.white70, fontSize: 14.5),
+                  hintStyle: TextStyle(
+                    color: context.hintColor,
+                    fontSize: 14.5,
+                  ),
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 12,
@@ -421,20 +425,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                gradient: isLoading
-                    ? null
-                    : const LinearGradient(
-                        colors: [Color(0xff397BBD), Color(0xff006BE5)],
-                      ),
-                color: isLoading ? const Color(0xFF2A2A4A) : null,
-                borderRadius: BorderRadius.circular(16),
+                gradient: isLoading ? null : AppGradients.chatBot,
+                color: isLoading
+                    ? context.colors.surfaceContainerHighest
+                    : null,
+                borderRadius: AppRadius.lgBorderRadius,
                 boxShadow: isLoading
                     ? null
                     : [
                         BoxShadow(
-                          color: const Color(
-                            0xFF6C63FF,
-                          ).withValues(alpha: 0.35),
+                          color: AppColors.primary.withValues(alpha: 0.35),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -443,7 +443,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               child: Icon(
                 Icons.send_rounded,
                 color: isLoading
-                    ? Colors.white.withValues(alpha: 0.3)
+                    ? context.hintColor
                     : Colors.white,
                 size: 20,
               ),
@@ -461,7 +461,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   }
 }
 
-/// Animated three-dot typing indicator
+/// Animated three-dot typing indicator.
 class _TypingDots extends StatefulWidget {
   const _TypingDots();
 
@@ -471,12 +471,12 @@ class _TypingDots extends StatefulWidget {
 
 class _TypingDotsState extends State<_TypingDots>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat();
@@ -484,22 +484,21 @@ class _TypingDotsState extends State<_TypingDots>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _ctrl,
       builder: (context, _) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(3, (i) {
-            final delay = i * 0.2;
-            final t = ((_controller.value - delay) % 1.0).clamp(0.0, 1.0);
-            // Bounce effect: scale up then down
-            final scale = t < 0.5 ? 1.0 + t : 2.0 - t;
+            final delay   = i * 0.2;
+            final t       = ((_ctrl.value - delay) % 1.0).clamp(0.0, 1.0);
+            final scale   = t < 0.5 ? 1.0 + t : 2.0 - t;
             final opacity = t < 0.5 ? 0.4 + t * 1.2 : 1.0 - (t - 0.5) * 1.2;
             return Padding(
               padding: EdgeInsets.only(right: i < 2 ? 4 : 0),
@@ -509,9 +508,8 @@ class _TypingDotsState extends State<_TypingDots>
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: const Color(
-                      0xFF6C63FF,
-                    ).withValues(alpha: opacity.clamp(0.3, 1.0)),
+                    color: context.colors.primary
+                        .withValues(alpha: opacity.clamp(0.3, 1.0)),
                     shape: BoxShape.circle,
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
 class TransactionData {
   final String title;
   final String subtitle;
@@ -20,19 +21,20 @@ class TransactionData {
   bool get isIncome => amount >= 0;
 }
 
-class TransactionItem extends StatelessWidget {
+class TransactionItem extends ConsumerWidget {
   final TransactionData data;
 
   const TransactionItem({super.key, required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isIncome = data.isIncome;
+    final curSymbol = ref.watch(currencySymbolProvider);
 
     // Just for adding (+, green) or (-, red)
     final amountText = isIncome
-        ? '+\$ ${_formatNumber(data.amount.abs())}'
-        : '-\$ ${_formatNumber(data.amount.abs())}';
+        ? '+$curSymbol ${_formatNumber(data.amount.abs())}'
+        : '-$curSymbol ${_formatNumber(data.amount.abs())}';
     final amountColor = isIncome
         ? const Color(0xFF2E7D32)
         : const Color(0xFFD32F2F);

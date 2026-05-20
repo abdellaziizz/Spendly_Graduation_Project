@@ -1,14 +1,17 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/domain/models/category_insights_item.dart';
 
-class ProgressRow extends StatelessWidget {
+class ProgressRow extends ConsumerWidget {
   const ProgressRow({required this.category, required this.total});
 
   final CategoryInsightsItem category;
   final double total;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     final fraction = total <= 0
         ? 0.0
         : (category.amount / total).clamp(0.0, 1.0);
@@ -28,7 +31,7 @@ class ProgressRow extends StatelessWidget {
               ),
             ),
             Text(
-              '\$${category.amount.toStringAsFixed(2)}',
+              '${curSymbol}${category.amount.toStringAsFixed(2)}',
               style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
           ],

@@ -1,14 +1,17 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/domain/models/live_insights_data.dart';
 
 // Comparing Spending vs Predicted Spending
-class BudgetStatusCard extends StatelessWidget {
+class BudgetStatusCard extends ConsumerWidget {
   const BudgetStatusCard({required this.data});
 
   final LiveInsightsData data;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     final remaining = data.budgetLimit - data.currentSpending;
     final safe = data.projectedSpending <= data.budgetLimit;
     final statusColor = safe ? Colors.greenAccent : Colors.orangeAccent;
@@ -34,7 +37,7 @@ class BudgetStatusCard extends StatelessWidget {
                 style: TextStyle(color: Colors.black, fontSize: 10),
               ),
               Text(
-                '\$${data.currentSpending.toStringAsFixed(2)}',
+                '${curSymbol}${data.currentSpending.toStringAsFixed(2)}',
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 18,
@@ -44,7 +47,7 @@ class BudgetStatusCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 safe
-                    ? ' You\'re on track to stay within budget (\$${remaining.toStringAsFixed(2)} remaining)'
+                    ? ' You\'re on track to stay within budget ($curSymbol${remaining.toStringAsFixed(2)} remaining)'
                     : ' You are likely to exceed your current budget.',
                 style: const TextStyle(color: Colors.black, fontSize: 11),
               ),
@@ -77,7 +80,7 @@ class BudgetStatusCard extends StatelessWidget {
               style: TextStyle(color: Colors.black, fontSize: 10),
             ),
             Text(
-              '\$${data.projectedSpending.toStringAsFixed(2)}',
+              '${curSymbol}${data.projectedSpending.toStringAsFixed(2)}',
               style: TextStyle(
                 color: statusColor,
                 fontSize: 18,
@@ -90,7 +93,7 @@ class BudgetStatusCard extends StatelessWidget {
               style: TextStyle(color: Colors.black, fontSize: 10),
             ),
             Text(
-              '\$${data.budgetLimit.toStringAsFixed(2)}',
+              '${curSymbol}${data.budgetLimit.toStringAsFixed(2)}',
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18,

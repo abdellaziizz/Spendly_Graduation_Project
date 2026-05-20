@@ -4,11 +4,13 @@ import 'package:custom_sliding_segmented_control/custom_sliding_segmented_contro
 import 'package:spendly/features/main/CategoryRepository.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
+import 'package:spendly/theme/app_radius.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'transaction_model.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spendly/features/main/providers/transaction_provider.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
 
@@ -19,17 +21,18 @@ class AddTransactionBottomSheet extends ConsumerStatefulWidget {
 
 class _AddTransactionBottomSheetState
     extends ConsumerState<AddTransactionBottomSheet> {
-  int _selectedType = 0; // 0 for Expense, 1 for Income
-  final _amountController = TextEditingController();
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  int     _selectedType     = 0; // 0 = Expense, 1 = Income
   String? _selectedCategory;
 
+  final _amountController      = TextEditingController();
+  final _titleController       = TextEditingController();
+  final _descriptionController = TextEditingController();
+
   final List<Map<String, dynamic>> _categories = [
-    {'name': 'Groceries', 'icon': Icons.shopping_basket_outlined},
-    {'name': 'Transport', 'icon': Icons.directions_car_outlined},
+    {'name': 'Groceries',  'icon': Icons.shopping_basket_outlined},
+    {'name': 'Transport',  'icon': Icons.directions_car_outlined},
     {'name': 'Dining Out', 'icon': Icons.restaurant_outlined},
-    {'name': 'Leisure', 'icon': Icons.movie_creation_outlined},
+    {'name': 'Leisure',    'icon': Icons.movie_creation_outlined},
   ];
 
   @override
@@ -43,45 +46,37 @@ class _AddTransactionBottomSheetState
   void _confirm() async {
     if (_titleController.text.trim().isEmpty ||
         _amountController.text.trim().isEmpty ||
-        _selectedCategory == null)
-      return;
+        _selectedCategory == null) return;
 
-    final double amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    final double amount =
+        double.tryParse(_amountController.text.trim()) ?? 0.0;
     if (amount <= 0) return;
 
     final supabase = Supabase.instance.client;
-    final userId = supabase.auth.currentUser?.id;
+    final userId   = supabase.auth.currentUser?.id;
     if (userId == null) return;
 
     final isExpense = _selectedType == 0;
     String? categoryId;
 
     if (isExpense) {
-      // schema CHECK: expense MUST have category_id
       categoryId = await resolveOrCreateCategory(
         supabase,
         userId,
         _selectedCategory!,
       );
     }
-    // schema CHECK: income MUST have category_id = NULL (enforced)
 
-    // SQL:
-    // INSERT INTO public.transactions
-    //   (users_id, type, amount, title, description, category_id, input_method)
-    // VALUES ($userId, $type, $amount, $title, $desc, $categoryId, 'manual');
     await supabase.from('transactions').insert({
-      'users_id': userId,
-      'type': isExpense ? 'expense' : 'income',
-      'amount': amount,
-      'title': _titleController.text.trim(),
+      'users_id':    userId,
+      'type':        isExpense ? 'expense' : 'income',
+      'amount':      amount,
+      'title':       _titleController.text.trim(),
       'description': _descriptionController.text.trim(),
-      'category_id': categoryId, // null for income — correct per schema
+      'category_id': categoryId,
       'input_method': 'manual',
-      // transaction_date defaults to CURRENT_DATE
     });
 
-    // Refresh the list and finance totals
     ref.invalidate(transactionsListProvider);
     ref.invalidate(mainFinanceProvider);
 
@@ -90,8 +85,10 @@ class _AddTransactionBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final amountColor = _selectedType == 0 ? Colors.red : Colors.green;
-    final hintColor = const Color(0xFFE5E5EA);
+    final curSymbol = ref.watch(currencySymbolProvider);
+    final amountColor = _selectedType == 0
+        ? AppColors.expense
+        : AppColors.income;
 
     return Container(
       padding: EdgeInsets.only(
@@ -100,48 +97,44 @@ class _AddTransactionBottomSheetState
         right: 24,
         top: 16,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: context.surface,
+        borderRadius: AppRadius.bottomSheetRadius,
       ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Handle
+            // ── Drag handle ───────────────────────────────────────────────
             Center(
               child: Container(
                 width: 40,
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
+                  color: context.onSurface.withValues(alpha: 0.15),
+                  borderRadius: AppRadius.fullBorderRadius,
                 ),
               ),
             ),
 
-            // Header
+            // ── Header ────────────────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Add Transaction",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                Text(
+                  'Add Transaction',
+                  style: context.textTheme.headlineSmall,
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   style: IconButton.styleFrom(
-                    backgroundColor: const Color(0xFFF2F2FC),
+                    backgroundColor: context.colors.surfaceContainerHighest,
                   ),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close,
-                    color: Colors.black54,
+                    color: context.subtitleColor,
                     size: 20,
                   ),
                 ),
@@ -149,15 +142,11 @@ class _AddTransactionBottomSheetState
             ),
             const SizedBox(height: 16),
 
-            // Amount Input
+            // ── Amount input ──────────────────────────────────────────────
             Center(
               child: Text(
-                "Transaction Amount",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade600,
-                ),
+                'Transaction Amount',
+                style: context.textTheme.labelMedium,
               ),
             ),
             const SizedBox(height: 8),
@@ -166,20 +155,19 @@ class _AddTransactionBottomSheetState
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "\$",
+                  curSymbol,
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade700,
+                    color: context.hintColor,
                   ),
                 ),
                 const SizedBox(width: 12),
                 IntrinsicWidth(
                   child: TextField(
                     controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'^\d+\.?\d{0,2}'),
@@ -190,17 +178,18 @@ class _AddTransactionBottomSheetState
                       fontWeight: FontWeight.bold,
                       color: amountColor,
                     ),
-                    onChanged: (val) {
-                      setState(() {});
-                    },
+                    onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      hintText: "0.00",
+                      hintText: '0.00',
                       hintStyle: TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
-                        color: hintColor,
+                        color: context.hintColor,
                       ),
                       border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      filled: false,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -210,30 +199,36 @@ class _AddTransactionBottomSheetState
             ),
             const SizedBox(height: 24),
 
-            // Toggle
+            // ── Expense / Income toggle ───────────────────────────────────
             Center(
               child: CustomSlidingSegmentedControl<int>(
                 initialValue: _selectedType,
-                children: const {
+                children: {
                   0: Text(
                     'Expense',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: context.onSurface,
+                    ),
                   ),
                   1: Text(
                     'Income',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: context.onSurface,
+                    ),
                   ),
                 },
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
+                  color: context.colors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 thumbDecoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.surface,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -241,54 +236,24 @@ class _AddTransactionBottomSheetState
                 ),
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInToLinear,
-                onValueChanged: (v) {
-                  setState(() {
-                    _selectedType = v;
-                  });
-                },
+                onValueChanged: (v) => setState(() => _selectedType = v),
               ),
             ),
             const SizedBox(height: 24),
 
-            // Title
-            Text(
-              "Title",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
-              ),
-            ),
+            // ── Title ─────────────────────────────────────────────────────
+            Text('Title', style: context.textTheme.labelLarge),
             const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F0FA),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: TextField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: "e.g. Weekly Groceries",
-                  hintStyle: TextStyle(color: Colors.grey.shade500),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                hintText: 'e.g. Weekly Groceries',
               ),
             ),
             const SizedBox(height: 20),
 
-            // Category
-            Text(
-              "Category",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
-              ),
-            ),
+            // ── Category chips ────────────────────────────────────────────
+            Text('Category', style: context.textTheme.labelLarge),
             const SizedBox(height: 12),
             Wrap(
               spacing: 12,
@@ -296,24 +261,22 @@ class _AddTransactionBottomSheetState
               children: _categories.map((cat) {
                 final isSelected = _selectedCategory == cat['name'];
                 return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedCategory = cat['name'];
-                    });
-                  },
-                  child: Container(
+                  onTap: () =>
+                      setState(() => _selectedCategory = cat['name']),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Colors.white
-                          : const Color(0xFFF2F0FA),
-                      borderRadius: BorderRadius.circular(24),
+                          ? context.colors.primary.withValues(alpha: 0.1)
+                          : context.colors.surfaceContainerHighest,
+                      borderRadius: AppRadius.fullBorderRadius,
                       border: Border.all(
                         color: isSelected
-                            ? const Color(0xFF3730A3)
+                            ? context.colors.primary
                             : Colors.transparent,
                         width: 1.5,
                       ),
@@ -322,11 +285,11 @@ class _AddTransactionBottomSheetState
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          cat['icon'],
+                          cat['icon'] as IconData,
                           size: 18,
                           color: isSelected
-                              ? const Color(0xFF3730A3)
-                              : Colors.grey.shade700,
+                              ? context.colors.primary
+                              : context.subtitleColor,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -335,8 +298,8 @@ class _AddTransactionBottomSheetState
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: isSelected
-                                ? const Color(0xFF3730A3)
-                                : Colors.grey.shade700,
+                                ? context.colors.primary
+                                : context.subtitleColor,
                           ),
                         ),
                       ],
@@ -347,63 +310,23 @@ class _AddTransactionBottomSheetState
             ),
             const SizedBox(height: 20),
 
-            // Description
-            Text(
-              "Description",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
-              ),
-            ),
+            // ── Description ───────────────────────────────────────────────
+            Text('Description', style: context.textTheme.labelLarge),
             const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F0FA),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: TextField(
-                controller: _descriptionController,
-                maxLines: 2,
-                decoration: InputDecoration(
-                  hintText: "Add a note...",
-                  hintStyle: TextStyle(color: Colors.grey.shade500),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                ),
+            TextField(
+              controller: _descriptionController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                hintText: 'Add a note...',
               ),
             ),
             const SizedBox(height: 32),
 
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _confirm,
-                icon: const Icon(
-                  Icons.check_circle_outline,
-                  color: Colors.white,
-                ),
-                label: const Text(
-                  "Save Transaction",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3730A3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 0,
-                ),
-              ),
+            // ── Save button ───────────────────────────────────────────────
+            ElevatedButton.icon(
+              onPressed: _confirm,
+              icon: const Icon(Icons.check_circle_outline),
+              label: const Text('Save Transaction'),
             ),
             const SizedBox(height: 24),
           ],

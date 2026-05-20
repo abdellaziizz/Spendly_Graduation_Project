@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/authentication/Model/currency_data.dart';
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/theme/colors.dart';
-
 final selectedCurrencyProvider = StateProvider<int>((ref) => -1);
 
 class CurrencyScreen extends ConsumerStatefulWidget {
@@ -54,6 +54,10 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
       return;
     }
     
+    // Save currency to provider/database
+    final selectedCode = allCurrencies[selectedIndex].code;
+    await ref.read(currencyProvider.notifier).setCurrency(selectedCode);
+    
     // The original code unconditionally did context.go('/home');
     // For editing, you might want context.pop() depending on your router setup.
     if (widget.isEdit && context.canPop()) {
@@ -82,7 +86,21 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: widget.isEdit ? AppBar(title: const Text("Change Currency")) : null,
+      appBar: widget.isEdit
+          ? AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.chevron_left, size: 28),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/profile');
+                  }
+                },
+              ),
+              title: const Text("Change Currency"),
+            )
+          : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -335,3 +353,4 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
     );
   }
 }
+

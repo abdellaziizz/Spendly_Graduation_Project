@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class OnboardingPageWidget extends StatelessWidget {
   final String imagePath;
@@ -25,14 +26,14 @@ class OnboardingPageWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // The image with styling matching the design
+          // Image card
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.surface,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(13),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -54,17 +55,20 @@ class OnboardingPageWidget extends StatelessWidget {
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 24,
+                style: context.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Color(0xff274C77),
                 ),
                 children: [
-                  TextSpan(text: titlePart1),
+                  TextSpan(
+                    text: titlePart1,
+                    style: TextStyle(color: context.colors.primaryContainer != Colors.transparent
+                        ? context.colors.onPrimaryContainer
+                        : context.colors.onSurface),
+                  ),
                   const TextSpan(text: ' '),
                   TextSpan(
                     text: titlePart2,
-                    style: const TextStyle(color: Color(0xff0466C8)),
+                    style: TextStyle(color: context.colors.primary),
                   ),
                 ],
               ),
@@ -73,10 +77,8 @@ class OnboardingPageWidget extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 24,
+              style: context.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Color(0xff274C77),
               ),
             ),
 
@@ -84,9 +86,8 @@ class OnboardingPageWidget extends StatelessWidget {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.subtitleColor,
               height: 1.5,
             ),
           ),
