@@ -1,7 +1,6 @@
 ﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:typed_data';
 import 'package:spendly/features/Report/Widgets/insights/insights_tab.dart';
 import 'package:spendly/features/Report/Widgets/insights/report_pdf_preview.dart';
 import 'package:spendly/features/Report/controllers/report_controller.dart';
@@ -219,6 +218,10 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
     }
 
     try {
+      final controller = ReportController();
+      final bytes = await controller.buildPdf(liveData, freq);
+      await controller.savePdfAndRecord(bytes, freq);
+
       // Show preview screen where user can print or share
       Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => ReportPdfPreview(data: liveData, freq: freq),
