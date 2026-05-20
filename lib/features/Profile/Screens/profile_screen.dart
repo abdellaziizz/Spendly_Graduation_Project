@@ -81,6 +81,11 @@ class ProfileScreen extends ConsumerWidget {
                     height: 55,
                     child: Row(
                       children: [
+                        Icon(
+                          Icons.brightness_6_outlined,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        const SizedBox(width: 12),
                         Text(
                           'Mode',
                           style: TextStyle(
