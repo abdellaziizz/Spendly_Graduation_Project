@@ -104,7 +104,7 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
       );
       _ref.read(transactionProvider.notifier).addTransaction(localModel);
       _ref.invalidate(transactionsListProvider);
-      _ref.invalidate(mainFinanceProvider);
+      await _ref.read(mainFinanceProvider.notifier).refreshFinance();
       state = const ScanSaved();
     } catch (e) {
       state = ScanError('Failed to save: $e');

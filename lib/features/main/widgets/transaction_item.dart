@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 class TransactionData {
+  final String id;
   final String title;
   final String subtitle;
   final double amount;
@@ -10,6 +11,7 @@ class TransactionData {
   final Color iconColor;
 
   const TransactionData({
+    this.id = '',
     required this.title,
     required this.subtitle,
     required this.amount,
@@ -23,8 +25,15 @@ class TransactionData {
 
 class TransactionItem extends ConsumerWidget {
   final TransactionData data;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
-  const TransactionItem({super.key, required this.data});
+  const TransactionItem({
+    super.key, 
+    required this.data,
+    this.onDelete,
+    this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +48,7 @@ class TransactionItem extends ConsumerWidget {
         ? const Color(0xFF2E7D32)
         : const Color(0xFFD32F2F);
 
-    return Container(
+    Widget content = Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -92,18 +101,53 @@ class TransactionItem extends ConsumerWidget {
             ),
           ),
 
-          // Amount whether income or expense
-          Text(
-            amountText,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: amountColor,
-            ),
+          // Amount and Edit button
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (onEdit != null)
+                GestureDetector(
+                  onTap: onEdit,
+                  child: const Padding(
+                    padding: EdgeInsets.only(bottom: 4.0),
+                    child: Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
+                  ),
+                ),
+              Text(
+                amountText,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: amountColor,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
+
+    if (onDelete != null && data.id.isNotEmpty) {
+      return Dismissible(
+        key: ValueKey(data.id),
+        direction: DismissDirection.endToStart,
+        onDismissed: (_) => onDelete!(),
+        background: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          decoration: BoxDecoration(
+            color: Colors.red.shade400,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
+        ),
+        child: content,
+      );
+    }
+
+    return content;
   }
 
   String _formatNumber(double value) {
