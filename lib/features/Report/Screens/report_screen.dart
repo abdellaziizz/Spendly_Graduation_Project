@@ -1,7 +1,10 @@
 ﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:typed_data';
 import 'package:spendly/features/Report/Widgets/insights/insights_tab.dart';
+import 'package:spendly/features/Report/Widgets/insights/report_pdf_preview.dart';
+import 'package:spendly/features/Report/controllers/report_controller.dart';
 import 'package:spendly/features/Report/Widgets/reports/reports_tab.dart';
 import 'package:spendly/features/Report/domain/models/live_insights_data.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
@@ -143,7 +146,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
             liveData: liveData,
             reportError: _reportError,
             generatedReport: _generatedReport,
-            onGenerate: () => _generateReport(liveData),
+            onGenerate: () => _onGeneratePressed(liveData),
           ),
           ReportsTab(liveData: liveData),
         ],
@@ -177,6 +180,53 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
           _isGenerating = false;
         });
       }
+    }
+  }
+
+  Future<void> _onGeneratePressed(LiveInsightsData liveData) async {
+    // Let user choose frequency
+    final freq = await showModalBottomSheet<ReportFrequency>(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Daily'),
+                onTap: () => Navigator.of(ctx).pop(ReportFrequency.daily),
+              ),
+              ListTile(
+                title: const Text('Weekly'),
+                onTap: () => Navigator.of(ctx).pop(ReportFrequency.weekly),
+              ),
+              ListTile(
+                title: const Text('Monthly'),
+                onTap: () => Navigator.of(ctx).pop(ReportFrequency.monthly),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (freq == null) return;
+
+    // Ensure we have a generated report (try backend first)
+    if (_generatedReport == null) {
+      await _generateReport(liveData);
+    }
+
+    try {
+      // Show preview screen where user can print or share
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => ReportPdfPreview(data: liveData, freq: freq),
+      ));
+    } catch (e) {
+      setState(() {
+        _reportError = 'PDF preview failed: $e';
+      });
     }
   }
 }

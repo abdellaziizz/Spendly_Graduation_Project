@@ -53,6 +53,9 @@ dependencies:
   google_mlkit_text_recognition: ^0.15.1
   toggle_switch: ^2.3.0
   dotted_border: ^2.1.0
+  pdf: ^3.10.1
+  printing: ^5.11.0
+  intl: ^0.18.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
