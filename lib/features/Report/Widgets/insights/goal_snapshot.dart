@@ -1,16 +1,19 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/Widgets/common/card_box.dart';
 import 'package:spendly/features/Report/Widgets/common/snapshot_tile.dart';
 import 'package:spendly/features/wallet/models/goal_model.dart';
 
 // Tracking Goal Progress
-class GoalSnapshot extends StatelessWidget {
+class GoalSnapshot extends ConsumerWidget {
   const GoalSnapshot({required this.goals});
 
   final List<GoalModel> goals;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     if (goals.isEmpty) {
       return const CardBox(
         child: Text(
@@ -59,19 +62,19 @@ class GoalSnapshot extends StatelessWidget {
               children: [
                 _buildMetricColumn(
                   'Saved',
-                  '\$${totalCurrent.toStringAsFixed(2)}',
+                  '${curSymbol}${totalCurrent.toStringAsFixed(2)}',
                   const Color(0xff3b30e1),
                 ),
                 _buildDivider(),
                 _buildMetricColumn(
                   'Target',
-                  '\$${totalTarget.toStringAsFixed(2)}',
+                  '${curSymbol}${totalTarget.toStringAsFixed(2)}',
                   const Color(0xff1a1a1a),
                 ),
                 _buildDivider(),
                 _buildMetricColumn(
                   'Remaining',
-                  '\$${totalRemaining.toStringAsFixed(2)}',
+                  '${curSymbol}${totalRemaining.toStringAsFixed(2)}',
                   const Color(0xffb25e13),
                 ),
               ],

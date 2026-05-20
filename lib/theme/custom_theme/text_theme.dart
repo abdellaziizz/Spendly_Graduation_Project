@@ -1,119 +1,132 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/theme/colors.dart';
 
-class TTextTheme {
+abstract final class TTextTheme {
   TTextTheme._();
+
   static TextTheme lightTextTheme = TextTheme(
-    headlineLarge: const TextStyle().copyWith(
-      fontSize: 32,
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
+    displayLarge: const TextStyle(
+      fontSize: 48, fontWeight: FontWeight.w800,
+      color: AppColors.textPrimaryLight, letterSpacing: -1.0,
     ),
-    headlineMedium: const TextStyle().copyWith(
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
+    displayMedium: const TextStyle(
+      fontSize: 36, fontWeight: FontWeight.w800,
+      color: AppColors.textPrimaryLight, letterSpacing: -0.5,
     ),
-    headlineSmall: const TextStyle().copyWith(
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
+    displaySmall: const TextStyle(
+      fontSize: 28, fontWeight: FontWeight.w700,
+      color: AppColors.textPrimaryLight, letterSpacing: -0.3,
     ),
-    titleLarge: const TextStyle().copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      color: Colors.black,
+    headlineLarge: const TextStyle(
+      fontSize: 32, fontWeight: FontWeight.bold,
+      color: AppColors.textPrimaryLight,
     ),
-    titleMedium: const TextStyle().copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      color: Colors.black,
+    headlineMedium: const TextStyle(
+      fontSize: 24, fontWeight: FontWeight.bold,
+      color: AppColors.textPrimaryLight,
     ),
-    titleSmall: const TextStyle().copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w400,
-      color: Colors.black,
+    headlineSmall: const TextStyle(
+      fontSize: 18, fontWeight: FontWeight.bold,
+      color: AppColors.textPrimaryLight,
     ),
-    bodyLarge: const TextStyle().copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      color: Colors.black,
+    titleLarge: const TextStyle(
+      fontSize: 16, fontWeight: FontWeight.w700,
+      color: AppColors.textPrimaryLight, letterSpacing: -0.1,
     ),
-    bodyMedium: const TextStyle().copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.normal,
-      color: Colors.black,
+    titleMedium: const TextStyle(
+      fontSize: 16, fontWeight: FontWeight.w600,
+      color: AppColors.textPrimaryLight,
     ),
-    bodySmall: const TextStyle().copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      color: Colors.black.withOpacity(0.5),
+    titleSmall: const TextStyle(
+      fontSize: 14, fontWeight: FontWeight.w600,
+      color: AppColors.textPrimaryLight,
     ),
-    labelLarge: const TextStyle().copyWith(
-      fontSize: 12,
-      fontWeight: FontWeight.normal,
-      color: Colors.black,
+    bodyLarge: const TextStyle(
+      fontSize: 15, fontWeight: FontWeight.w500,
+      color: AppColors.textPrimaryLight, height: 1.5,
     ),
-    labelMedium: const TextStyle().copyWith(
-      fontSize: 12,
-      fontWeight: FontWeight.normal,
-      color: Colors.black.withOpacity(0.5),
+    bodyMedium: const TextStyle(
+      fontSize: 14, fontWeight: FontWeight.normal,
+      color: AppColors.textPrimaryLight, height: 1.5,
+    ),
+    bodySmall: const TextStyle(
+      fontSize: 13, fontWeight: FontWeight.normal,
+      color: AppColors.textSecondaryLight, height: 1.4,
+    ),
+    labelLarge: const TextStyle(
+      fontSize: 14, fontWeight: FontWeight.w600,
+      color: AppColors.textPrimaryLight,
+    ),
+    labelMedium: const TextStyle(
+      fontSize: 12, fontWeight: FontWeight.w500,
+      color: AppColors.textSecondaryLight,
+    ),
+    labelSmall: const TextStyle(
+      fontSize: 11, fontWeight: FontWeight.w500,
+      color: AppColors.textSecondaryLight, letterSpacing: 0.5,
     ),
   );
+
   static TextTheme darkTextTheme = TextTheme(
-    headlineLarge: const TextStyle().copyWith(
-      fontSize: 32,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
+    displayLarge: const TextStyle(
+      fontSize: 48, fontWeight: FontWeight.w800,
+      color: AppColors.textPrimaryDark, letterSpacing: -1.0,
     ),
-    headlineMedium: const TextStyle().copyWith(
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
+    displayMedium: const TextStyle(
+      fontSize: 36, fontWeight: FontWeight.w800,
+      color: AppColors.textPrimaryDark, letterSpacing: -0.5,
     ),
-    headlineSmall: const TextStyle().copyWith(
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
+    displaySmall: const TextStyle(
+      fontSize: 28, fontWeight: FontWeight.w700,
+      color: AppColors.textPrimaryDark, letterSpacing: -0.3,
     ),
-    titleLarge: const TextStyle().copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      color: Colors.white,
+    headlineLarge: const TextStyle(
+      fontSize: 32, fontWeight: FontWeight.bold,
+      color: AppColors.textPrimaryDark,
     ),
-    titleMedium: const TextStyle().copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      color: Colors.white,
+    headlineMedium: const TextStyle(
+      fontSize: 24, fontWeight: FontWeight.bold,
+      color: AppColors.textPrimaryDark,
     ),
-    titleSmall: const TextStyle().copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w400,
-      color: Colors.white,
+    headlineSmall: const TextStyle(
+      fontSize: 18, fontWeight: FontWeight.bold,
+      color: AppColors.textPrimaryDark,
     ),
-    bodyLarge: const TextStyle().copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      color: Colors.white,
+    titleLarge: const TextStyle(
+      fontSize: 16, fontWeight: FontWeight.w700,
+      color: AppColors.textPrimaryDark, letterSpacing: -0.1,
     ),
-    bodyMedium: const TextStyle().copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.normal,
-      color: Colors.white,
+    titleMedium: const TextStyle(
+      fontSize: 16, fontWeight: FontWeight.w600,
+      color: AppColors.textPrimaryDark,
     ),
-    bodySmall: const TextStyle().copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      color: Colors.white.withOpacity(0.5),
+    titleSmall: const TextStyle(
+      fontSize: 14, fontWeight: FontWeight.w600,
+      color: AppColors.textPrimaryDark,
     ),
-    labelLarge: const TextStyle().copyWith(
-      fontSize: 12,
-      fontWeight: FontWeight.normal,
-      color: Colors.white,
+    bodyLarge: const TextStyle(
+      fontSize: 15, fontWeight: FontWeight.w500,
+      color: AppColors.textPrimaryDark, height: 1.5,
     ),
-    labelMedium: const TextStyle().copyWith(
-      fontSize: 12,
-      fontWeight: FontWeight.normal,
-      color: Colors.white.withOpacity(0.5),
+    bodyMedium: const TextStyle(
+      fontSize: 14, fontWeight: FontWeight.normal,
+      color: AppColors.textPrimaryDark, height: 1.5,
+    ),
+    bodySmall: const TextStyle(
+      fontSize: 13, fontWeight: FontWeight.normal,
+      color: AppColors.textSecondaryDark, height: 1.4,
+    ),
+    labelLarge: const TextStyle(
+      fontSize: 14, fontWeight: FontWeight.w600,
+      color: AppColors.textPrimaryDark,
+    ),
+    labelMedium: const TextStyle(
+      fontSize: 12, fontWeight: FontWeight.w500,
+      color: AppColors.textSecondaryDark,
+    ),
+    labelSmall: const TextStyle(
+      fontSize: 11, fontWeight: FontWeight.w500,
+      color: AppColors.textSecondaryDark, letterSpacing: 0.5,
     ),
   );
 }

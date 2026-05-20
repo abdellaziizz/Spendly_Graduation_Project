@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/category_provider.dart';
 import '../widgets/track_category_card.dart';
 import '../widgets/create_category_sheet.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class TrackTab extends ConsumerWidget {
   const TrackTab({Key? key}) : super(key: key);
@@ -34,12 +35,11 @@ class TrackTab extends ConsumerWidget {
             mainAxisSpacing: 16.0,
             childAspectRatio: 0.85,
           ),
-          itemCount: budgets.length + 1, // +1 for "Add custom"
+          itemCount: budgets.length + 1,
           itemBuilder: (context, index) {
             if (index < budgets.length) {
               return TrackCategoryCard(budget: budgets[index]);
             } else {
-              // Add Custom Card
               return _buildAddCustomCard(context);
             }
           },
@@ -53,14 +53,14 @@ class TrackTab extends ConsumerWidget {
       onTap: () => _showAddCustomSheet(context),
       child: CustomPaint(
         painter: DashedRectPainter(
-          color: Colors.blueAccent.withOpacity(0.5),
+          color: context.colors.primary.withValues(alpha: 0.4),
           strokeWidth: 2.0,
           gap: 5.0,
           radius: 16.0,
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+            color: context.colors.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
@@ -68,9 +68,9 @@ class TrackTab extends ConsumerWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(12.0),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.indigo, // Dark blue/purple circle from design
+                  color: context.goalsAccent,
                 ),
                 child: const Icon(Icons.add, color: Colors.white, size: 28),
               ),
@@ -78,7 +78,7 @@ class TrackTab extends ConsumerWidget {
               Text(
                 'Add custom',
                 style: TextStyle(
-                  color: Colors.indigo.shade400,
+                  color: context.goalsAccent,
                   fontWeight: FontWeight.w600,
                   fontSize: 16.0,
                 ),

@@ -1,14 +1,17 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/Widgets/common/card_box.dart';
 
 // Lastest Report Output
-class ReportPreview extends StatelessWidget {
+class ReportPreview extends ConsumerWidget {
   const ReportPreview({required this.report});
 
   final Map<String, dynamic> report;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     final overrun = Map<String, dynamic>.from(
       report['overrunPrediction'] as Map? ?? {},
     );
@@ -36,11 +39,11 @@ class ReportPreview extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Projected spending: \$${(overrun['projectedSpending'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00'}',
+            'Projected spending: $curSymbol${(overrun['projectedSpending'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00'}',
             style: const TextStyle(color: Colors.black),
           ),
           Text(
-            'Forecast: \$${(forecast['predictedAmount'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00'}',
+            'Forecast: $curSymbol${(forecast['predictedAmount'] as num?)?.toDouble().toStringAsFixed(2) ?? '0.00'}',
             style: const TextStyle(color: Colors.black),
           ),
           const SizedBox(height: 8),

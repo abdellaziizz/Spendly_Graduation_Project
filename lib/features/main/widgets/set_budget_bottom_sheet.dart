@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
+import 'package:spendly/theme/app_radius.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
 
 class SetBudgetSheet extends ConsumerStatefulWidget {
   const SetBudgetSheet({super.key});
@@ -14,10 +17,11 @@ class SetBudgetSheet extends ConsumerStatefulWidget {
 class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
   late TextEditingController _amountController;
   final List<int> _suggestions = [1000, 2000, 3000, 4000, 5000];
+
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController(text: "2,000.00");
+    _amountController = TextEditingController(text: '2,000.00');
   }
 
   @override
@@ -26,37 +30,23 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
     super.dispose();
   }
 
-  String formatAmount(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]},',
-    );
-  }
+  String formatAmount(int amount) => amount.toString().replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (m) => '${m[1]},',
+      );
 
-  void _onSuggestionTap(int amount) {
-    setState(() {
-      _amountController.text = formatAmount(amount);
-    });
-  }
+  void _onSuggestionTap(int amount) =>
+      setState(() => _amountController.text = formatAmount(amount));
 
   @override
   Widget build(BuildContext context) {
     final netBalance = ref.watch(
-      mainFinanceProvider.select((async) => async.value?.netBalance ?? 0.0),
+      mainFinanceProvider.select((a) => a.value?.netBalance ?? 0.0),
     );
+    final curSymbol = ref.watch(currencySymbolProvider);
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
     ];
     final currentMonth = months[DateTime.now().month - 1];
 
@@ -67,62 +57,63 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
         right: 24,
         top: 16,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: context.surface,
+        borderRadius: AppRadius.bottomSheetRadius,
       ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle
+            // ── Drag handle ──────────────────────────────────────────────────
             Center(
               child: Container(
                 width: 40,
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
+                  color: context.onSurface.withValues(alpha: 0.15),
+                  borderRadius: AppRadius.fullBorderRadius,
                 ),
               ),
             ),
 
-            // Header
+            // ── Header ───────────────────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Set Monthly Budget",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                Text(
+                  'Set Monthly Budget',
+                  style: context.textTheme.headlineSmall,
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.grey),
+                  icon: Icon(
+                    Icons.close,
+                    color: context.subtitleColor,
+                  ),
                 ),
               ],
             ),
             Text(
-              "Define your spending limit for $currentMonth",
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              'Define your spending limit for $currentMonth',
+              style: context.textTheme.bodySmall?.copyWith(
+                color: context.subtitleColor,
+              ),
             ),
             const SizedBox(height: 32),
 
-            // Amount Input
+            // ── Amount input ─────────────────────────────────────────────────
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "\$",
+                  curSymbol,
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade400,
+                    color: context.hintColor,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -133,15 +124,16 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    style: const TextStyle(
-                      fontSize: 40,
+                    style: context.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
                     ),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
+                      filled: false,
                     ),
                   ),
                 ),
@@ -149,26 +141,26 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
             ),
             const SizedBox(height: 16),
 
-            // Current Spend Badge
+            // ── Current spend badge ──────────────────────────────────────────
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F7FA), // Light cyan
-                borderRadius: BorderRadius.circular(20),
+                color: context.colors.primary.withValues(alpha: 0.08),
+                borderRadius: AppRadius.fullBorderRadius,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.account_balance_wallet_outlined,
-                    color: Color(0xFF00796B),
+                    color: context.colors.primary,
                     size: 18,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
-                    "Current Spend: \$$netBalance",
+                    'Current Balance: $curSymbol$netBalance',
                     style: TextStyle(
-                      color: Color(0xFF00796B),
+                      color: context.colors.primary,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -178,14 +170,12 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
             ),
             const SizedBox(height: 32),
 
-            // Suggestions
+            // ── Quick suggestions ────────────────────────────────────────────
             Text(
-              "QUICK SUGGESTIONS",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade500,
+              'QUICK SUGGESTIONS',
+              style: context.textTheme.labelSmall?.copyWith(
                 letterSpacing: 1.2,
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
@@ -201,7 +191,8 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
                       amount.toString();
                   return GestureDetector(
                     onTap: () => _onSuggestionTap(amount),
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
                       margin: const EdgeInsets.only(right: 12),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -209,23 +200,23 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFFEEF2FF)
-                            : const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(16),
+                            ? context.colors.primary.withValues(alpha: 0.1)
+                            : context.colors.surfaceContainerHighest,
+                        borderRadius: AppRadius.lgBorderRadius,
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFFC7D2FE)
-                              : Colors.grey.shade200,
+                              ? context.colors.primary
+                              : context.colors.outline,
                         ),
                       ),
                       child: Text(
-                        "\$$formattedAmount",
+                        '$curSymbol$formattedAmount',
                         style: TextStyle(
                           color: isSelected
-                              ? const Color(0xFF4F46E5)
-                              : Colors.grey.shade700,
+                              ? context.colors.primary
+                              : context.subtitleColor,
                           fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontSize: 15,
                         ),
                       ),
                     ),
@@ -235,79 +226,39 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
             ),
             const SizedBox(height: 40),
 
-            // Action Buttons
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final amount =
-                      double.tryParse(
-                        _amountController.text.replaceAll(',', ''),
-                      ) ??
-                      0.0;
+            // ── Save button ──────────────────────────────────────────────────
+            ElevatedButton(
+              onPressed: () async {
+                final amount =
+                    double.tryParse(
+                      _amountController.text.replaceAll(',', ''),
+                    ) ??
+                    0.0;
+                if (amount <= 0) return;
 
-                  if (amount <= 0) return;
+                final supabase = Supabase.instance.client;
+                final userId   = supabase.auth.currentUser?.id;
+                if (userId == null) return;
 
-                  final supabase = Supabase.instance.client;
-                  final userId = supabase.auth.currentUser?.id;
-                  if (userId == null) return;
+                final now      = DateTime.now();
+                final monthStr =
+                    '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
+                await ref.read(mainFinanceProvider.notifier).refreshFinance();
 
-                  final now = DateTime.now();
-                  final monthStr =
-                      '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
-                  await ref.read(mainFinanceProvider.notifier).refreshFinance();
+                await supabase.from('monthly_budgets').upsert({
+                  'users_id': userId,
+                  'budget_month': monthStr,
+                  'amount': amount,
+                }, onConflict: 'users_id,budget_month');
 
-                  // Upsert: insert or update if month already exists
-                  // Maps to: INSERT ... ON CONFLICT (users_id, budget_month) DO UPDATE
-                  await supabase.from('monthly_budgets').upsert({
-                    'users_id': userId,
-                    'budget_month': monthStr,
-                    'amount': amount,
-                  }, onConflict: 'users_id,budget_month');
-
-                  // Keep local state in sync
-                  if (context.mounted) Navigator.pop(context);
-                  // final amount =
-                  //     double.tryParse(
-                  //       _amountController.text.replaceAll(',', ''),
-                  //     ) ??
-                  //     0.0;
-                  // ref.read(budgetProvider.notifier).state = amount;
-                  // Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3730A3), // Deep purple
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  "Save Budget",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: const Text('Save Budget'),
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  "Cancel",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
             const SizedBox(height: 16),
           ],

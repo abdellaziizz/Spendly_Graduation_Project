@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendly/features/authentication/Screens/forget_password_screen.dart';
 import 'package:spendly/features/authentication/Service/auth_service.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class Enteremail extends StatefulWidget {
   const Enteremail({super.key});
@@ -10,10 +11,10 @@ class Enteremail extends StatefulWidget {
 }
 
 class _EnteremailState extends State<Enteremail> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey        = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _authService = AuthService();
-  bool _isLoading = false;
+  final _authService    = AuthService();
+  bool _isLoading       = false;
 
   @override
   void dispose() {
@@ -31,125 +32,94 @@ class _EnteremailState extends State<Enteremail> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Forget Password',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 26,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Forget Password',
+                  style: context.textTheme.headlineMedium,
+                ),
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Text(
-                "Don't Worry sometimes people can forget too ,enter your email and we will send you the password reset link",
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 20),
+                "Don't worry — enter your email and we'll send you a reset link.",
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.subtitleColor,
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: TextFormField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email is required';
-                  }
-                  if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                  if (value == null || value.isEmpty) return 'Email is required';
+                  if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value))
                     return 'Enter a valid email';
-                  }
                   return null;
                 },
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Color(0xff0000FF)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Color(0xff0000FF)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.red),
-                  ),
-                  label: Text(
-                    'Email',
-                    style: TextStyle(color: Color(0xff0000FF)),
-                  ),
-                  prefixIcon: Icon(Icons.email, color: Color(0xff0000FF)),
+                  labelText: 'Email',
+                  prefixIcon: const Icon(Icons.email_outlined),
                 ),
               ),
             ),
-            SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () async {
-                      if (_formKey.currentState!.validate()) {
-                        setState(() => _isLoading = true);
-
-                        try {
-                          await _authService.forgotPassword(
-                            email: _emailController.text.trim(),
-                          );
-                          //fix the route here
-                          if (context.mounted) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Fpassword(
-                                  email: _emailController.text.trim(),
-                                ),
-                              ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ElevatedButton(
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() => _isLoading = true);
+                          try {
+                            await _authService.forgotPassword(
+                              email: _emailController.text.trim(),
                             );
-                          }
-                        } catch (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Failed to send reset email: ${e.toString()}',
+                            if (context.mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => Fpassword(
+                                    email: _emailController.text.trim(),
+                                  ),
                                 ),
-                                backgroundColor: Colors.red.shade600,
-                              ),
-                            );
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Failed to send reset email: ${e.toString()}',
+                                  ),
+                                  backgroundColor: context.errorColor,
+                                ),
+                              );
+                            }
+                          } finally {
+                            if (mounted) setState(() => _isLoading = false);
                           }
-                        } finally {
-                          if (mounted) setState(() => _isLoading = false);
                         }
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff274C77),
-                fixedSize: const Size(335, 55),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(20),
-                ),
+                      },
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : const Text('Submit'),
               ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.5,
-                      ),
-                    )
-                  : Text('Submit', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

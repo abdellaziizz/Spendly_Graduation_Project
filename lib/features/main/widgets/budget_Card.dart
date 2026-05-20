@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/features/main/widgets/set_budget_bottom_sheet.dart';
+import 'package:spendly/theme/app_gradients.dart';
+import 'package:spendly/theme/app_radius.dart';
 
 class BudgetCard extends ConsumerWidget {
   const BudgetCard({super.key});
@@ -9,6 +12,7 @@ class BudgetCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final financeAsync = ref.watch(mainFinanceProvider);
+    final curSymbol = ref.watch(currencySymbolProvider);
 
     String formatAmount(double amount) {
       String str = amount.toStringAsFixed(2);
@@ -21,50 +25,50 @@ class BudgetCard extends ConsumerWidget {
     }
 
     return financeAsync.when(
-      loading: () => const CircularProgressIndicator(color: Colors.white),
-      error: (e, _) {
-        print(e.toString());
-        return Text(e.toString(), style: TextStyle(color: Colors.white));
-      },
+      loading: () =>
+          const Center(child: CircularProgressIndicator(color: Colors.white)),
+      error: (e, _) => Text(
+        e.toString(),
+        style: const TextStyle(color: Colors.white),
+      ),
       data: (finance) {
         final netbalance = finance.netBalance;
-        final income = finance.totalIncome;
-        final expense = finance.totalExpenses;
+        final income     = finance.totalIncome;
+        final expense    = finance.totalExpenses;
+
         return Container(
           margin: const EdgeInsets.all(16),
           height: 220,
-          width: 400,
+          width: double.infinity,
           decoration: BoxDecoration(
-            color: Color(0xff265685),
-            borderRadius: BorderRadius.circular(28),
+            gradient: AppGradients.budgetCard,
+            borderRadius: AppRadius.xxlBorderRadius,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: AppRadius.xxlBorderRadius,
             child: Stack(
               children: [
-                // 🔹 Top Shape
+                // Decorative shapes
                 Positioned(
                   top: -60,
                   left: -80,
                   child: Image.asset(
-                    "assets/images/shape_upper.png",
+                    'assets/images/shape_upper.png',
                     width: 300,
                     fit: BoxFit.cover,
                   ),
                 ),
-
-                // 🔹 Bottom Shape
                 Positioned(
                   bottom: -100,
                   left: -20,
                   child: Image.asset(
-                    "assets/images/shape_down.png",
+                    'assets/images/shape_down.png',
                     width: 300,
                     fit: BoxFit.cover,
                   ),
                 ),
 
-                // 🔹 Content
+                // Content
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
@@ -74,41 +78,39 @@ class BudgetCard extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            "Remaining Budget",
+                            'Remaining Budget',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 16,
                             ),
                           ),
-
                           GestureDetector(
-                            onTap: () {
-                              showSetBudgetSheet(context);
-                            },
+                            onTap: () => showSetBudgetSheet(context),
                             child: Container(
-                              height: 47,
-                              width: 120,
+                              height: 40,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
+                                horizontal: 14,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: Color(0xff397BBD),
-                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white.withValues(alpha: 0.18),
+                                borderRadius: AppRadius.fullBorderRadius,
                               ),
-                              child: Row(
-                                children: const [
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
                                   Icon(
                                     Icons.settings,
                                     color: Colors.white,
                                     size: 16,
                                   ),
-                                  SizedBox(width: 2),
+                                  SizedBox(width: 6),
                                   Text(
-                                    "Set Budget",
+                                    'Set Budget',
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 14,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -119,55 +121,20 @@ class BudgetCard extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "\$${formatAmount(netbalance)}",
+                        '$curSymbol${formatAmount(netbalance)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
                         ),
                       ),
                       const Spacer(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            children: [
-                              Text(
-                                "Income",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                "\$$income",
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                "Expenses",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                "\$$expense",
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                          _StatColumn(label: 'Income',   value: '$curSymbol$income'),
+                          _StatColumn(label: 'Expenses', value: '$curSymbol$expense'),
                         ],
                       ),
                     ],
@@ -178,6 +145,33 @@ class BudgetCard extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _StatColumn extends StatelessWidget {
+  const _StatColumn({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: Colors.white70),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }

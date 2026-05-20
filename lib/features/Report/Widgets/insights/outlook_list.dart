@@ -1,3 +1,5 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/Widgets/common/card_box.dart';
 import 'package:spendly/features/Report/Widgets/common/snapshot_tile.dart';
@@ -5,13 +7,14 @@ import 'package:spendly/features/Report/Widgets/common/tag.dart';
 import 'package:spendly/features/Report/domain/models/outlook_item.dart';
 
 // Next Month Category Watchout
-class OutlookList extends StatelessWidget {
+class OutlookList extends ConsumerWidget {
   const OutlookList({required this.items});
 
   final List<OutlookItem> items;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     return Column(
       children: items
           .map(
@@ -48,7 +51,7 @@ class OutlookList extends StatelessWidget {
                         Expanded(
                           child: SnapshotTile(
                             label: 'Now',
-                            value: '\$${item.now.toStringAsFixed(2)}',
+                            value: '${curSymbol}${item.now.toStringAsFixed(2)}',
                             accent: Colors.white,
                           ),
                         ),
@@ -56,7 +59,7 @@ class OutlookList extends StatelessWidget {
                         Expanded(
                           child: SnapshotTile(
                             label: 'Next month',
-                            value: '\$${item.nextMonth.toStringAsFixed(2)}',
+                            value: '${curSymbol}${item.nextMonth.toStringAsFixed(2)}',
                             accent: Colors.white,
                           ),
                         ),
@@ -64,7 +67,7 @@ class OutlookList extends StatelessWidget {
                         Expanded(
                           child: SnapshotTile(
                             label: 'Change',
-                            value: '\$${item.change.toStringAsFixed(2)}',
+                            value: '${curSymbol}${item.change.toStringAsFixed(2)}',
                             accent: Colors.white,
                           ),
                         ),

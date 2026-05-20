@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendly/theme/colors.dart';
 import '../models/budget_model.dart';
 import '../providers/category_provider.dart';
 
@@ -22,9 +23,9 @@ class TrackCategoryCard extends ConsumerWidget {
 
     final Color usageColor = hasLimit
         ? (progress > 0.75
-              ? Colors.red
-              : Theme.of(context).colorScheme.onSurface.withOpacity(0.6))
-        : Theme.of(context).colorScheme.onSurface.withOpacity(0.4);
+              ? AppColors.expense
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))
+        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4);
 
     final Color primaryColor =
         budget.color ?? Theme.of(context).colorScheme.primary;
@@ -85,7 +86,7 @@ class TrackCategoryCard extends ConsumerWidget {
             child: Text(
               'Set Limit',
               style: TextStyle(
-                color: Colors.blueAccent.shade400,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
                 fontSize: 14.0,
               ),

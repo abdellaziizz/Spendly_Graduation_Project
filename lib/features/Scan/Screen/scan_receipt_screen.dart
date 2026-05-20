@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/Scan/Provider/scan_receipt_provider.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 /// Screen 1 — Camera preview + capture + OCR.
 /// Mirrors the Figma mockup: receipt frame overlay, corner brackets, scan line,
@@ -25,11 +27,10 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
 
   // Animated scan line
   late final AnimationController _scanLineCtrl;
-  late final Animation<double> _scanLineAnim;
-
+  late final Animation<double>   _scanLineAnim;
   // Fake progress for UX while OCR runs
   late final AnimationController _progressCtrl;
-  late final Animation<double> _progressAnim;
+  late final Animation<double>   _progressAnim;
 
   @override
   void initState() {
@@ -40,19 +41,17 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _scanLineAnim = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _scanLineCtrl, curve: Curves.easeInOut));
+    _scanLineAnim = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _scanLineCtrl, curve: Curves.easeInOut),
+    );
 
     _progressCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     );
-    _progressAnim = Tween<double>(
-      begin: 0,
-      end: 0.85,
-    ).animate(CurvedAnimation(parent: _progressCtrl, curve: Curves.easeOut));
+    _progressAnim = Tween<double>(begin: 0, end: 0.85).animate(
+      CurvedAnimation(parent: _progressCtrl, curve: Curves.easeOut),
+    );
 
     _initCamera();
   }
@@ -84,60 +83,46 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
     super.dispose();
   }
 
-  // ── Capture & OCR ──────────────────────────────────────────────────────────
-
   Future<void> _captureAndScan() async {
     if (_controller == null || !_controller!.value.isInitialized) return;
-
     try {
-      final xFile = await _controller!.takePicture();
+      final xFile    = await _controller!.takePicture();
       final imageFile = File(xFile.path);
-
-      // Start fake progress animation for UX
       _progressCtrl.forward(from: 0);
-
-      // Trigger OCR via provider
       await ref.read(scanReceiptProvider.notifier).scanImage(imageFile);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Capture failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Capture failed: $e')),
+        );
       }
     }
   }
 
   Future<void> _pickFromGallery() async {
     try {
-      final picker = ImagePicker();
+      final picker     = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
       if (pickedFile != null) {
-        final imageFile = File(pickedFile.path);
-
-        // Start fake progress animation for UX
         _progressCtrl.forward(from: 0);
-
-        // Trigger OCR via provider
-        await ref.read(scanReceiptProvider.notifier).scanImage(imageFile);
+        await ref
+            .read(scanReceiptProvider.notifier)
+            .scanImage(File(pickedFile.path));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gallery selection failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gallery selection failed: $e')),
+        );
       }
     }
   }
-
-  // ── Listen to provider state changes ──────────────────────────────────────
 
   void _handleStateChange(ScanReceiptState state) {
     if (state is ScanParsed) {
       _progressCtrl.stop();
       if (mounted) {
         context.push('/scan-result', extra: state.data);
-        // Reset so camera is fresh if user comes back
         ref.read(scanReceiptProvider.notifier).reset();
       }
     } else if (state is ScanError) {
@@ -146,7 +131,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(state.message),
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: AppColors.expense,
           ),
         );
         ref.read(scanReceiptProvider.notifier).reset();
@@ -157,78 +142,53 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
   @override
   Widget build(BuildContext context) {
     final scanState = ref.watch(scanReceiptProvider);
-
-    // React to state changes
     ref.listen(scanReceiptProvider, (_, next) => _handleStateChange(next));
-
     final isScanning = scanState is ScanScanning;
 
     return Scaffold(
+      // Camera screen is intentionally always-black (overlay on live feed)
       backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // ── Camera preview or error ────────────────────────────────────────
+          // Camera preview or error
           if (_initError != null)
             _ErrorPlaceholder(message: _initError!)
           else if (!_cameraReady)
             const Center(
-              child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
+              child: CircularProgressIndicator(color: AppColors.scanAccent),
             )
           else
             CameraPreview(_controller!),
 
-          // ── Receipt frame overlay ──────────────────────────────────────────
+          // Receipt frame overlay
           if (_cameraReady && _initError == null)
             _ReceiptFrameOverlay(scanLineAnim: _scanLineAnim),
 
-          // ── Top bar ───────────────────────────────────────────────────────
+          // Top bar
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Back button
-                  GestureDetector(
+                  _TopBarButton(
+                    icon: Icons.chevron_left,
                     onTap: () => context.pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.chevron_left,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
                   ),
-                  // Receipt icon (decorative, matches Figma)
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.black45,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.document_scanner_outlined,
-                      color: Colors.white,
-                      size: 22,
-                    ),
+                  _TopBarButton(
+                    icon: Icons.document_scanner_outlined,
+                    onTap: null,
                   ),
                 ],
               ),
             ),
           ),
 
-          // ── Loading overlay while OCR runs ────────────────────────────────
+          // Loading overlay
           if (isScanning) _ScanLoadingOverlay(progressAnim: _progressAnim),
 
-          // ── Bottom capture and gallery buttons ────────────────────────────
+          // Bottom capture & gallery buttons
           if (_cameraReady && !isScanning)
             Positioned(
               bottom: 48,
@@ -237,8 +197,9 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 56), // spacer for symmetry
+                  const SizedBox(width: 56),
                   const Spacer(),
+                  // Capture button
                   GestureDetector(
                     onTap: _captureAndScan,
                     child: Container(
@@ -246,10 +207,10 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
                       height: 72,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFF4CAF50),
+                        color: AppColors.scanAccent,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF4CAF50).withOpacity(0.45),
+                            color: AppColors.scanAccent.withValues(alpha: 0.45),
                             blurRadius: 18,
                             spreadRadius: 2,
                           ),
@@ -263,6 +224,7 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
                     ),
                   ),
                   const Spacer(),
+                  // Gallery button
                   GestureDetector(
                     onTap: _pickFromGallery,
                     child: Container(
@@ -290,33 +252,54 @@ class _ScanReceiptScreenState extends ConsumerState<ScanReceiptScreen>
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WIDGETS
+// SUB-WIDGETS
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Draws the receipt-shaped viewfinder + animated scan line.
+class _TopBarButton extends StatelessWidget {
+  const _TopBarButton({required this.icon, required this.onTap});
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.black45,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: Colors.white, size: 26),
+      ),
+    );
+  }
+}
+
 class _ReceiptFrameOverlay extends StatelessWidget {
   const _ReceiptFrameOverlay({required this.scanLineAnim});
   final Animation<double> scanLineAnim;
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    const frameW = 240.0;
-    const frameH = 380.0;
-    final frameLeft = (size.width - frameW) / 2;
-    final frameTop = (size.height - frameH) / 2 - 24;
+    final size     = MediaQuery.of(context).size;
+    const frameW   = 240.0;
+    const frameH   = 380.0;
+    final frameLeft = (size.width  - frameW) / 2;
+    final frameTop  = (size.height - frameH) / 2 - 24;
 
     return Stack(
       children: [
-        // Dark vignette outside the frame
+        // Dark vignette outside frame
         ColorFiltered(
           colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.55),
+            Colors.black.withValues(alpha: 0.55),
             BlendMode.srcOut,
           ),
           child: Stack(
             children: [
-              Container(color: Colors.transparent), // required for srcOut
+              Container(color: Colors.transparent),
               Positioned(
                 left: frameLeft,
                 top: frameTop,
@@ -333,7 +316,7 @@ class _ReceiptFrameOverlay extends StatelessWidget {
           ),
         ),
 
-        // Green corner brackets
+        // Scan-accent corner brackets
         Positioned(
           left: frameLeft,
           top: frameTop,
@@ -355,9 +338,9 @@ class _ReceiptFrameOverlay extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      const Color(0xFF4CAF50).withOpacity(0.9),
-                      const Color(0xFF4CAF50),
-                      const Color(0xFF4CAF50).withOpacity(0.9),
+                      AppColors.scanAccent.withValues(alpha: 0.9),
+                      AppColors.scanAccent,
+                      AppColors.scanAccent.withValues(alpha: 0.9),
                       Colors.transparent,
                     ],
                   ),
@@ -368,7 +351,7 @@ class _ReceiptFrameOverlay extends StatelessWidget {
           },
         ),
 
-        // Helper text below frame
+        // Helper text
         Positioned(
           left: 0,
           right: 0,
@@ -388,7 +371,6 @@ class _ReceiptFrameOverlay extends StatelessWidget {
   }
 }
 
-/// Green corner bracket decorations.
 class _FrameCorners extends StatelessWidget {
   const _FrameCorners({required this.width, required this.height});
   final double width;
@@ -396,63 +378,19 @@ class _FrameCorners extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const corner = 22.0;
+    const corner    = 22.0;
     const thickness = 3.0;
-    const color = Color(0xFF4CAF50);
+    const color     = AppColors.scanAccent;
 
     return SizedBox(
       width: width,
       height: height,
       child: Stack(
         children: [
-          // Top-left
-          Positioned(
-            left: 0,
-            top: 0,
-            child: _Corner(
-              hDir: 1,
-              vDir: 1,
-              size: corner,
-              thickness: thickness,
-              color: color,
-            ),
-          ),
-          // Top-right
-          Positioned(
-            right: 0,
-            top: 0,
-            child: _Corner(
-              hDir: -1,
-              vDir: 1,
-              size: corner,
-              thickness: thickness,
-              color: color,
-            ),
-          ),
-          // Bottom-left
-          Positioned(
-            left: 0,
-            bottom: 0,
-            child: _Corner(
-              hDir: 1,
-              vDir: -1,
-              size: corner,
-              thickness: thickness,
-              color: color,
-            ),
-          ),
-          // Bottom-right
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: _Corner(
-              hDir: -1,
-              vDir: -1,
-              size: corner,
-              thickness: thickness,
-              color: color,
-            ),
-          ),
+          Positioned(left: 0,  top: 0,    child: _Corner(hDir:  1, vDir:  1, size: corner, thickness: thickness, color: color)),
+          Positioned(right: 0, top: 0,    child: _Corner(hDir: -1, vDir:  1, size: corner, thickness: thickness, color: color)),
+          Positioned(left: 0,  bottom: 0, child: _Corner(hDir:  1, vDir: -1, size: corner, thickness: thickness, color: color)),
+          Positioned(right: 0, bottom: 0, child: _Corner(hDir: -1, vDir: -1, size: corner, thickness: thickness, color: color)),
         ],
       ),
     );
@@ -477,10 +415,7 @@ class _Corner extends StatelessWidget {
       height: size,
       child: CustomPaint(
         painter: _CornerPainter(
-          hDir: hDir,
-          vDir: vDir,
-          thickness: thickness,
-          color: color,
+          hDir: hDir, vDir: vDir, thickness: thickness, color: color,
         ),
       ),
     );
@@ -507,18 +442,16 @@ class _CornerPainter extends CustomPainter {
 
     final x = hDir > 0 ? 0.0 : size.width;
     final y = vDir > 0 ? 0.0 : size.height;
-    final dx = hDir * size.width;
-    final dy = vDir * size.height;
 
-    canvas.drawLine(Offset(x, y), Offset(x + dx, y), paint);
-    canvas.drawLine(Offset(x, y), Offset(x, y + dy), paint);
+    canvas.drawLine(Offset(x, y), Offset(x + hDir * size.width, y), paint);
+    canvas.drawLine(Offset(x, y), Offset(x, y + vDir * size.height), paint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Loading overlay shown while OCR is running.
+/// Loading overlay while OCR runs — themed card over the camera feed.
 class _ScanLoadingOverlay extends StatelessWidget {
   const _ScanLoadingOverlay({required this.progressAnim});
   final Animation<double> progressAnim;
@@ -526,13 +459,14 @@ class _ScanLoadingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.65),
+      color: Colors.black.withValues(alpha: 0.65),
       child: Center(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 40),
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
           decoration: BoxDecoration(
-            color: Colors.white,
+            // Uses theme surface so it adapts to light/dark mode
+            color: context.surface,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -551,7 +485,7 @@ class _ScanLoadingOverlay extends StatelessWidget {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50),
+                          color: AppColors.scanAccent,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -569,9 +503,10 @@ class _ScanLoadingOverlay extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: progressAnim.value,
                           minHeight: 8,
-                          backgroundColor: const Color(0xFFE0E0E0),
+                          backgroundColor:
+                              context.colors.surfaceContainerHighest,
                           valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFF4CAF50),
+                            AppColors.scanAccent,
                           ),
                         ),
                       ),
@@ -580,9 +515,9 @@ class _ScanLoadingOverlay extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Reading your receipt…',
-                style: TextStyle(color: Color(0xFF555555), fontSize: 13),
+                style: context.textTheme.bodySmall,
               ),
             ],
           ),
@@ -592,7 +527,7 @@ class _ScanLoadingOverlay extends StatelessWidget {
   }
 }
 
-/// Shown when camera cannot be initialized.
+/// Shown when camera cannot be initialised.
 class _ErrorPlaceholder extends StatelessWidget {
   const _ErrorPlaceholder({required this.message});
   final String message;

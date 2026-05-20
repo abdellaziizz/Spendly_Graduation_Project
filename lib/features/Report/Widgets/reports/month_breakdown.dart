@@ -1,14 +1,17 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/Widgets/common/card_box.dart';
 import 'package:spendly/features/Report/domain/models/time_bucket.dart';
 
-class MonthBreakdown extends StatelessWidget {
+class MonthBreakdown extends ConsumerWidget {
   const MonthBreakdown({required this.months});
 
   final List<TimeBucket> months;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     return Column(
       children: months
           .map(
@@ -29,7 +32,7 @@ class MonthBreakdown extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '\$${month.total.toStringAsFixed(2)}',
+                          '${curSymbol}${month.total.toStringAsFixed(2)}',
                           style: const TextStyle(color: Colors.lightBlueAccent),
                         ),
                       ],
@@ -56,7 +59,7 @@ class MonthBreakdown extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '\$${entry.value.toStringAsFixed(2)}',
+                              '${curSymbol}${entry.value.toStringAsFixed(2)}',
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 11,

@@ -1,14 +1,17 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/domain/models/day_spend.dart';
 
-class DayRow extends StatelessWidget {
+class DayRow extends ConsumerWidget {
   const DayRow({required this.day, required this.total});
 
   final DaySpend day;
   final double total;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     final fraction = total <= 0 ? 0.0 : (day.amount / total).clamp(0.0, 1.0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,7 +27,7 @@ class DayRow extends StatelessWidget {
               ),
             ),
             Text(
-              '\$${day.amount.toStringAsFixed(2)}',
+              '${curSymbol}${day.amount.toStringAsFixed(2)}',
               style: const TextStyle(color: Colors.white70),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
@@ -18,6 +19,8 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = context.isDark ? Colors.white : const Color(0xff0000FF);
+
     return TextFormField(
       controller: controller,
       validator: validator,
@@ -25,11 +28,11 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xff0000FF)),
+          borderSide: BorderSide(color: activeColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xff0000FF)),
+          borderSide: BorderSide(color: activeColor),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -39,7 +42,7 @@ class CustomTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xff950606)),
         ),
-        label: Text(label, style: const TextStyle(color: Color(0xff0000FF))),
+        label: Text(label, style: TextStyle(color: activeColor)),
         hintText: hint,
       ),
     );

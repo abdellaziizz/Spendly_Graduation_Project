@@ -1,10 +1,10 @@
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/authentication/Widget/register_textform.dart';
 import 'package:spendly/features/authentication/Service/auth_service.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class RegisterationScreen extends StatefulWidget {
   RegisterationScreen({super.key});
@@ -14,18 +14,16 @@ class RegisterationScreen extends StatefulWidget {
 }
 
 class _RegisterationScreenState extends State<RegisterationScreen> {
-  final firstNameCont = TextEditingController();
-  final lastNameCont = TextEditingController();
-  final EmailCont = TextEditingController();
-  final PasswordCont = TextEditingController();
-  final ConfirmPasswordCont = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final firstNameCont        = TextEditingController();
+  final lastNameCont         = TextEditingController();
+  final EmailCont            = TextEditingController();
+  final PasswordCont         = TextEditingController();
+  final ConfirmPasswordCont  = TextEditingController();
+  final _formKey             = GlobalKey<FormState>();
+  final _authService         = AuthService();
 
-  final _authService = AuthService();
-
-  // Gender: 1 = Male, 2 = Female
-  int _selectedGender = 2;
-  bool _isLoading = false;
+  int  _selectedGender = 2;
+  bool _isLoading      = false;
 
   @override
   void dispose() {
@@ -40,7 +38,6 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -62,7 +59,7 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: context.colors.primary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -72,9 +69,8 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           child: CustomTextField(
                             controller: firstNameCont,
                             label: 'First Name',
-                            validator: (value) => value == null || value.isEmpty
-                                ? 'Required'
-                                : null,
+                            validator: (v) =>
+                                v == null || v.isEmpty ? 'Required' : null,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -82,9 +78,8 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           child: CustomTextField(
                             controller: lastNameCont,
                             label: 'Last Name',
-                            validator: (value) => value == null || value.isEmpty
-                                ? 'Required'
-                                : null,
+                            validator: (v) =>
+                                v == null || v.isEmpty ? 'Required' : null,
                           ),
                         ),
                       ],
@@ -93,14 +88,11 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                     CustomTextField(
                       controller: EmailCont,
                       label: 'Email',
-                      hint: "You@gmail.com",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Email is required';
-                        }
-                        if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                      hint: 'You@gmail.com',
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Email is required';
+                        if (!RegExp(r'\S+@\S+\.\S+').hasMatch(v))
                           return 'Enter a valid email';
-                        }
                         return null;
                       },
                     ),
@@ -110,11 +102,9 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       label: 'Password',
                       hint: '******',
                       obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Password is required';
-                        }
-                        if (value.length < 6) return 'At least 6 characters';
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Password is required';
+                        if (v.length < 6) return 'At least 6 characters';
                         return null;
                       },
                     ),
@@ -124,14 +114,9 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       label: 'Confirm Your Password',
                       hint: '******',
                       obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Confirm password';
-                        }
-                        if (value != PasswordCont.text) {
-                          return 'Passwords do not match';
-                        }
-
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Confirm password';
+                        if (v != PasswordCont.text) return 'Passwords do not match';
                         return null;
                       },
                     ),
@@ -145,29 +130,23 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           children: {
                             1: Text(
                               'Male',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
+                              style: TextStyle(color: context.onSurface),
                             ),
                             2: Text(
                               'Female',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
+                              style: TextStyle(color: context.onSurface),
                             ),
                           },
                           decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.05),
+                            color: context.onSurface.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(32),
                           ),
                           thumbDecoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
+                            color: context.surface,
                             borderRadius: BorderRadius.circular(36),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 4.0,
                                 offset: const Offset(0.0, 2.0),
                               ),
@@ -175,39 +154,30 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           ),
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeInToLinear,
-                          onValueChanged: (v) {
-                            setState(() {
-                              _selectedGender = v;
-                            });
-                          },
+                          onValueChanged: (v) =>
+                              setState(() => _selectedGender = v),
                         ),
                       ],
                     ),
                     const SizedBox(height: 32),
 
-                    // ───────── REGISTER BUTTON ─────────
+                    // ── Register button ───────────────────────────────────────
                     ElevatedButton(
                       onPressed: _isLoading
                           ? null
                           : () async {
                               if (_formKey.currentState!.validate()) {
                                 setState(() => _isLoading = true);
-
                                 try {
-                                  final gender = _selectedGender == 1
-                                      ? 'Male'
-                                      : 'Female';
-
                                   await _authService.signUp(
                                     email: EmailCont.text.trim(),
                                     password: PasswordCont.text.trim(),
                                     firstName: firstNameCont.text.trim(),
                                     lastName: lastNameCont.text.trim(),
-                                    gender: gender,
+                                    gender: _selectedGender == 1
+                                        ? 'Male'
+                                        : 'Female',
                                   );
-
-                                  // ❌ NO navigation here
-                                  // Router will react to auth state change automatically
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -215,16 +185,12 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                         content: Text(
                                           'Registration failed: ${e.toString()}',
                                         ),
-                                        backgroundColor: Theme.of(
-                                          context,
-                                        ).colorScheme.error,
+                                        backgroundColor: context.errorColor,
                                       ),
                                     );
                                   }
                                 } finally {
-                                  if (mounted) {
-                                    setState(() => _isLoading = false);
-                                  }
+                                  if (mounted) setState(() => _isLoading = false);
                                 }
                               }
                             },
@@ -237,28 +203,17 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                 strokeWidth: 2.5,
                               ),
                             )
-                          : const Text(
-                              'Register',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                          : const Text('Register'),
                     ),
                     const SizedBox(height: 20),
 
                     Text(
                       'OR CONTINUE WITH GOOGLE',
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withOpacity(0.5),
-                      ),
+                      style: TextStyle(color: context.subtitleColor),
                     ),
                     const SizedBox(height: 12),
 
-                    // ───────── GOOGLE SIGN-IN BUTTON ─────────
+                    // ── Google sign-in button ─────────────────────────────────
                     OutlinedButton(
                       onPressed: () async {
                         try {
@@ -269,34 +224,23 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                               child: CircularProgressIndicator(),
                             ),
                           );
-
                           await _authService.signInWithGoogle();
-
                           if (context.mounted) Navigator.of(context).pop();
                           if (context.mounted) context.go('/home');
                         } catch (e) {
                           if (context.mounted) Navigator.of(context).pop();
-
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
                                   'Google sign-in failed: ${e.toString()}',
                                 ),
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.error,
+                                backgroundColor: context.errorColor,
                               ),
                             );
                           }
                         }
                       },
-                      style: OutlinedButton.styleFrom(
-                        fixedSize: const Size(335, 55),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -311,9 +255,7 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           ),
                           Text(
                             'Log in with your Google account',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+                            style: TextStyle(color: context.onSurface),
                           ),
                         ],
                       ),
@@ -324,18 +266,12 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Already Have An Account ?",
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.5),
-                          ),
+                          'Already Have An Account ?',
+                          style: TextStyle(color: context.subtitleColor),
                         ),
                         TextButton(
-                          onPressed: () {
-                            context.push('/login');
-                          },
-                          child: const Text("Login"),
+                          onPressed: () => context.push('/login'),
+                          child: const Text('Login'),
                         ),
                       ],
                     ),

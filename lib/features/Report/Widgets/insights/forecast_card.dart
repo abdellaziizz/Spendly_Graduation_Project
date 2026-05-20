@@ -1,14 +1,17 @@
+import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/domain/models/live_insights_data.dart';
 
 // Monthly Prediction
-class ForecastCard extends StatelessWidget {
+class ForecastCard extends ConsumerWidget {
   const ForecastCard({required this.data});
 
   final LiveInsightsData data;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curSymbol = ref.watch(currencySymbolProvider);
     return Row(
       children: [
         Expanded(
@@ -29,7 +32,7 @@ class ForecastCard extends StatelessWidget {
                 style: TextStyle(color: Colors.white54, fontSize: 10),
               ),
               Text(
-                '\$${data.monthlyForecast.toStringAsFixed(2)}',
+                '${curSymbol}${data.monthlyForecast.toStringAsFixed(2)}',
                 style: const TextStyle(
                   color: Colors.lightBlueAccent,
                   fontSize: 16,
@@ -48,7 +51,7 @@ class ForecastCard extends StatelessWidget {
                 style: TextStyle(color: Colors.white54, fontSize: 10),
               ),
               Text(
-                '\$${data.average.toStringAsFixed(2)}',
+                '${curSymbol}${data.average.toStringAsFixed(2)}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
