@@ -7,16 +7,16 @@ import 'package:spendly/features/authentication/Service/go_router_refresh_stream
 import 'package:spendly/widgets/navigationbar.dart';
 import 'package:spendly/features/main/screens/home_screen.dart';
 import 'package:spendly/features/wallet/screens/wallet_screen.dart';
-import 'package:spendly/features/Report/report_screen.dart';
+import 'package:spendly/features/Report/Screens/report_screen.dart';
 import 'package:spendly/features/Profile/Screens/profile_screen.dart';
 import 'package:spendly/features/chatbot/Screens/chat_screen.dart';
 import 'package:spendly/features/authentication/Screens/login_screen.dart';
 import 'package:spendly/features/authentication/Screens/Registeration_Screen.dart';
 import 'package:spendly/features/authentication/Screens/enter_email_Screen.dart';
 import 'package:spendly/features/authentication/Screens/ResetPassword_Screen.dart';
-import 'package:spendly/features/Scan/scan_receipt_screen.dart';
-import 'package:spendly/features/Scan/scan_result_screen.dart';
-import 'package:spendly/features/Scan/receipt_parser.dart';
+import 'package:spendly/features/Scan/Screen/scan_receipt_screen.dart';
+import 'package:spendly/features/Scan/Screen/scan_result_screen.dart';
+import 'package:spendly/features/Scan/Service/receipt_parser.dart';
 
 // Navigation keys for each branch
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -47,29 +47,31 @@ final GoRouter router = GoRouter(
   // ───────── REDIRECT GUARD ─────────
   redirect: (BuildContext context, GoRouterState state) {
     final session = Supabase.instance.client.auth.currentSession;
-    final isLoggedIn = session != null;
     final currentPath = state.matchedLocation;
 
     final isPublicRoute = _publicRoutes.contains(currentPath);
 
-    // ── Not authenticated ──
-    if (!isLoggedIn) {
-      // Allow access to public (auth) routes.
+    // ───────── NOT LOGGED IN ─────────
+    if (session == null) {
       if (isPublicRoute) return null;
-      // Everything else → redirect to login.
       return '/login';
     }
 
-    // ── Authenticated ──
-    // If the user is on a login/register page, send them to home.
-    // Exception: /reset-password is allowed even when authenticated
-    // (the user arrives here via the password recovery deep link
-    // which sets a temporary session).
+    // ───────── LOGGED IN ─────────
+    final createdAt = DateTime.parse(session.user.createdAt);
+    final now = DateTime.now();
+    final isNewUser = now.difference(createdAt).inSeconds < 30;
+
+    // 🚀 FIRST LOGIN AFTER REGISTER → currency
+    if (isNewUser && currentPath != '/currency') {
+      return '/currency';
+    }
+
+    // Prevent going back to login/register
     if (isPublicRoute && currentPath != '/reset-password') {
       return '/home';
     }
 
-    // Allow navigation to proceed.
     return null;
   },
 
@@ -98,7 +100,7 @@ final GoRouter router = GoRouter(
     ),
 
     // ───────── Bottom Navigation System ─────────
-    //           Each tab keeps its state
+    //         These keep state when switching tabs.
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return ScaffoldWithNavbar(navigationShell: navigationShell);
@@ -129,7 +131,7 @@ final GoRouter router = GoRouter(
           navigatorKey: _reportNavigatorKey,
           routes: [
             GoRoute(
-              path: '/report',
+              path: '/insights',
               builder: (context, state) => const ReportScreen(),
             ),
           ],
@@ -148,7 +150,11 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
-
+      path: '/report',
+      redirect: (context, state) => '/insights',
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
       path: '/legal',
       builder: (context, state) => LegalInformationScreen(),
     ),

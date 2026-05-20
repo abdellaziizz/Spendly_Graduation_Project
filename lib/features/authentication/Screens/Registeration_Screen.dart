@@ -206,18 +206,8 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                                     gender: gender,
                                   );
 
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: const Text(
-                                          'Registration successful! Please check your email to verify your account.',
-                                        ),
-                                        backgroundColor: Colors.green.shade600,
-                                      ),
-                                    );
-                                    // context.go('/home');
-                                    context.go('/currency');
-                                  }
+                                  // ❌ NO navigation here
+                                  // Router will react to auth state change automatically
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(

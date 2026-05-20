@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,8 +11,15 @@ import 'package:spendly/features/authentication/providers/deep_link_providers.da
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load env FIRST so the variables are available for Supabase init
-  await dotenv.load(fileName: ".env");
+  // Load .env only on native platforms, skip on web
+  if (!kIsWeb) {
+    try {
+      await dotenv.load();
+    } catch (e) {
+      print('dotenv.load() warning: $e');
+    }
+  }
+  // On web, use hardcoded defaults in BackendApi
 
   await Supabase.initialize(
     url: 'https://bajjqhcqfmvsniszytsf.supabase.co',

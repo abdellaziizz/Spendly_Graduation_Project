@@ -35,7 +35,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
     super.dispose();
   }
 
-  void _createCategory() {
+  Future<void> _createCategory() async {
     if (_nameController.text.isEmpty ||
         _limitController.text.isEmpty ||
         _selectedIcon == null) {
@@ -64,8 +64,14 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
       color: Colors.indigoAccent, // Default color for custom categories
     );
 
-    ref.read(walletProvider.notifier).addBudget(newCategory);
-    Navigator.pop(context);
+    try {
+      await ref.read(walletProvider.notifier).addBudget(newCategory);
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to create category: $e')),
+      );
+    }
   }
 
   @override

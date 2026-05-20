@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:spendly/features/main/CategoryRepository.dart';
+import 'package:spendly/features/main/providers/main_finance_provider.dart';
+import 'package:spendly/features/main/providers/transactions_list_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'transaction_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/main/providers/transaction_provider.dart';
@@ -9,10 +13,12 @@ class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   const AddTransactionBottomSheet({super.key});
 
   @override
-  ConsumerState<AddTransactionBottomSheet> createState() => _AddTransactionBottomSheetState();
+  ConsumerState<AddTransactionBottomSheet> createState() =>
+      _AddTransactionBottomSheetState();
 }
 
-class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottomSheet> {
+class _AddTransactionBottomSheetState
+    extends ConsumerState<AddTransactionBottomSheet> {
   int _selectedType = 0; // 0 for Expense, 1 for Income
   final _amountController = TextEditingController();
   final _titleController = TextEditingController();
@@ -34,27 +40,52 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
     super.dispose();
   }
 
-  void _confirm() {
+  void _confirm() async {
     if (_titleController.text.trim().isEmpty ||
         _amountController.text.trim().isEmpty ||
-        _selectedCategory == null) {
+        _selectedCategory == null)
       return;
-    }
+
     final double amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
     if (amount <= 0) return;
 
-    final newTransaction = TransactionModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: _titleController.text.trim(),
-      description: _descriptionController.text.trim(),
-      amount: amount,
-      category: _selectedCategory!,
-      type: _selectedType == 0 ? 'expense' : 'income',
-      dateTime: DateTime.now(),
-    );
+    final supabase = Supabase.instance.client;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return;
 
-    ref.read(transactionProvider.notifier).addTransaction(newTransaction);
-    Navigator.pop(context);
+    final isExpense = _selectedType == 0;
+    String? categoryId;
+
+    if (isExpense) {
+      // schema CHECK: expense MUST have category_id
+      categoryId = await resolveOrCreateCategory(
+        supabase,
+        userId,
+        _selectedCategory!,
+      );
+    }
+    // schema CHECK: income MUST have category_id = NULL (enforced)
+
+    // SQL:
+    // INSERT INTO public.transactions
+    //   (users_id, type, amount, title, description, category_id, input_method)
+    // VALUES ($userId, $type, $amount, $title, $desc, $categoryId, 'manual');
+    await supabase.from('transactions').insert({
+      'users_id': userId,
+      'type': isExpense ? 'expense' : 'income',
+      'amount': amount,
+      'title': _titleController.text.trim(),
+      'description': _descriptionController.text.trim(),
+      'category_id': categoryId, // null for income — correct per schema
+      'input_method': 'manual',
+      // transaction_date defaults to CURRENT_DATE
+    });
+
+    // Refresh the list and finance totals
+    ref.invalidate(transactionsListProvider);
+    ref.invalidate(mainFinanceProvider);
+
+    if (mounted) Navigator.pop(context);
   }
 
   @override
@@ -90,7 +121,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                 ),
               ),
             ),
-            
+
             // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,7 +139,11 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   style: IconButton.styleFrom(
                     backgroundColor: const Color(0xFFF2F2FC),
                   ),
-                  icon: const Icon(Icons.close, color: Colors.black54, size: 20),
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.black54,
+                    size: 20,
+                  ),
                 ),
               ],
             ),
@@ -142,8 +177,14 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                 IntrinsicWidth(
                   child: TextField(
                     controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}'),
+                      ),
+                    ],
                     style: TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
@@ -174,8 +215,14 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
               child: CustomSlidingSegmentedControl<int>(
                 initialValue: _selectedType,
                 children: const {
-                  0: Text('Expense', style: TextStyle(fontWeight: FontWeight.w600)),
-                  1: Text('Income', style: TextStyle(fontWeight: FontWeight.w600)),
+                  0: Text(
+                    'Expense',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  1: Text(
+                    'Income',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 },
                 decoration: BoxDecoration(
                   color: const Color(0xFFE2E8F0),
@@ -224,7 +271,10 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   hintText: "e.g. Weekly Groceries",
                   hintStyle: TextStyle(color: Colors.grey.shade500),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                 ),
               ),
             ),
@@ -252,12 +302,19 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? Colors.white : const Color(0xFFF2F0FA),
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFFF2F0FA),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: isSelected ? const Color(0xFF3730A3) : Colors.transparent,
+                        color: isSelected
+                            ? const Color(0xFF3730A3)
+                            : Colors.transparent,
                         width: 1.5,
                       ),
                     ),
@@ -267,7 +324,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                         Icon(
                           cat['icon'],
                           size: 18,
-                          color: isSelected ? const Color(0xFF3730A3) : Colors.grey.shade700,
+                          color: isSelected
+                              ? const Color(0xFF3730A3)
+                              : Colors.grey.shade700,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -275,7 +334,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: isSelected ? const Color(0xFF3730A3) : Colors.grey.shade700,
+                            color: isSelected
+                                ? const Color(0xFF3730A3)
+                                : Colors.grey.shade700,
                           ),
                         ),
                       ],
@@ -308,7 +369,10 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   hintText: "Add a note...",
                   hintStyle: TextStyle(color: Colors.grey.shade500),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                 ),
               ),
             ),
@@ -320,7 +384,10 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
               height: 56,
               child: ElevatedButton.icon(
                 onPressed: _confirm,
-                icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+                icon: const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.white,
+                ),
                 label: const Text(
                   "Save Transaction",
                   style: TextStyle(

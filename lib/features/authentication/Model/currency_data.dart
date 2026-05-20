@@ -74,7 +74,6 @@ const List<CurrencyInfo> allCurrencies = [
   CurrencyInfo(name: 'Haitian Gourde', code: 'HTG', symbol: 'G', flag: '🇭🇹'),
   CurrencyInfo(name: 'Hungarian Forint', code: 'HUF', symbol: 'Ft', flag: '🇭🇺'),
   CurrencyInfo(name: 'Indonesian Rupiah', code: 'IDR', symbol: 'Rp', flag: '🇮🇩'),
-  CurrencyInfo(name: 'Israeli Shekel', code: 'ILS', symbol: '₪', flag: '🇮🇱'),
   CurrencyInfo(name: 'Indian Rupee', code: 'INR', symbol: '₹', flag: '🇮🇳'),
   CurrencyInfo(name: 'Iraqi Dinar', code: 'IQD', symbol: 'ع.د', flag: '🇮🇶'),
   CurrencyInfo(name: 'Iranian Rial', code: 'IRR', symbol: '﷼', flag: '🇮🇷'),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendly/features/Profile/Model/InfoCardModel%20.dart';
 import 'package:spendly/features/Profile/Widget/legal_widget.dart';
 
@@ -51,10 +52,14 @@ class LegalInformationScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 0, // Set to 0 to remove the shadow for a flat look
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.chevron_left, size: 28),
             color: Colors.black, // Deep purple color from your image
             onPressed: () {
-              Navigator.pop(context);
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/profile');
+              }
             },
           ),
           title: const Text(

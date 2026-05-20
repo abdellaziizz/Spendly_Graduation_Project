@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spendly/features/main/providers/budget_provider.dart';
+import 'package:spendly/features/main/providers/main_finance_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SetBudgetSheet extends ConsumerStatefulWidget {
   const SetBudgetSheet({super.key});
@@ -13,7 +14,6 @@ class SetBudgetSheet extends ConsumerStatefulWidget {
 class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
   late TextEditingController _amountController;
   final List<int> _suggestions = [1000, 2000, 3000, 4000, 5000];
-
   @override
   void initState() {
     super.initState();
@@ -41,6 +41,9 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final netBalance = ref.watch(
+      mainFinanceProvider.select((async) => async.value?.netBalance ?? 0.0),
+    );
     const months = [
       "January",
       "February",
@@ -155,7 +158,7 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Icon(
                     Icons.account_balance_wallet_outlined,
                     color: Color(0xFF00796B),
@@ -163,7 +166,7 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
                   ),
                   SizedBox(width: 8),
                   Text(
-                    "Current Spend: \$1,550.00",
+                    "Current Spend: \$$netBalance",
                     style: TextStyle(
                       color: Color(0xFF00796B),
                       fontWeight: FontWeight.w600,
@@ -237,14 +240,41 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final amount =
                       double.tryParse(
                         _amountController.text.replaceAll(',', ''),
                       ) ??
                       0.0;
-                  ref.read(budgetProvider.notifier).state = amount;
-                  Navigator.pop(context);
+
+                  if (amount <= 0) return;
+
+                  final supabase = Supabase.instance.client;
+                  final userId = supabase.auth.currentUser?.id;
+                  if (userId == null) return;
+
+                  final now = DateTime.now();
+                  final monthStr =
+                      '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
+                  await ref.read(mainFinanceProvider.notifier).refreshFinance();
+
+                  // Upsert: insert or update if month already exists
+                  // Maps to: INSERT ... ON CONFLICT (users_id, budget_month) DO UPDATE
+                  await supabase.from('monthly_budgets').upsert({
+                    'users_id': userId,
+                    'budget_month': monthStr,
+                    'amount': amount,
+                  }, onConflict: 'users_id,budget_month');
+
+                  // Keep local state in sync
+                  if (context.mounted) Navigator.pop(context);
+                  // final amount =
+                  //     double.tryParse(
+                  //       _amountController.text.replaceAll(',', ''),
+                  //     ) ??
+                  //     0.0;
+                  // ref.read(budgetProvider.notifier).state = amount;
+                  // Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3730A3), // Deep purple
