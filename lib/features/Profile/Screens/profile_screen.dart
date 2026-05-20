@@ -11,6 +11,7 @@ import 'package:spendly/features/authentication/providers/currency_provider.dart
 import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/theme_extensions.dart';
 import 'package:spendly/widgets/toggle.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -51,10 +52,13 @@ class ProfileScreen extends ConsumerWidget {
                       subtitle: currencySubtitle,
                     ),
                   ),
-                  ContainerWidget(
-                    icon: Icons.person_outline,
-                    title: 'Name',
-                    subtitle: fullname,
+                  GestureDetector(
+                    onTap: () => _showEditNameDialog(context, ref, fullname),
+                    child: ContainerWidget(
+                      icon: Icons.person_outline,
+                      title: 'Name',
+                      subtitle: fullname,
+                    ),
                   ),
                   GestureDetector(
                     onTap: () => context.push('/legal'),
@@ -131,6 +135,61 @@ class ProfileScreen extends ConsumerWidget {
         ),
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Future<void> _showEditNameDialog(BuildContext context, WidgetRef ref, String currentName) async {
+    final controller = TextEditingController(text: currentName);
+    
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Name'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'Enter new name',
+              border: OutlineInputBorder(),
+            ),
+            textCapitalization: TextCapitalization.words,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newName = controller.text.trim();
+                if (newName.isEmpty) return;
+                
+                try {
+                  final supabase = Supabase.instance.client;
+                  final userId = supabase.auth.currentUser?.id;
+                  if (userId != null) {
+                    await supabase.from('users').update({
+                      'full_name': newName
+                    }).eq('id', userId);
+                    
+                    ref.invalidate(profileNameProvider);
+                    ref.invalidate(userInfoProvider);
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to update name: $e')),
+                    );
+                  }
+                }
+                
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
