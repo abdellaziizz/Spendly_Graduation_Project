@@ -6,6 +6,7 @@ import 'package:spendly/features/authentication/Screens/currency_screen.dart';
 import 'package:spendly/features/authentication/Service/go_router_refresh_stream.dart';
 import 'package:spendly/widgets/navigationbar.dart';
 import 'package:spendly/features/main/screens/home_screen.dart';
+import 'package:spendly/features/main/screens/all_transactions_screen.dart';
 import 'package:spendly/features/wallet/screens/wallet_screen.dart';
 import 'package:spendly/features/Report/Screens/report_screen.dart';
 import 'package:spendly/features/Profile/Screens/profile_screen.dart';
@@ -185,6 +186,11 @@ final GoRouter router = GoRouter(
         final data = state.extra as ParsedReceiptData;
         return ScanResultScreen(initialData: data);
       },
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/all-transactions',
+      builder: (context, state) => const AllTransactionsScreen(),
     ),
   ],
 );
