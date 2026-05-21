@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
@@ -340,12 +341,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                     'Recent Transactions',
                                     style: context.textTheme.titleSmall,
                                   ),
-                                  Text(
-                                    'See all',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: context.colors.primary,
-                                      fontWeight: FontWeight.w500,
+                                  GestureDetector(
+                                    onTap: () {
+                                      context.push('/all-transactions');
+                                    },
+                                    child: Text(
+                                      'See all',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: context.colors.primary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -389,7 +395,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                               )
                             else
                               Column(
-                                children: transactions.map((tx) {
+                                children: transactions.take(5).map((tx) {
                                   final isIncome = tx.type == 'income';
                                   return TransactionItem(
                                     data: TransactionData(
