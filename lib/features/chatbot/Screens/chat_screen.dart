@@ -6,7 +6,7 @@ import 'package:spendly/theme/app_gradients.dart';
 import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/colors.dart';
 import 'package:spendly/theme/theme_extensions.dart';
-
+import 'package:flutter_markdown/flutter_markdown.dart';
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
@@ -290,14 +290,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message.text,
-                    style: TextStyle(
-                      color: isUser ? Colors.white : aiTextColor,
-                      fontSize: 14.5,
-                      height: 1.45,
-                    ),
-                  ),
+                 MarkdownBody(
+  data: message.text,
+  styleSheet: MarkdownStyleSheet(
+    p: TextStyle(
+      color: isUser ? Colors.white : aiTextColor,
+      fontSize: 14.5,
+      height: 1.45,
+    ),
+  ),
+),
                   const SizedBox(height: 4),
                   Text(
                     _formatTime(message.timestamp),

@@ -31,11 +31,21 @@ class _AddTransactionBottomSheetState
   final _titleController       = TextEditingController();
   final _descriptionController = TextEditingController();
 
+
   final List<Map<String, dynamic>> _categories = [
     {'name': 'Groceries',  'icon': Icons.shopping_basket_outlined},
     {'name': 'Transport',  'icon': Icons.directions_car_outlined},
     {'name': 'Dining Out', 'icon': Icons.restaurant_outlined},
-    {'name': 'Leisure',    'icon': Icons.movie_creation_outlined},
+    {'name': 'Health',     'icon': Icons.health_and_safety_outlined},
+    {'name': 'Laptop',   'icon': Icons.laptop_mac_outlined},
+    {'name': 'Beach',   'icon': Icons.beach_access_outlined},
+    {'name': 'Home',   'icon': Icons.home_outlined},
+    {'name': 'Flight',   'icon': Icons.flight_outlined},
+    {'name': 'Gift',   'icon': Icons.card_giftcard_outlined},
+    {'name': 'Date',   'icon': Icons.favorite_outline},
+    {'name': 'Phone',   'icon': Icons.smartphone_outlined},
+    {'name': 'School',   'icon': Icons.school_outlined},
+    
   ];
 
   @override
@@ -287,59 +297,73 @@ class _AddTransactionBottomSheetState
             // ── Category chips ────────────────────────────────────────────
             Text('Category', style: context.textTheme.labelLarge),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: _categories.map((cat) {
-                final isSelected = _selectedCategory == cat['name'];
-                return GestureDetector(
-                  onTap: () =>
-                      setState(() => _selectedCategory = cat['name']),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? context.colors.primary.withValues(alpha: 0.1)
-                          : context.colors.surfaceContainerHighest,
-                      borderRadius: AppRadius.fullBorderRadius,
-                      border: Border.all(
-                        color: isSelected
-                            ? context.colors.primary
-                            : Colors.transparent,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          cat['icon'] as IconData,
-                          size: 18,
-                          color: isSelected
-                              ? context.colors.primary
-                              : context.subtitleColor,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          cat['name'],
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected
-                                ? context.colors.primary
-                                : context.subtitleColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
+       SizedBox(
+  height: 120, // adjust based on your item height
+  child: GridView.builder(
+    scrollDirection: Axis.horizontal,
+    itemCount: _categories.length,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  crossAxisCount: 2,
+  mainAxisSpacing: 12,
+  crossAxisSpacing: 12,
+  mainAxisExtent: 130, // width of each category
+),
+    itemBuilder: (context, index) {
+      final cat = _categories[index];
+      final isSelected = _selectedCategory == cat['name'];
+
+      return GestureDetector(
+        onTap: () =>
+            setState(() => _selectedCategory = cat['name']),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? context.colors.primary.withValues(alpha: 0.1)
+                : context.colors.surfaceContainerHighest,
+            borderRadius: AppRadius.fullBorderRadius,
+            border: Border.all(
+              color: isSelected
+                  ? context.colors.primary
+                  : Colors.transparent,
+              width: 1.5,
             ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                cat['icon'] as IconData,
+                size: 18,
+                color: isSelected
+                    ? context.colors.primary
+                    : context.subtitleColor,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  cat['name'],
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected
+                        ? context.colors.primary
+                        : context.subtitleColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+),
             const SizedBox(height: 20),
 
             // ── Description ───────────────────────────────────────────────
