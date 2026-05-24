@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spendly/features/authentication/Screens/Login_Screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/Profile/Screens/legal_information_screen.dart';
 import 'package:spendly/features/authentication/Screens/currency_screen.dart';
@@ -11,7 +12,6 @@ import 'package:spendly/features/wallet/screens/wallet_screen.dart';
 import 'package:spendly/features/Report/Screens/report_screen.dart';
 import 'package:spendly/features/Profile/Screens/profile_screen.dart';
 import 'package:spendly/features/chatbot/Screens/chat_screen.dart';
-import 'package:spendly/features/authentication/Screens/login_screen.dart';
 import 'package:spendly/features/authentication/Screens/Registeration_Screen.dart';
 import 'package:spendly/features/authentication/Screens/enter_email_Screen.dart';
 import 'package:spendly/features/authentication/Screens/ResetPassword_Screen.dart';
