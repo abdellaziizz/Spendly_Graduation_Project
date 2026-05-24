@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:spendly/features/main/providers/user_provider.dart';
 
 class Headersection extends ConsumerWidget {
@@ -105,7 +106,52 @@ class Headersection extends ConsumerWidget {
           ],
         );
       },
-      loading: () => const Text('...'),
+      loading: () => Skeletonizer(
+        enabled: true,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(
+              right: 65,
+              left: 12,
+              top: 14,
+              bottom: 14,
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  radius: 20,
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 16,
+                      color:
+                          Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 150,
+                      height: 14,
+                      color:
+                          Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       error: (_, _) => const Text('User'),
     );
   }
