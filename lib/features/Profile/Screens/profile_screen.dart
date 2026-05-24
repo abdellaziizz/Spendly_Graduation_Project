@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/Profile/Provider/user_provider.dart';
 import 'package:spendly/features/Profile/Widget/container_widget.dart';
@@ -12,7 +13,7 @@ import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/theme_extensions.dart';
 import 'package:spendly/widgets/toggle.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:skeletonizer/skeletonizer.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -25,15 +26,11 @@ class ProfileScreen extends ConsumerWidget {
     );
     final currencySubtitle = '${c.code} ${c.flag}';
     final userasync = ref.watch(profileNameProvider);
-
-    return userasync.when(
-      data: (user) {
-        final email    = user.email;
-        final fullname = user.fullName;
-
-        return Scaffold(
+return Scaffold(
           appBar: AppBar(title: const Text('Profile')),
-          body: SingleChildScrollView(
+          body: userasync.when (data:(user){final email    = user.email;
+          final fullname = user.fullName;
+            return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
@@ -125,17 +122,113 @@ class ProfileScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          ),
-        );
-      },
-      error: (e, _) => Center(
+          );},  error: (e, _) => Center(
         child: Text(
           'Error loading profile: $e',
           style: TextStyle(color: context.errorColor),
         ),
+      ), loading: () => Skeletonizer(
+  enabled: true,
+  child: Scaffold(
+    appBar: AppBar(title: const Text('Profile')),
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+
+                const SizedBox(height: 16),
+ Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          height: 88,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Theme.of(context).colorScheme.surface,
+          ),
+          child: Row(
+            children: [
+             CircleAvatar(radius: 24),
+              const SizedBox(width: 10),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'fullname',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    'email',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+            // Fake containers
+            ContainerWidget(
+              icon: Icons.email,
+              title: 'Loading',
+              subtitle: 'loading@email.com',
+            ),
+
+            ContainerWidget(
+              icon: Icons.wallet_outlined,
+              title: 'Currency type',
+              subtitle: '',
+            ),
+
+            ContainerWidget(
+              icon: Icons.person_outline,
+              title: 'Name',
+              subtitle: 'Ahmed Abdelaziz',
+            ),
+
+            ContainerWidget(
+              icon: Icons.info_outline_rounded,
+              title: 'Legal Information',
+            ),
+
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              height: 55,
+              child: Row(
+                children: const [
+                  Icon(Icons.brightness_6_outlined),
+                  SizedBox(width: 12),
+                  Text('Mode'),
+                  Spacer(),
+                  Switch(value: false, onChanged: null),
+                ],
+              ),
+            ),
+
+            ContainerWidget(
+              icon: Icons.logout,
+              title: 'Logout',
+            ),
+          ],
+        ),
       ),
-      loading: () => const Center(child: CircularProgressIndicator()),
-    );
+    ),
+  ),
+),),
+        );
+     
+    
   }
 
   Future<void> _showEditNameDialog(BuildContext context, WidgetRef ref, String currentName) async {

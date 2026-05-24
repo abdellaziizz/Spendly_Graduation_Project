@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:spendly/features/wallet/providers/goal_provider.dart';
 import 'package:spendly/features/wallet/widgets/goal_card.dart';
 import 'package:spendly/features/wallet/widgets/setting_goal_pop.dart';
@@ -23,8 +24,18 @@ class GoalsTab extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: goalsAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF3B38D0)),
+        loading: () =>  Skeletonizer(
+          enabled: true,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              children: [
+                Container(height: 120, width: double.infinity, color: Colors.grey),
+                SizedBox(height: 12),
+                Container(height: 120, width: double.infinity, color: Colors.grey),
+              ],
+            ),
+          ),
         ),
         error: (err, _) => Center(
           child: Padding(

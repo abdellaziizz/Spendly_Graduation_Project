@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'package:spendly/features/main/widgets/transaction_item.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
@@ -68,7 +69,7 @@ class AllTransactionsScreen extends ConsumerWidget {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
             itemCount: transactions.length,
             itemBuilder: (context, index) {
               final tx = transactions[index];
@@ -99,7 +100,52 @@ class AllTransactionsScreen extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Skeletonizer(
+          enabled: true,
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            itemCount: 6,
+            itemBuilder: (context, index) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 16,
+                        color:
+                            Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        width: 80,
+                        height: 14,
+                        color:
+                            Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
         error: (e, _) => Center(child: Text('Error: $e')),
       ),
     );

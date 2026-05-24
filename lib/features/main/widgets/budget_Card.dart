@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/features/main/widgets/set_budget_bottom_sheet.dart';
@@ -26,7 +27,17 @@ class BudgetCard extends ConsumerWidget {
 
     return financeAsync.when(
       loading: () =>
-          const Center(child: CircularProgressIndicator(color: Colors.white)),
+          Skeletonizer(
+        enabled: true,
+        child: Container(
+          height: 220,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: AppGradients.budgetCard,
+            borderRadius: AppRadius.xxlBorderRadius,
+          ),
+        ),
+      ),
       error: (e, _) => Text(
         e.toString(),
         style: const TextStyle(color: Colors.white),

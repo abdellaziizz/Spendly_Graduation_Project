@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:spendly/features/Profile/Provider/user_provider.dart';
 
 class Headsection extends ConsumerWidget {
@@ -70,7 +71,16 @@ class Headsection extends ConsumerWidget {
           ),
         );
       },
-      loading: () => Center(child: const CircularProgressIndicator()),
+      loading: () =>Skeletonizer(
+        enabled: true,
+        child: Container(
+          height: 88,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
       error: (_, _) => Center(child: const Text('Opps ! \nFailed Loading ')),
     );
   }

@@ -7,7 +7,7 @@ class GeminiService {
   GeminiService() {
     _model = GenerativeModel(
       model: 'gemini-3-flash-preview',
-      apiKey: "AIzaSyC1bd5o6JWZ2sU65QWyBoQBhcGRA-K-tbY",
+      apiKey: "",
       generationConfig: GenerationConfig(
         temperature: 0.7,
         topK: 40,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:spendly/features/main/CategoryRepository.dart';
@@ -283,15 +284,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   children: [
                     const Headersection(),
                     const BudgetCard(),
-
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // ── Transactions header ──────────────────────
-                            Padding(
+Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 8,
@@ -358,6 +351,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                               ),
                             ),
                             const SizedBox(height: 6),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            
 
                             // ── Transaction list or empty state ───────────
                             if (transactions.isEmpty)
@@ -570,8 +570,163 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Padding(
+loading: () => Skeletonizer(
+  enabled: true,
+  child: Scaffold(
+    body: Stack(
+      children: [
+        // Background image
+        
+        SafeArea(
+          child: Column(
+            children: [
+              // Fake header
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    const CircleAvatar(radius: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 14,
+                            width: 120,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 12,
+                            width: 80,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Fake budget card
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: context.surface,
+                  borderRadius: AppRadius.lgBorderRadius,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Transactions title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      height: 18,
+                      width: 140,
+                      color: Colors.white,
+                    ),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: AppRadius.mdBorderRadius,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Fake transaction list
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: 5,
+                  itemBuilder: (_, __) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: context.surface,
+                        borderRadius: AppRadius.lgBorderRadius,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: 14,
+                                  width: 120,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  height: 12,
+                                  width: 80,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Container(
+                            height: 14,
+                            width: 60,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Fake FAB
+        Positioned(
+          bottom: 40,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),      error: (e, _) => Padding(
         padding: const EdgeInsets.all(24),
         child: Text('Failed to load transactions: $e'),
       ),
