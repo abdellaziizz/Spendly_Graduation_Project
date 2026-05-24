@@ -7,10 +7,7 @@ import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/colors.dart';
 import 'package:spendly/theme/theme_extensions.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-<<<<<<< Updated upstream
-=======
-// import 'package:flutter_markdown/flutter_markdown.dart';
->>>>>>> Stashed changes
+
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
@@ -294,11 +291,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               child: Column( //here  is the message from the ai
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-<<<<<<< Updated upstream
-                 MarkdownBody(
-=======
+
                   MarkdownBody(
->>>>>>> Stashed changes
   data: message.text,
   styleSheet: MarkdownStyleSheet(
     p: TextStyle(
