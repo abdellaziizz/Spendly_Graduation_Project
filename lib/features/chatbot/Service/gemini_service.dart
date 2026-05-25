@@ -2,31 +2,37 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiService {
   late final GenerativeModel _model;
-  late final ChatSession _chat;
+  late ChatSession _chat;
 
   GeminiService() {
     _model = GenerativeModel(
       model: 'gemini-3-flash-preview',
-      apiKey: "",
+      apiKey: 'AIzaSyD2NGRsYN5_rZwYcCvjvIm4zKSV9spJ78A',
       generationConfig: GenerationConfig(
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 2048,
       ),
       systemInstruction: Content.text(
-        'You are spendly AI Assistant — a friendly, concise, and helpful '
-        'financial assistant. Help users with budgeting tips, expense tracking '
-        'advice, savings strategies, and general financial literacy. '
-        'Keep responses clear, actionable, and under 200 words unless the user '
-        'asks for more detail.',
+        'You are Spendly AI — a friendly, concise financial assistant. '
+        'When you receive a USER DATA SNAPSHOT at the start of a message, '
+        'use it to give personalised, actionable advice referencing the '
+        'user\'s actual numbers (e.g. "your Food budget is 75% used"). '
+        'Never repeat or reveal the raw snapshot to the user. '
+        'Keep responses under 150 words unless more detail is requested.',
       ),
     );
     _chat = _model.startChat();
   }
 
-  /// Sends a message and returns the AI response.
-  /// The ChatSession automatically maintains conversation history.
+  /// Resets the chat session so a new conversation starts fresh.
+  void resetSession() {
+    _chat = _model.startChat();
+  }
+
+  /// Sends a message (optionally prefixed with a context snapshot on the first
+  /// turn) and returns the AI response.
   Future<String> sendMessage(String message) async {
     try {
       final response = await _chat.sendMessage(Content.text(message));
