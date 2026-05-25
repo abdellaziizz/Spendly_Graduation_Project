@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/features/Report/domain/models/outlook_item.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class OutlookList extends ConsumerWidget {
   const OutlookList({Key? key, required this.items}) : super(key: key);
@@ -11,79 +13,84 @@ class OutlookList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final curSymbol = ref.watch(currencySymbolProvider);
-    
-    // Sort items if needed, and slice the list to only show the top 3 items
-    final topItems = items.take(3).toList();
+    final isDark    = context.isDark;
+    final topItems  = items.take(3).toList();
+
+    final cardBg    = isDark ? AppColors.darkSurfaceElevated : const Color(0xFFF9F6FE);
+    final titleClr  = isDark ? AppColors.textPrimaryDark     : const Color(0xFF1E1E24);
+    final bodyClr   = isDark ? AppColors.textSecondaryDark   : const Color(0xFF5A5A65);
+    final tileBg    = isDark ? AppColors.darkSurface         : const Color(0xFFF1F0FA);
+    final tileTextClr= isDark ? AppColors.textPrimaryDark    : const Color(0xFF1E1E24);
+    const watchRed  = Color(0xFFC92A2A);
+    final badgeBg   = isDark
+        ? watchRed.withValues(alpha: 0.25)
+        : const Color(0xFFFCE8E6);
+    final changeBg  = isDark
+        ? watchRed.withValues(alpha: 0.25)
+        : const Color(0xFFFCE2DC);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4, bottom: 16),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 16),
           child: Text(
             'Category Outlook',
             style: TextStyle(
-              color: Color(0xFF1E1E24),
+              color: titleClr,
               fontSize: 22,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
         ...topItems.map((item) {
-          // Calculate the percentage change string dynamically
-          // If item.change is already a percentage integer (e.g. 15), use it directly.
-          final percentageText = "${item.change >= 0 ? '+' : ''}${item.change.toStringAsFixed(0)}%";
-          
+          final percentageText =
+              '${item.change >= 0 ? '+' : ''}${item.change.toStringAsFixed(0)}%';
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF9F6FE), // Card background matching image tint
+                color: cardBg,
                 borderRadius: BorderRadius.circular(24),
               ),
-              clipBehavior: Clip.antiAlias, // Ensures the left red indicator conforms to the border radius
+              clipBehavior: Clip.antiAlias,
               child: Stack(
                 children: [
-                  // Red Warning indicator strip on the far left side
+                  // Warning strip
                   Positioned(
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Container(
-                      width: 5,
-                      color: const Color(0xFFC92A2A), // Vibrant Crimson Red
-                    ),
+                    left: 0, top: 0, bottom: 0,
+                    child: Container(width: 5, color: watchRed),
                   ),
-                  
-                  // Main card content body
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Header: Title and Red "WATCH" Badge
+                        // Header
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              item.name, // e.g., "Dining & Groceries"
-                              style: const TextStyle(
-                                color: Color(0xFF1E1E24),
+                              item.name,
+                              style: TextStyle(
+                                color: titleClr,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
                             const SizedBox(width: 12),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFCE8E6), // Light red tint badge
+                                color: badgeBg,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: const Text(
                                 'WATCH',
                                 style: TextStyle(
-                                  color: Color(0xFFC92A2A),
+                                  color: watchRed,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5,
@@ -93,50 +100,44 @@ class OutlookList extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        
-                        // Description text
                         Text(
-                          item.description, // e.g., "Frequent small transactions are inflating this budget."
-                          style: const TextStyle(
-                            color: Color(0xFF5A5A65),
+                          item.description,
+                          style: TextStyle(
+                            color: bodyClr,
                             fontSize: 16,
                             height: 1.35,
                           ),
                         ),
                         const SizedBox(height: 20),
-                        
-                        // Bottom row featuring stylized data pill boxes
+                        // Metric tiles
                         Row(
                           children: [
-                            // "NOW" Metric Block
                             Expanded(
                               child: _buildMetricTile(
                                 label: 'NOW',
-                                value: '$curSymbol${item.now.toStringAsFixed(0)}',
-                                backgroundColor: const Color(0xFFF1F0FA),
-                                textColor: const Color(0xFF1E1E24),
+                                value:
+                                    '$curSymbol${item.now.toStringAsFixed(0)}',
+                                backgroundColor: tileBg,
+                                textColor: tileTextClr,
                               ),
                             ),
                             const SizedBox(width: 12),
-                            
-                            // "NEXT" Metric Block
                             Expanded(
                               child: _buildMetricTile(
                                 label: 'NEXT',
-                                value: '$curSymbol${item.nextMonth.toStringAsFixed(0)}',
-                                backgroundColor: const Color(0xFFF1F0FA),
-                                textColor: const Color(0xFF1E1E24),
+                                value:
+                                    '$curSymbol${item.nextMonth.toStringAsFixed(0)}',
+                                backgroundColor: tileBg,
+                                textColor: tileTextClr,
                               ),
                             ),
                             const SizedBox(width: 12),
-                            
-                            // "CHANGE" Highlighting Block
                             Expanded(
                               child: _buildMetricTile(
                                 label: 'CHANGE',
                                 value: percentageText,
-                                backgroundColor: const Color(0xFFFCE2DC), // Pastel Red block background
-                                textColor: const Color(0xFFC92A2A), // Contrasting dark red textual indicators
+                                backgroundColor: changeBg,
+                                textColor: watchRed,
                               ),
                             ),
                           ],
@@ -153,7 +154,6 @@ class OutlookList extends ConsumerWidget {
     );
   }
 
-  // Extracted helper method to cleanly build identical metric boxes
   Widget _buildMetricTile({
     required String label,
     required String value,
@@ -172,7 +172,7 @@ class OutlookList extends ConsumerWidget {
           Text(
             label,
             style: TextStyle(
-              color: textColor.withOpacity(0.55),
+              color: textColor.withValues(alpha: 0.55),
               fontSize: 11,
               fontWeight: FontWeight.w500,
               letterSpacing: 0.3,

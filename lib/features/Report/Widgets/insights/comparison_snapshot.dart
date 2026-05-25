@@ -1,12 +1,12 @@
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:spendly/features/Report/Widgets/common/card_box.dart';
-import 'package:spendly/features/Report/Widgets/common/snapshot_tile.dart';
 import 'package:spendly/features/Report/Widgets/common/tag.dart';
 import 'package:spendly/features/Report/domain/models/live_insights_data.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/app_radius.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
-// Predict Next Month SPending and what category to watch
 class ComparisonSnapshot extends ConsumerWidget {
   const ComparisonSnapshot({required this.data});
 
@@ -15,6 +15,10 @@ class ComparisonSnapshot extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final curSymbol = ref.watch(currencySymbolProvider);
+    final isDark = context.isDark;
+    final cardBg  = isDark ? AppColors.darkSurface : Colors.white;
+    final labelClr = isDark ? AppColors.textSecondaryDark : const Color(0xFF1B1B24);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -24,29 +28,26 @@ class ComparisonSnapshot extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFFFFF),
-                  borderRadius: BorderRadius.circular(12),
+                  color: cardBg,
+                  borderRadius: AppRadius.mdBorderRadius,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Current Total',
-                      style: const TextStyle(
-                        color: Color(0xff1B1B24),
-                        fontSize: 10,
-                      ),
+                      style: TextStyle(color: labelClr, fontSize: 10),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${curSymbol}${data.currentSpending.toStringAsFixed(2)}',
+                      '$curSymbol${data.currentSpending.toStringAsFixed(2)}',
                       style: TextStyle(
-                        color: Colors.green,
+                        color: AppColors.success,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Tag(text: 'Watch: ${data.watchCategory}'),
@@ -60,23 +61,20 @@ class ComparisonSnapshot extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFFFFF),
-                  borderRadius: BorderRadius.circular(12),
+                  color: cardBg,
+                  borderRadius: AppRadius.mdBorderRadius,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Projected Next Month',
-                      style: const TextStyle(
-                        color: Color(0xff1B1B24),
-                        fontSize: 10,
-                      ),
+                      style: TextStyle(color: labelClr, fontSize: 10),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${curSymbol}${data.monthlyForecast.toStringAsFixed(2)}',
-                      style: TextStyle(
+                      '$curSymbol${data.monthlyForecast.toStringAsFixed(2)}',
+                      style: const TextStyle(
                         color: Colors.orangeAccent,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -85,11 +83,6 @@ class ComparisonSnapshot extends ConsumerWidget {
                   ],
                 ),
               ),
-              // child: SnapshotTile(
-              //   label: 'Projected Next Month',
-              //   value: '${curSymbol}${data.monthlyForecast.toStringAsFixed(2)}',
-              //   accent: Colors.orangeAccent,
-              // ),
             ),
           ],
         ),

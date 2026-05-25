@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/Report/Widgets/insights/insights_tab.dart';
@@ -11,6 +11,8 @@ import 'package:spendly/features/main/providers/transactions_list_provider.dart'
 import 'package:spendly/features/wallet/providers/category_provider.dart';
 import 'package:spendly/features/wallet/providers/goal_provider.dart';
 import 'package:spendly/services/backend_api.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class ReportScreen extends ConsumerStatefulWidget {
   const ReportScreen({super.key});
@@ -52,8 +54,9 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
       categories: categories,
     );
 
+    final bg = context.isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
     return Scaffold(
-      backgroundColor: const Color(0xffEEF0F2),
+      backgroundColor: bg,
       appBar: AppBar(
         actions: [
           Image.asset('assets/logo/logo.png', width: 42, height: 42),
@@ -63,12 +66,12 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Container(
-            color: const Color(0xffEEF0F2),
+            color: bg,
             padding: const EdgeInsets.all(8),
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.isDark ? AppColors.darkSurface : Colors.white,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Stack(
@@ -103,7 +106,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
                               style: TextStyle(
                                 color: _tabController.index == 0
                                     ? Colors.white
-                                    : const Color(0xff1B1B24),
+                                    : context.onSurface,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -122,7 +125,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
                               style: TextStyle(
                                 color: _tabController.index == 1
                                     ? Colors.white
-                                    : const Color(0xff1B1B24),
+                                    : context.onSurface,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -141,13 +144,13 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          InsightsTab(
+          InsightsTab(liveData: liveData),
+          ReportsTab(
             liveData: liveData,
             reportError: _reportError,
             generatedReport: _generatedReport,
             onGenerate: () => _onGeneratePressed(liveData),
           ),
-          ReportsTab(liveData: liveData),
         ],
       ),
     );
