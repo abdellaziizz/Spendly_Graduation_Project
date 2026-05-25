@@ -34,6 +34,7 @@ class InsightsTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SectionLabel(title: 'Analysis'),
+            WeeklySpendingCard(),
             const SizedBox(height: 8),
             BudgetStatusCard(data: liveData),
             const SizedBox(height: 10),
@@ -48,8 +49,6 @@ class InsightsTab extends StatelessWidget {
             const SectionLabel(title: 'Goal Progress'),
             GoalSnapshot(goals: liveData.goals),
             const SizedBox(height: 10),
-            Center(child: const SectionLabel(title: 'Add The Charts Here')),
-WeeklySpendingCard(),
             // const SectionLabel(title: 'Current Spending by Category'),
             // CategoryBars(categories: liveData.categoryBreakdown),
             const SizedBox(height: 10),
@@ -68,7 +67,7 @@ WeeklySpendingCard(),
               reportError: reportError,
               onGenerate: onGenerate,
             ),
-         
+
             if (generatedReport != null) ...[
               const SizedBox(height: 10),
               const SectionLabel(title: 'Latest Report Output'),
