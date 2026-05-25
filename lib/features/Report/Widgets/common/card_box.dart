@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:spendly/features/Report/Widgets/common/card_box.dart';
-import 'package:spendly/features/Report/Widgets/common/snapshot_tile.dart';
-import 'package:spendly/features/Report/Widgets/common/tag.dart';
-import 'package:spendly/features/Report/domain/models/live_insights_data.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class CardBox extends StatelessWidget {
   const CardBox({required this.child});
@@ -16,8 +13,7 @@ class CardBox extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF397BBD),
-        border: Border.all(color: Colors.white24),
+        color: context.isDark ? AppColors.darkSurface : AppColors.primary,
         borderRadius: BorderRadius.circular(8),
       ),
       child: child,
@@ -36,8 +32,7 @@ class ComparisonOutlook extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF397BBD),
-        border: Border.all(color: Colors.white24),
+        color: context.isDark ? AppColors.darkSurface : AppColors.primary,
         borderRadius: BorderRadius.circular(8),
       ),
       child: child,

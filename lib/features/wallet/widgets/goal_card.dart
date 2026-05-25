@@ -4,6 +4,7 @@ import 'package:spendly/features/wallet/models/goal_model.dart';
 import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/theme_extensions.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
+import 'package:spendly/features/wallet/widgets/add_funds_sheet.dart';
 
 /// A premium goal card — accent colours are per-goal and intentional by design.
 class GoalCard extends ConsumerWidget {
@@ -81,6 +82,26 @@ class GoalCard extends ConsumerWidget {
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
                     ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                InkWell(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => AddFundsSheet(goal: goal),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: accent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 20),
                   ),
                 ),
               ],

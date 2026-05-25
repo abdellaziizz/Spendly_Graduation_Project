@@ -2,27 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:spendly/features/Report/Widgets/common/section_label.dart';
 import 'package:spendly/features/Report/Widgets/insights/action_list.dart';
 import 'package:spendly/features/Report/Widgets/insights/budget_status_card.dart';
-import 'package:spendly/features/Report/Widgets/insights/category_bars.dart';
 import 'package:spendly/features/Report/Widgets/insights/chart_widget.dart';
 import 'package:spendly/features/Report/Widgets/insights/comparison_snapshot.dart';
-import 'package:spendly/features/Report/Widgets/insights/generate_report.dart';
 import 'package:spendly/features/Report/Widgets/insights/goal_snapshot.dart';
 import 'package:spendly/features/Report/Widgets/insights/outlook_list.dart';
-import 'package:spendly/features/Report/Widgets/insights/report_preview.dart';
 import 'package:spendly/features/Report/domain/models/live_insights_data.dart';
 
 class InsightsTab extends StatelessWidget {
-  const InsightsTab({
-    required this.liveData,
-    required this.onGenerate,
-    required this.reportError,
-    required this.generatedReport,
-  });
+  const InsightsTab({required this.liveData});
 
   final LiveInsightsData liveData;
-  final VoidCallback onGenerate;
-  final String? reportError;
-  final Map<String, dynamic>? generatedReport;
 
   @override
   Widget build(BuildContext context) {
@@ -60,19 +49,6 @@ class InsightsTab extends StatelessWidget {
             const SizedBox(height: 10),
             const SectionLabel(title: 'Alerts'),
             AlertList(items: liveData.alerts),
-            const SizedBox(height: 10),
-            const SectionLabel(title: 'Generate Report'),
-            GenerateReportCard(
-              generatedReport: generatedReport,
-              reportError: reportError,
-              onGenerate: onGenerate,
-            ),
-
-            if (generatedReport != null) ...[
-              const SizedBox(height: 10),
-              const SectionLabel(title: 'Latest Report Output'),
-              ReportPreview(report: generatedReport!),
-            ],
             const SizedBox(height: 80),
           ],
         ),

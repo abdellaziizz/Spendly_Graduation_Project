@@ -2,111 +2,125 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:spendly/features/Report/controllers/chart_provider.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/app_radius.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class WeeklySpendingCard extends ConsumerWidget {
   const WeeklySpendingCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Read your dynamic spending data and statistics from Riverpod
     final chartData = ref.watch(weeklySpendingProvider);
+    final isDark    = context.isDark;
 
-    // Map dynamic daily spending data elements directly into fl_chart FlSpot format
     final spots = chartData.spendingList
         .map((data) => FlSpot(data.x, data.amount))
         .toList();
 
+    // ── Adaptive colours ──────────────────────────────────────────────────
+    const lineColor   = Color(0xFF4F46E5);
+    final cardBg      = isDark ? AppColors.darkSurface    : Colors.white;
+    final titleClr    = isDark ? AppColors.textPrimaryDark : const Color(0xFF1E2022);
+    // Inactive day label: readable in both modes
+    final inactiveDay = isDark
+        ? AppColors.textSecondaryDark           // ~A0A0A0 — visible on dark bg
+        : const Color(0xFF8F9BB3);              // muted blue-grey on white
+
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24.0),
+        color: cardBg,
+        borderRadius: AppRadius.xxlBorderRadius,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section
+          // ── Header ────────────────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Weekly Spending',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E2022),
+                  color: titleClr,
                 ),
               ),
               Text(
-                '\$${chartData.totalSpending.toStringAsFixed(2)}', // Dynamically calculated using state
+                '\$${chartData.totalSpending.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF4F46E5),
+                  color: lineColor,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 24.0),
-          
-          // Chart Wrapper container
+
+          // ── Chart ────────────────────────────────────────────────────
           SizedBox(
             height: 180,
             child: LineChart(
               LineChartData(
-                gridData: const FlGridData(show: false), // No grid lines
-                borderData: FlBorderData(show: false),   // No outer borders
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 34,
                       interval: 1,
                       getTitlesWidget: (value, meta) =>
-                          _bottomTitlesWidget(value, meta, chartData.highestSpendingDayIndex),
+                          _bottomTitle(value, meta,
+                              chartData.highestSpendingDayIndex,
+                              inactiveDay),
                     ),
                   ),
                 ),
-                // Adjust min/max bounds dynamically to pad values beautifully
                 minX: 0,
                 maxX: 6,
                 minY: 0,
                 maxY: chartData.maxY,
                 lineBarsData: [
-                  LineChartBarData( 
+                  LineChartBarData(
                     spots: spots,
-                    isCurved: true,              // Gives you that smooth spline look
+                    isCurved: true,
                     curveSmoothness: 0.35,
-                    color: const Color(0xFF4F46E5), // Primary line color
+                    color: lineColor,
                     barWidth: 4,
                     isStrokeCapRound: true,
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
-                        // Highlight only the peak node dynamically (highest spending day)
                         if (spot.x == chartData.highestSpendingDayIndex) {
                           return FlDotCirclePainter(
                             radius: 6,
-                            color: const Color(0xFF4F46E5),
+                            color: lineColor,
                             strokeWidth: 0,
                           );
                         }
-                        return FlDotCirclePainter(radius: 0, color: Colors.transparent);
+                        return FlDotCirclePainter(
+                            radius: 0, color: Colors.transparent);
                       },
                     ),
                     belowBarData: BarAreaData(
                       show: true,
-                      // Soft mesh gradient area beneath the line
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          const Color(0xFF4F46E5).withOpacity(0.12),
-                          const Color(0xFF4F46E5).withOpacity(0.00),
+                          lineColor.withValues(alpha: isDark ? 0.20 : 0.12),
+                          lineColor.withValues(alpha: 0.00),
                         ],
                       ),
                     ),
@@ -120,28 +134,23 @@ class WeeklySpendingCard extends ConsumerWidget {
     );
   }
 
-  // Maps X-axis index coordinates to the custom weekday layout labels, highlighting the peak day
-  Widget _bottomTitlesWidget(double value, TitleMeta meta, int highestSpendingDayIndex) {
+  Widget _bottomTitle(double value, TitleMeta meta, int peakIndex,
+      Color inactiveColor) {
     const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    final int index = value.toInt();
+    final index = value.toInt();
+    if (index < 0 || index >= weekdays.length) return const SizedBox.shrink();
 
-    if (index < 0 || index >= weekdays.length) {
-      return const SizedBox.shrink();
-    }
-
-    final isPeak = index == highestSpendingDayIndex;
+    final isPeak = index == peakIndex;
 
     return SideTitleWidget(
       meta: meta,
-      space: 12,
+      space: 8,
       child: Text(
         weekdays[index],
         style: TextStyle(
           fontSize: 14,
-          fontWeight: isPeak ? FontWeight.bold : FontWeight.w500,
-          color: isPeak
-              ? const Color(0xFF4F46E5)
-              : const Color(0xFF8F9BB3).withOpacity(0.6),
+          fontWeight: isPeak ? FontWeight.w700 : FontWeight.w600,
+          color: isPeak ? const Color(0xFF4F46E5) : inactiveColor,
         ),
       ),
     );

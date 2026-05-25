@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/features/Report/domain/models/live_insights_data.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/app_radius.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 class BudgetStatusCard extends ConsumerWidget {
   const BudgetStatusCard({Key? key, required this.data}) : super(key: key);
@@ -11,42 +14,52 @@ class BudgetStatusCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final curSymbol = ref.watch(currencySymbolProvider);
-    
-    // Fallback logic / data mapping based on your model variables
+    final isDark = context.isDark;
+
     final remaining = data.budgetLimit - data.projectedSpending;
     final safe = data.projectedSpending <= data.budgetLimit;
-    
-    // Format values safely for UI presentation
-    final formattedForecast = "$curSymbol${data.projectedSpending.toStringAsFixed(0)}";
-    final formattedLimit = "$curSymbol${data.budgetLimit.toStringAsFixed(0)}";
-    final formattedRemaining = "$curSymbol${remaining.abs().toStringAsFixed(0)}";
+
+    final formattedForecast =
+        '$curSymbol${data.projectedSpending.toStringAsFixed(0)}';
+    final formattedLimit = '$curSymbol${data.budgetLimit.toStringAsFixed(0)}';
+    final formattedRemaining =
+        '$curSymbol${remaining.abs().toStringAsFixed(0)}';
+
+    final cardBg   = isDark ? AppColors.darkSurface : Colors.white;
+    final titleClr = isDark ? AppColors.textPrimaryDark : const Color(0xFF1E1E24);
+    final bodyClr  = isDark ? AppColors.textSecondaryDark : const Color(0xFF4A4A52);
+    final labelClr = isDark ? AppColors.textSecondaryDark : const Color(0xFF7A7A85);
+    final badgeBg  = isDark
+        ? AppColors.goalsAccent.withValues(alpha: 0.2)
+        : const Color(0xFFE8E5FF);
+    final dividerClr = isDark ? AppColors.dividerDark : const Color(0xFFD1CBD9);
 
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // Light lavender/whitish card background
-        borderRadius: BorderRadius.circular(28.0),
+        color: cardBg,
+        borderRadius: AppRadius.xxlBorderRadius,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header Row: AI Analysis Title & Budget Status Badge
+          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(
-                    Icons.auto_awesome, // Sparkle icon
-                    color: Color(0xFF4A3AFF), // Deep AI theme purple
+                children: [
+                  const Icon(
+                    Icons.auto_awesome,
+                    color: Color(0xFF4A3AFF),
                     size: 24,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     'AI Analysis',
                     style: TextStyle(
-                      color: Color(0xFF1E1E24),
+                      color: titleClr,
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
                     ),
@@ -54,9 +67,10 @@ class BudgetStatusCard extends ConsumerWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8E5FF), // Subtle purple badge background
+                  color: badgeBg,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -72,23 +86,27 @@ class BudgetStatusCard extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
-          // Main Body Text with highlighted spending pattern
+          // Main body
           RichText(
             text: TextSpan(
-              style: const TextStyle(
-                color: Color(0xFF4A4A52),
+              style: TextStyle(
+                color: bodyClr,
                 fontSize: 16,
                 height: 1.4,
                 fontWeight: FontWeight.w400,
               ),
               children: [
-                const TextSpan(text: "Based on your spending patterns , you're projected to end the month "),
+                const TextSpan(
+                    text:
+                        "Based on your spending patterns, you're projected to end the month "),
                 TextSpan(
-                  text: safe 
-                      ? "$formattedRemaining under budget" 
-                      : "$formattedRemaining over budget",
+                  text: safe
+                      ? '$formattedRemaining under budget'
+                      : '$formattedRemaining over budget',
                   style: TextStyle(
-                    color: safe ? const Color(0xFF117553) : const Color(0xFFD32F2F), // Green or Red highlight
+                    color: safe
+                        ? AppColors.success
+                        : AppColors.error,
                     fontWeight: FontWeight.w600,
                     fontSize: 20,
                   ),
@@ -98,27 +116,21 @@ class BudgetStatusCard extends ConsumerWidget {
           ),
           const SizedBox(height: 28),
 
-          // Bottom Info Row: Status & Forecast Divider Section
+          // Status / Forecast row
           IntrinsicHeight(
             child: Row(
               children: [
-                // Status Section
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Status',
-                        style: TextStyle(
-                          color: Color(0xFF7A7A85),
-                          fontSize: 14,
-                        ),
-                      ),
+                      Text('Status',
+                          style: TextStyle(color: labelClr, fontSize: 14)),
                       const SizedBox(height: 4),
                       Text(
                         safe ? 'On Track' : 'At Risk',
-                        style: const TextStyle(
-                          color: Color(0xFF1E1E24),
+                        style: TextStyle(
+                          color: titleClr,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
@@ -126,31 +138,19 @@ class BudgetStatusCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                
-                // Vertical Divider Line
-                const VerticalDivider(
-                  color: Color(0xFFD1CBD9),
-                  thickness: 1,
-                  width: 32,
-                ),
-
-                // Forecast Section
+                VerticalDivider(
+                    color: dividerClr, thickness: 1, width: 32),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Forecast',
-                        style: TextStyle(
-                          color: Color(0xFF7A7A85),
-                          fontSize: 14,
-                        ),
-                      ),
+                      Text('Forecast',
+                          style: TextStyle(color: labelClr, fontSize: 14)),
                       const SizedBox(height: 4),
                       Text(
                         '$formattedForecast / $formattedLimit',
-                        style: const TextStyle(
-                          color: Color(0xFF1E1E24),
+                        style: TextStyle(
+                          color: titleClr,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),

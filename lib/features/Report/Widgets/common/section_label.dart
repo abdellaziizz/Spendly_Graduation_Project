@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:spendly/theme/colors.dart';
+import 'package:spendly/theme/theme_extensions.dart';
 
 // Just Label For Widgets
 class SectionLabel extends StatelessWidget {
@@ -12,8 +14,10 @@ class SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.black,
+        style: TextStyle(
+          color: context.isDark
+              ? AppColors.textSecondaryDark
+              : AppColors.textPrimaryLight,
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
