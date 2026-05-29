@@ -13,6 +13,8 @@ class MainFinanceData {
     required this.totalExpenses,
     required this.netBalance,
   });
+
+  double get remainingBudget => budget + totalIncome - totalExpenses;
 }
 
 final mainFinanceProvider =
@@ -61,7 +63,7 @@ class MainFinanceNotifier extends AsyncNotifier<MainFinanceData> {
     final totalExpenses =
         double.tryParse(totalsRes?['total_expenses']?.toString() ?? '0') ?? 0.0;
 
-    final netBalance = budget - totalExpenses + totalIncome;
+    final netBalance = budget + totalIncome - totalExpenses;
 
     return MainFinanceData(
       budget: budget,

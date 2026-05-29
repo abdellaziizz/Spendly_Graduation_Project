@@ -11,6 +11,7 @@ import 'package:spendly/features/main/providers/transactions_list_provider.dart'
 import 'package:spendly/features/wallet/providers/category_provider.dart';
 import 'package:spendly/features/wallet/providers/goal_provider.dart';
 import 'package:spendly/services/backend_api.dart';
+import 'package:spendly/go_route.dart';
 import 'package:spendly/theme/colors.dart';
 import 'package:spendly/theme/theme_extensions.dart';
 
@@ -220,16 +221,21 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
       await _generateReport(liveData);
     }
 
+    if (!mounted) return;
+
     try {
       final controller = ReportController();
       final bytes = await controller.buildPdf(liveData, freq);
       await controller.savePdfAndRecord(bytes, freq);
 
+      if (!mounted) return;
+
       // Show preview screen where user can print or share
-      Navigator.of(context).push(MaterialPageRoute(
+      rootNavigatorKey.currentState?.push(MaterialPageRoute(
         builder: (_) => ReportPdfPreview(data: liveData, freq: freq),
       ));
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _reportError = 'PDF preview failed: $e';
       });

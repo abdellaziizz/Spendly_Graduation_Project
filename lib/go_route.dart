@@ -20,7 +20,7 @@ import 'package:spendly/features/Scan/Screen/scan_result_screen.dart';
 import 'package:spendly/features/Scan/Service/receipt_parser.dart';
 
 // Navigation keys for each branch
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 final _homeNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'home');
 final _walletNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'wallet');
 final _reportNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'report');
@@ -35,7 +35,7 @@ const _publicRoutes = <String>[
 ];
 
 final GoRouter router = GoRouter(
-  navigatorKey: _rootNavigatorKey,
+  navigatorKey: rootNavigatorKey,
   initialLocation: '/home',
 
   // ───────── REFRESH LISTENABLE ─────────
@@ -80,22 +80,22 @@ final GoRouter router = GoRouter(
     // ───────── AUTH ROUTES (no bottom nav) ─────────
     GoRoute(
       //Forces the route to open above everything
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/login',
       builder: (context, state) => LoginScreen(),
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/register',
       builder: (context, state) => RegisterationScreen(),
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/forgot-password',
       builder: (context, state) => const Enteremail(),
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/reset-password',
       builder: (context, state) => const ResetPasswordScreen(),
     ),
@@ -150,23 +150,23 @@ final GoRouter router = GoRouter(
       ],
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/report',
       redirect: (context, state) => '/insights',
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/legal',
       builder: (context, state) => LegalInformationScreen(),
     ),
     // Chatbot route (fullscreen, no bottom nav)
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/chatbot',
       builder: (context, state) => const ChatScreen(),
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/currency',
       builder: (context, state) {
         final isEdit = state.extra as bool? ?? false;
@@ -175,12 +175,12 @@ final GoRouter router = GoRouter(
     ),
     // ── Receipt Scan routes ─────────────────────────────────────────────────
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/scan-receipt',
       builder: (context, state) => const ScanReceiptScreen(),
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/scan-result',
       builder: (context, state) {
         final data = state.extra as ParsedReceiptData;
@@ -188,7 +188,7 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
+      parentNavigatorKey: rootNavigatorKey,
       path: '/all-transactions',
       builder: (context, state) => const AllTransactionsScreen(),
     ),

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendly/core/supabase_client.dart';
 import 'package:spendly/features/wallet/models/goal_model.dart';
-import 'package:spendly/main.dart';
 
 /// Fetches and manages goals from public.goals in Supabase.
 class GoalNotifier extends AsyncNotifier<List<GoalModel>> {

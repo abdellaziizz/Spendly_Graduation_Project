@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
@@ -66,9 +65,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   void _startListening() async {
+    final messenger = ScaffoldMessenger.of(context);
     final status = await Permission.microphone.request();
+    if (!context.mounted) return;
     if (status != PermissionStatus.granted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Microphone permission denied')),
       );
       return;
@@ -109,8 +110,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void _stopListening() async {
     _timer?.cancel();
     await _speech.stop();
+    if (!mounted) return;
     setState(() => _isListening = false);
     await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
     if (_text.isNotEmpty) _showConfirmationSheet();
   }
 

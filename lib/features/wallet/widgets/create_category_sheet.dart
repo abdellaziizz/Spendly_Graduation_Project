@@ -16,16 +16,16 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
   final TextEditingController _limitController = TextEditingController();
   IconData? _selectedIcon;
 
-  final List<IconData> _availableIcons = [
-    Icons.shopping_bag,
-    Icons.restaurant,
-    Icons.directions_car,
-    Icons.flight,
-    Icons.fitness_center,
-    Icons.computer,
-    Icons.work,
-    Icons.movie,
-    Icons.account_balance_wallet,
+  final List<MapEntry<String, IconData>> _availableIcons = [
+    const MapEntry('shopping_bag', Icons.shopping_bag),
+    const MapEntry('restaurant', Icons.restaurant),
+    const MapEntry('directions_car', Icons.directions_car),
+    const MapEntry('flight', Icons.flight),
+    const MapEntry('fitness_center', Icons.fitness_center),
+    const MapEntry('computer', Icons.computer),
+    const MapEntry('work', Icons.work),
+    const MapEntry('movie', Icons.movie),
+    const MapEntry('account_balance_wallet', Icons.account_balance_wallet),
   ];
 
   @override
@@ -66,6 +66,11 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
 
     try {
       await ref.read(walletProvider.notifier).addBudget(newCategory);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Category created successfully')),
+        );
+      }
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -265,7 +270,8 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                         ),
                     itemCount: _availableIcons.length,
                     itemBuilder: (context, index) {
-                      final icon = _availableIcons[index];
+                      final entry = _availableIcons[index];
+                      final icon = entry.value;
                       final isSelected = _selectedIcon == icon;
                       return GestureDetector(
                         onTap: () {

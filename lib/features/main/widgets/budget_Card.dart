@@ -43,9 +43,11 @@ class BudgetCard extends ConsumerWidget {
         style: const TextStyle(color: Colors.white),
       ),
       data: (finance) {
-        final netbalance = finance.netBalance;
+        final netbalance = finance.remainingBudget;
         final income     = finance.totalIncome;
         final expense    = finance.totalExpenses;
+        final budget     = finance.budget;
+        final budgetLabel = budget > 0 ? '$curSymbol${formatAmount(budget)}' : 'No budget';
 
         return Container(
           margin: const EdgeInsets.all(16),
@@ -95,38 +97,80 @@ class BudgetCard extends ConsumerWidget {
                               fontSize: 16,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () => showSetBudgetSheet(context),
-                            child: Container(
-                              height: 40,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.18),
-                                borderRadius: AppRadius.fullBorderRadius,
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.settings,
-                                    color: Colors.white,
-                                    size: 16,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: () => showSetBudgetSheet(context),
+                                child: Container(
+                                  height: 40,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 6,
                                   ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'Set Budget',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.18),
+                                    borderRadius: AppRadius.fullBorderRadius,
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.settings,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Set Budget',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              GestureDetector(
+                                onTap: () => showSetBudgetSheet(context),
+                                child: Container(
+                                  height: 40,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.12),
+                                    borderRadius: AppRadius.fullBorderRadius,
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.22),
                                     ),
                                   ),
-                                ],
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.account_balance_wallet_outlined,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        budgetLabel,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ],
                       ),

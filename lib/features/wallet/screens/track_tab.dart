@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../providers/category_provider.dart';
 import '../widgets/track_category_card.dart';
 import '../widgets/create_category_sheet.dart';
@@ -21,6 +22,54 @@ class TrackTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final budgets = ref.watch(walletProvider);
+    final isLoading = ref.watch(walletLoadingProvider);
+
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: Skeletonizer(
+            enabled: true,
+            child: GridView.builder(
+              itemCount: 4,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
+                childAspectRatio: 0.85,
+              ),
+              itemBuilder: (context, index) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(height: 14, width: 90, color: Colors.grey),
+                      const SizedBox(height: 8),
+                      Container(height: 12, width: 110, color: Colors.grey),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,

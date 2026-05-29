@@ -106,14 +106,25 @@ class TransactionItem extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (onEdit != null)
-                GestureDetector(
-                  onTap: onEdit,
-                  child: const Padding(
-                    padding: EdgeInsets.only(bottom: 4.0),
-                    child: Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
-                  ),
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (onEdit != null)
+                    GestureDetector(
+                      onTap: onEdit,
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Icon(Icons.edit_outlined, size: 16, color: Colors.grey),
+                      ),
+                    ),
+                  if (onDelete != null)
+                    GestureDetector(
+                      onTap: onDelete,
+                      child: const Icon(Icons.delete_outline, size: 17, color: Colors.redAccent),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 4),
               Text(
                 amountText,
                 style: TextStyle(

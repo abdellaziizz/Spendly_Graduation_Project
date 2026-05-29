@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/wallet/providers/category_provider.dart';
 
 class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
   @override
@@ -44,11 +45,22 @@ class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
 
     final supabase = Supabase.instance.client;
     await supabase.from('transactions').delete().eq('id', id);
+    try {
+      await ref.read(walletProvider.notifier).refresh();
+    } catch (_) {
+      // ignore wallet refresh errors on delete
+    }
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => _fetch());
+    // Also refresh category spending so limits/usage reflect the latest transactions
+    try {
+      await ref.read(walletProvider.notifier).refresh();
+    } catch (_) {
+      // ignore refresh errors here
+    }
   }
 }
 

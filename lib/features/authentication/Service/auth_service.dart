@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:spendly/main.dart';
+import 'package:spendly/core/supabase_client.dart';
 
 /// Centralized authentication service for the spendly application.
 /// All Supabase auth operations are encapsulated here to keep
