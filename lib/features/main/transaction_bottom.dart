@@ -12,6 +12,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/services/connectivity/connectivity_provider.dart';
+import 'package:spendly/services/sync/offline_sync_manager.dart';
+import 'package:spendly/features/main/models/pending_transaction.dart';
+import 'package:uuid/uuid.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   final TransactionModel? transactionToEdit;
@@ -93,6 +97,31 @@ class _AddTransactionBottomSheetState
     if (userId == null) return;
 
     final isExpense = _selectedType == 0;
+    final isOnline = ref.read(connectivityServiceProvider).isOnline;
+
+    if (!isOnline) {
+      // Offline mode: queue the transaction
+      final pendingTx = PendingTransaction(
+        localId: const Uuid().v4(),
+        amount: amount,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        category: _selectedCategory ?? '',
+        type: isExpense ? 'expense' : 'income',
+        inputMethod: 'manual',
+        createdAt: DateTime.now(),
+      );
+
+      await ref.read(offlineSyncProvider.notifier).addPending(pendingTx);
+      
+      // Update UI providers so the new transaction is visible
+      await ref.read(transactionsListProvider.notifier).refresh();
+      await ref.read(mainFinanceProvider.notifier).refreshFinance();
+
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+
     String? categoryId;
 
     if (isExpense) {

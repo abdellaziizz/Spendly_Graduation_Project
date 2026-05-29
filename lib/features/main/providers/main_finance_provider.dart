@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:spendly/services/cache/local_cache_service.dart';
+import 'package:spendly/services/connectivity/connectivity_provider.dart';
 
 class MainFinanceData {
   final double budget;
@@ -34,10 +36,43 @@ class MainFinanceNotifier extends AsyncNotifier<MainFinanceData> {
   }
 
   Future<MainFinanceData> _fetchFinance() async {
-    final userId = supabase.auth.currentUser!.id;
+    final isOnline = ref.read(connectivityServiceProvider).isOnline;
+    final cache = LocalCacheService.instance;
 
-    final now = DateTime.now();
-    final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
+    if (!isOnline) {
+      final cached = await cache.getCachedFinanceData();
+      if (cached != null) {
+        // Adjust cached finance data with pending transactions
+        final pendingQueue = await cache.getPendingQueue();
+        double netOffset = 0;
+        double incOffset = 0;
+        double expOffset = 0;
+
+        for (final p in pendingQueue) {
+          if (p.type == 'income') {
+            incOffset += p.amount;
+            netOffset += p.amount;
+          } else {
+            expOffset += p.amount;
+            netOffset -= p.amount;
+          }
+        }
+
+        return MainFinanceData(
+          budget: cached.budget,
+          totalIncome: cached.totalIncome + incOffset,
+          totalExpenses: cached.totalExpenses + expOffset,
+          netBalance: cached.netBalance + netOffset,
+        );
+      }
+      return const MainFinanceData(
+          budget: 0, totalIncome: 0, totalExpenses: 0, netBalance: 0);
+    }
+
+    try {
+      final userId = supabase.auth.currentUser!.id;
+      final now = DateTime.now();
+      final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
 
     final budgetRes = await supabase
         .from('monthly_budgets')
@@ -63,12 +98,45 @@ class MainFinanceNotifier extends AsyncNotifier<MainFinanceData> {
 
     final netBalance = budget - totalExpenses + totalIncome;
 
-    return MainFinanceData(
+    final data = MainFinanceData(
       budget: budget,
       totalIncome: totalIncome,
       totalExpenses: totalExpenses,
       netBalance: netBalance,
     );
+
+    // Save to cache
+    await cache.cacheFinanceData(data);
+    
+    // Check if there are pending transactions to adjust the currently fetched totals
+    // Since pending transactions haven't been synced to backend yet.
+    final pendingQueue = await cache.getPendingQueue();
+    double netOffset = 0;
+    double incOffset = 0;
+    double expOffset = 0;
+
+    for (final p in pendingQueue) {
+      if (p.type == 'income') {
+        incOffset += p.amount;
+        netOffset += p.amount;
+      } else {
+        expOffset += p.amount;
+        netOffset -= p.amount;
+      }
+    }
+
+    return MainFinanceData(
+      budget: data.budget,
+      totalIncome: data.totalIncome + incOffset,
+      totalExpenses: data.totalExpenses + expOffset,
+      netBalance: data.netBalance + netOffset,
+    );
+    } catch (e) {
+      final cached = await cache.getCachedFinanceData();
+      if (cached != null) return cached;
+      return const MainFinanceData(
+          budget: 0, totalIncome: 0, totalExpenses: 0, netBalance: 0);
+    }
   }
 
   Future<void> setBudget(double amount) async {

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:spendly/features/main/providers/user_provider.dart';
+import 'package:spendly/services/connectivity/connectivity_provider.dart';
 
 class Headersection extends ConsumerWidget {
   const Headersection({super.key});
@@ -90,7 +91,16 @@ class Headersection extends ConsumerWidget {
             ),
             const SizedBox(width: 12),
             GestureDetector(
-              onTap: () => context.push('/scan-receipt'),
+              onTap: () {
+                final isOnline = ref.read(connectivityServiceProvider).isOnline;
+                if (!isOnline) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Receipt scanning requires an internet connection')),
+                  );
+                  return;
+                }
+                context.push('/scan-receipt');
+              },
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Theme.of(

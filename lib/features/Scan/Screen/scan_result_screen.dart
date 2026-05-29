@@ -212,7 +212,7 @@ class _ScanResultScreenState extends ConsumerState<ScanResultScreen> {
                           _EditableRow(
                             label: 'Description',
                             controller: _descriptionCtrl,
-                            hint: 'Full receipt text…',
+                            hint: 'e.g. Coffee at Starbucks',
                             maxLines: 3,
                           ),
                         ],

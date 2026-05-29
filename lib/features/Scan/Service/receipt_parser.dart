@@ -285,7 +285,7 @@ class ReceiptParser {
       title: _extractTitle(ocrText),
       amount: _parseAmount(ocrText),
       categoryName: _detectCategory(ocrText),
-      description: ocrText.trim(),
+      description: '',
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/Profile/Provider/user_provider.dart';
 import 'package:spendly/features/Profile/Widget/container_widget.dart';
@@ -11,7 +10,7 @@ import 'package:spendly/features/main/providers/user_provider.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/theme_extensions.dart';
-import 'package:spendly/widgets/toggle.dart';
+import 'package:spendly/features/Profile/Widget/toggle.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 class ProfileScreen extends ConsumerWidget {

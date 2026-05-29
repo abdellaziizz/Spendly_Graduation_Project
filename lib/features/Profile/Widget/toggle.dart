@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/theme/theme_provider.dart';
-
+// Dark and light theme toggle widget for the profile screen
 class Toggle extends ConsumerWidget {
   const Toggle({super.key});
 
