@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/authentication/Screens/Login_Screen.dart';
 import 'package:spendly/features/onboarding/Providers/onboard_provider.dart';
-import 'package:spendly/widgets/onboarding_page_widget.dart';
+import 'package:spendly/features/onboarding/widget/onboarding_page_widget.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});

@@ -27,22 +27,18 @@ class ParsedTransaction {
 }
 
 /// The full result of parsing a voice input, possibly containing
-/// multiple [ParsedTransaction]s.
+/// multiple ParsedTransactions.
 class VoiceParseResult {
   final List<ParsedTransaction> transactions;
   final String rawText;
 
-  const VoiceParseResult({
-    required this.transactions,
-    required this.rawText,
-  });
+  const VoiceParseResult({required this.transactions, required this.rawText});
 
   bool get isMultiple => transactions.length > 1;
   bool get isEmpty => transactions.isEmpty;
 
   /// Sum of all detected transaction amounts.
-  double get totalAmount =>
-      transactions.fold(0.0, (sum, t) => sum + t.amount);
+  double get totalAmount => transactions.fold(0.0, (sum, t) => sum + t.amount);
 
   /// Dominant intent: unanimous type wins; mixed → unknown.
   TransactionIntent get dominantIntent {

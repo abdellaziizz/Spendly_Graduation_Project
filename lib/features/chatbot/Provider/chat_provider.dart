@@ -7,8 +7,9 @@ import 'package:spendly/features/chatbot/Service/user_context_service.dart';
 final geminiProvider = Provider<GeminiService>((ref) => GeminiService());
 
 /// Provider for the UserContextService singleton instance.
-final userContextServiceProvider =
-    Provider<UserContextService>((ref) => UserContextService());
+final userContextServiceProvider = Provider<UserContextService>(
+  (ref) => UserContextService(),
+);
 
 /// Provider that tracks whether the bot is currently generating a response.
 final isLoadingProvider = StateProvider<bool>((ref) => false);

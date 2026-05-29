@@ -1,77 +1,125 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:spendly/features/authentication/Screens/reset_email_sent_screen.dart';
 import 'package:spendly/features/authentication/Service/auth_service.dart';
-import 'package:spendly/theme/colors.dart';
 import 'package:spendly/theme/theme_extensions.dart';
 
-// Email sent confirmation screen (not the input screen)
-class Fpassword extends StatelessWidget {
-  final String email;
-  Fpassword({super.key, required this.email});
+class Enteremail extends StatefulWidget {
+  const Enteremail({super.key});
 
-  final _authService = AuthService();
+  @override
+  State<Enteremail> createState() => _EnteremailState();
+}
+
+class _EnteremailState extends State<Enteremail> {
+  final _formKey        = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _authService    = AuthService();
+  bool _isLoading       = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+      body: Form(
+        key: _formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/FPassword.jpg', width: 350, height: 250),
-            const SizedBox(height: 30),
-            Text(
-              'Password Reset Email Sent',
-              style: context.textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              email,
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: context.colors.primary,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Forget Password',
+                  style: context.textTheme.headlineMedium,
+                ),
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              "Your account security is our priority! We've sent you a secure link to safely change your password.",
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.subtitleColor,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text(
+                "Don't worry — enter your email and we'll send you a reset link.",
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.subtitleColor,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 22),
-            ElevatedButton(
-              onPressed: () => context.go('/login'),
-              child: const Text('Done'),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Email is required';
+                  if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value))
+                    return 'Enter a valid email';
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: const Icon(Icons.email_outlined),
+                ),
+              ),
             ),
-            const SizedBox(height: 15),
-            TextButton(
-              onPressed: () async {
-                try {
-                  await _authService.forgotPassword(email: email);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Reset email resent to $email'),
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Failed to resend: ${e.toString()}'),
-                        backgroundColor: context.errorColor,
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text('Resend Email'),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ElevatedButton(
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() => _isLoading = true);
+                          try {
+                            await _authService.forgotPassword(
+                              email: _emailController.text.trim(),
+                            );
+                            if (context.mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => Fpassword(
+                                    email: _emailController.text.trim(),
+                                  ),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Failed to send reset email: ${e.toString()}',
+                                  ),
+                                  backgroundColor: context.errorColor,
+                                ),
+                              );
+                            }
+                          } finally {
+                            if (mounted) setState(() => _isLoading = false);
+                          }
+                        }
+                      },
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : const Text('Submit'),
+              ),
             ),
           ],
         ),

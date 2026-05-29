@@ -6,7 +6,7 @@ import 'package:spendly/features/Report/domain/models/time_bucket.dart';
 import 'package:spendly/features/Report/domain/services/report_engine.dart';
 import 'package:spendly/features/Report/utils/report_colors.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
-import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/main/models/transaction_model.dart';
 import 'package:spendly/features/wallet/models/budget_model.dart';
 import 'package:spendly/features/wallet/models/goal_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

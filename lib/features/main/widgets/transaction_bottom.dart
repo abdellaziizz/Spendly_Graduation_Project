@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
-import 'package:spendly/features/main/CategoryRepository.dart';
+import 'package:spendly/features/main/Repository/category_repository.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'package:spendly/theme/app_radius.dart';
@@ -11,7 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
-import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/main/models/transaction_model.dart';
 import 'package:spendly/services/connectivity/connectivity_provider.dart';
 import 'package:spendly/services/sync/offline_sync_manager.dart';
 import 'package:spendly/features/main/models/pending_transaction.dart';
@@ -28,28 +28,26 @@ class AddTransactionBottomSheet extends ConsumerStatefulWidget {
 
 class _AddTransactionBottomSheetState
     extends ConsumerState<AddTransactionBottomSheet> {
-  int     _selectedType     = 0; // 0 = Expense, 1 = Income
+  int _selectedType = 0; // 0 = Expense, 1 = Income
   String? _selectedCategory;
 
-  final _amountController      = TextEditingController();
-  final _titleController       = TextEditingController();
+  final _amountController = TextEditingController();
+  final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-
   final List<Map<String, dynamic>> _categories = [
-    {'name': 'Groceries',  'icon': Icons.shopping_basket_outlined},
-    {'name': 'Transport',  'icon': Icons.directions_car_outlined},
+    {'name': 'Groceries', 'icon': Icons.shopping_basket_outlined},
+    {'name': 'Transport', 'icon': Icons.directions_car_outlined},
     {'name': 'Dining Out', 'icon': Icons.restaurant_outlined},
-    {'name': 'Health',     'icon': Icons.health_and_safety_outlined},
-    {'name': 'Laptop',   'icon': Icons.laptop_mac_outlined},
-    {'name': 'Beach',   'icon': Icons.beach_access_outlined},
-    {'name': 'Home',   'icon': Icons.home_outlined},
-    {'name': 'Flight',   'icon': Icons.flight_outlined},
-    {'name': 'Gift',   'icon': Icons.card_giftcard_outlined},
-    {'name': 'Date',   'icon': Icons.favorite_outline},
-    {'name': 'Phone',   'icon': Icons.smartphone_outlined},
-    {'name': 'School',   'icon': Icons.school_outlined},
-    
+    {'name': 'Health', 'icon': Icons.health_and_safety_outlined},
+    {'name': 'Laptop', 'icon': Icons.laptop_mac_outlined},
+    {'name': 'Beach', 'icon': Icons.beach_access_outlined},
+    {'name': 'Home', 'icon': Icons.home_outlined},
+    {'name': 'Flight', 'icon': Icons.flight_outlined},
+    {'name': 'Gift', 'icon': Icons.card_giftcard_outlined},
+    {'name': 'Date', 'icon': Icons.favorite_outline},
+    {'name': 'Phone', 'icon': Icons.smartphone_outlined},
+    {'name': 'School', 'icon': Icons.school_outlined},
   ];
 
   @override
@@ -86,14 +84,14 @@ class _AddTransactionBottomSheetState
   void _confirm() async {
     if (_titleController.text.trim().isEmpty ||
         _amountController.text.trim().isEmpty ||
-        _selectedCategory == null) return;
+        _selectedCategory == null)
+      return;
 
-    final double amount =
-        double.tryParse(_amountController.text.trim()) ?? 0.0;
+    final double amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
     if (amount <= 0) return;
 
     final supabase = Supabase.instance.client;
-    final userId   = supabase.auth.currentUser?.id;
+    final userId = supabase.auth.currentUser?.id;
     if (userId == null) return;
 
     final isExpense = _selectedType == 0;
@@ -113,7 +111,7 @@ class _AddTransactionBottomSheetState
       );
 
       await ref.read(offlineSyncProvider.notifier).addPending(pendingTx);
-      
+
       // Update UI providers so the new transaction is visible
       await ref.read(transactionsListProvider.notifier).refresh();
       await ref.read(mainFinanceProvider.notifier).refreshFinance();
@@ -133,10 +131,10 @@ class _AddTransactionBottomSheetState
     }
 
     final dataMap = {
-      'users_id':    userId,
-      'type':        isExpense ? 'expense' : 'income',
-      'amount':      amount,
-      'title':       _titleController.text.trim(),
+      'users_id': userId,
+      'type': isExpense ? 'expense' : 'income',
+      'amount': amount,
+      'title': _titleController.text.trim(),
       'description': _descriptionController.text.trim(),
       'category_id': categoryId,
       'input_method': 'manual',
@@ -145,7 +143,10 @@ class _AddTransactionBottomSheetState
     if (widget.transactionToEdit == null) {
       await supabase.from('transactions').insert(dataMap);
     } else {
-      await supabase.from('transactions').update(dataMap).eq('id', widget.transactionToEdit!.id);
+      await supabase
+          .from('transactions')
+          .update(dataMap)
+          .eq('id', widget.transactionToEdit!.id);
     }
 
     await ref.read(transactionsListProvider.notifier).refresh();
@@ -195,7 +196,9 @@ class _AddTransactionBottomSheetState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.transactionToEdit == null ? 'Add Transaction' : 'Edit Transaction',
+                  widget.transactionToEdit == null
+                      ? 'Add Transaction'
+                      : 'Edit Transaction',
                   style: context.textTheme.headlineSmall,
                 ),
                 IconButton(
@@ -237,8 +240,9 @@ class _AddTransactionBottomSheetState
                 IntrinsicWidth(
                   child: TextField(
                     controller: _amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'^\d+\.?\d{0,2}'),
@@ -326,73 +330,73 @@ class _AddTransactionBottomSheetState
             // ── Category chips ────────────────────────────────────────────
             Text('Category', style: context.textTheme.labelLarge),
             const SizedBox(height: 12),
-       SizedBox(
-  height: 120, // adjust based on your item height
-  child: GridView.builder(
-    scrollDirection: Axis.horizontal,
-    itemCount: _categories.length,
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  crossAxisCount: 2,
-  mainAxisSpacing: 12,
-  crossAxisSpacing: 12,
-  mainAxisExtent: 130, // width of each category
-),
-    itemBuilder: (context, index) {
-      final cat = _categories[index];
-      final isSelected = _selectedCategory == cat['name'];
-
-      return GestureDetector(
-        onTap: () =>
-            setState(() => _selectedCategory = cat['name']),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 10,
-          ),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? context.colors.primary.withValues(alpha: 0.1)
-                : context.colors.surfaceContainerHighest,
-            borderRadius: AppRadius.fullBorderRadius,
-            border: Border.all(
-              color: isSelected
-                  ? context.colors.primary
-                  : Colors.transparent,
-              width: 1.5,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                cat['icon'] as IconData,
-                size: 18,
-                color: isSelected
-                    ? context.colors.primary
-                    : context.subtitleColor,
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  cat['name'],
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: isSelected
-                        ? context.colors.primary
-                        : context.subtitleColor,
-                  ),
+            SizedBox(
+              height: 120, // adjust based on your item height
+              child: GridView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _categories.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  mainAxisExtent: 130, // width of each category
                 ),
+                itemBuilder: (context, index) {
+                  final cat = _categories[index];
+                  final isSelected = _selectedCategory == cat['name'];
+
+                  return GestureDetector(
+                    onTap: () =>
+                        setState(() => _selectedCategory = cat['name']),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? context.colors.primary.withValues(alpha: 0.1)
+                            : context.colors.surfaceContainerHighest,
+                        borderRadius: AppRadius.fullBorderRadius,
+                        border: Border.all(
+                          color: isSelected
+                              ? context.colors.primary
+                              : Colors.transparent,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            cat['icon'] as IconData,
+                            size: 18,
+                            color: isSelected
+                                ? context.colors.primary
+                                : context.subtitleColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              cat['name'],
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isSelected
+                                    ? context.colors.primary
+                                    : context.subtitleColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
-        ),
-      );
-    },
-  ),
-),
+            ),
             const SizedBox(height: 20),
 
             // ── Description ───────────────────────────────────────────────
@@ -401,9 +405,7 @@ class _AddTransactionBottomSheetState
             TextField(
               controller: _descriptionController,
               maxLines: 2,
-              decoration: const InputDecoration(
-                hintText: 'Add a note...',
-              ),
+              decoration: const InputDecoration(hintText: 'Add a note...'),
             ),
             const SizedBox(height: 32),
 

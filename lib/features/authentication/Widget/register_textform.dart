@@ -19,7 +19,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = context.isDark ? Colors.white : const Color(0xff0000FF);
+    final activeColor = context.isDark ? Colors.white : const Color(0xff397BBD);
 
     return TextFormField(
       controller: controller,

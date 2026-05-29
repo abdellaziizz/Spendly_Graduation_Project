@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/main/models/transaction_model.dart';
 import 'package:spendly/services/cache/local_cache_service.dart';
 import 'package:spendly/services/connectivity/connectivity_provider.dart';
-import 'package:spendly/services/sync/offline_sync_manager.dart';
 
 class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
   @override
@@ -24,18 +23,20 @@ class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
       try {
         final supabase = Supabase.instance.client;
         final data = await supabase
-        .from('transactions')
-        .select(
-          'id, type, amount, title, description, '
-          'transaction_date, input_method, '
-          'categories(name)', // join to get category name
-        )
-        .order('transaction_date', ascending: false)
-        .order('created_at', ascending: false);
+            .from('transactions')
+            .select(
+              'id, type, amount, title, description, '
+              'transaction_date, input_method, '
+              'categories(name)', // join to get category name
+            )
+            .order('transaction_date', ascending: false)
+            .order('created_at', ascending: false);
 
         serverTx = (data as List).map((row) {
           final categoryName =
-              (row['categories'] as Map<String, dynamic>?)?['name'] as String? ?? '';
+              (row['categories'] as Map<String, dynamic>?)?['name']
+                  as String? ??
+              '';
           return TransactionModel(
             id: row['id'] as String,
             title: row['title'] as String,
@@ -55,16 +56,20 @@ class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
     }
 
     // Inject pending transactions into the list
-    final pendingTx = pendingQueue.map((p) => TransactionModel(
-      id: p.localId,
-      title: p.title,
-      description: p.description,
-      amount: p.amount,
-      category: p.category,
-      type: p.type,
-      dateTime: p.createdAt,
-      isPending: true,
-    )).toList();
+    final pendingTx = pendingQueue
+        .map(
+          (p) => TransactionModel(
+            id: p.localId,
+            title: p.title,
+            description: p.description,
+            amount: p.amount,
+            category: p.category,
+            type: p.type,
+            dateTime: p.createdAt,
+            isPending: true,
+          ),
+        )
+        .toList();
 
     return [...pendingTx, ...serverTx];
   }
@@ -79,7 +84,7 @@ class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
       await supabase.from('transactions').delete().eq('id', id);
       if (state.value != null) {
         await LocalCacheService.instance.cacheTransactions(
-          state.value!.where((t) => !t.isPending).toList()
+          state.value!.where((t) => !t.isPending).toList(),
         );
       }
     } catch (_) {}
@@ -91,6 +96,7 @@ class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
   }
 }
 
-final transactionsListProvider = AsyncNotifierProvider<TransactionsListNotifier, List<TransactionModel>>(() {
-  return TransactionsListNotifier();
-});
+final transactionsListProvider =
+    AsyncNotifierProvider<TransactionsListNotifier, List<TransactionModel>>(() {
+      return TransactionsListNotifier();
+    });

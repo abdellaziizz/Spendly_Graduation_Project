@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/main/models/transaction_model.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/models/pending_transaction.dart';
 
 /// Keys used in SharedPreferences.
 abstract class _Keys {
   static const transactions = 'cache_transactions';
-  static const financeData  = 'cache_finance_data';
-  static const userInfo     = 'cache_user_info';
+  static const financeData = 'cache_finance_data';
+  static const userInfo = 'cache_user_info';
   static const pendingQueue = 'offline_pending_queue';
 }
 
@@ -51,10 +51,10 @@ class LocalCacheService {
   Future<void> cacheFinanceData(MainFinanceData data) async {
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode({
-      'budget':        data.budget,
-      'totalIncome':   data.totalIncome,
+      'budget': data.budget,
+      'totalIncome': data.totalIncome,
       'totalExpenses': data.totalExpenses,
-      'netBalance':    data.netBalance,
+      'netBalance': data.netBalance,
     });
     await prefs.setString(_Keys.financeData, encoded);
   }
@@ -66,10 +66,10 @@ class LocalCacheService {
     try {
       final m = jsonDecode(raw) as Map<String, dynamic>;
       return MainFinanceData(
-        budget:        (m['budget']        as num).toDouble(),
-        totalIncome:   (m['totalIncome']   as num).toDouble(),
+        budget: (m['budget'] as num).toDouble(),
+        totalIncome: (m['totalIncome'] as num).toDouble(),
         totalExpenses: (m['totalExpenses'] as num).toDouble(),
-        netBalance:    (m['netBalance']    as num).toDouble(),
+        netBalance: (m['netBalance'] as num).toDouble(),
       );
     } catch (_) {
       return null;
@@ -98,8 +98,8 @@ class LocalCacheService {
       final m = jsonDecode(raw) as Map<String, dynamic>;
       return {
         'firstName': m['firstName'] as String,
-        'gender':    m['gender']    as String,
-        'email':     m['email']     as String,
+        'gender': m['gender'] as String,
+        'email': m['email'] as String,
       };
     } catch (_) {
       return null;
@@ -115,8 +115,7 @@ class LocalCacheService {
     try {
       final list = jsonDecode(raw) as List;
       return list
-          .map((e) =>
-              PendingTransaction.fromJson(e as Map<String, dynamic>))
+          .map((e) => PendingTransaction.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (_) {
       return [];

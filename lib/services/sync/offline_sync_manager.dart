@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/main/models/pending_transaction.dart';
-import 'package:spendly/features/main/CategoryRepository.dart';
+import 'package:spendly/features/main/Repository/category_repository.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/services/cache/local_cache_service.dart';
@@ -58,17 +58,19 @@ class OfflineSyncManager extends Notifier<List<PendingTransaction>> {
 
         if (isExpense) {
           categoryId = await resolveOrCreateCategory(
-            supabase, userId, tx.category,
+            supabase,
+            userId,
+            tx.category,
           );
         }
 
         await supabase.from('transactions').insert({
-          'users_id':     userId,
-          'type':         tx.type,
-          'amount':       tx.amount,
-          'title':        tx.title,
-          'description':  tx.description,
-          'category_id':  categoryId,
+          'users_id': userId,
+          'type': tx.type,
+          'amount': tx.amount,
+          'title': tx.title,
+          'description': tx.description,
+          'category_id': categoryId,
           'input_method': tx.inputMethod,
         });
 
@@ -93,5 +95,5 @@ class OfflineSyncManager extends Notifier<List<PendingTransaction>> {
 
 final offlineSyncProvider =
     NotifierProvider<OfflineSyncManager, List<PendingTransaction>>(
-  OfflineSyncManager.new,
-);
+      OfflineSyncManager.new,
+    );

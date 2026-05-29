@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
-import 'package:spendly/features/main/widgets/set_budget_bottom_sheet.dart';
+import 'package:spendly/features/main/widgets/set_budget_bottom.dart';
 import 'package:spendly/theme/app_gradients.dart';
 import 'package:spendly/theme/app_radius.dart';
 
@@ -26,8 +26,7 @@ class BudgetCard extends ConsumerWidget {
     }
 
     return financeAsync.when(
-      loading: () =>
-          Skeletonizer(
+      loading: () => Skeletonizer(
         enabled: true,
         child: Container(
           height: 220,
@@ -38,14 +37,12 @@ class BudgetCard extends ConsumerWidget {
           ),
         ),
       ),
-      error: (e, _) => Text(
-        e.toString(),
-        style: const TextStyle(color: Colors.white),
-      ),
+      error: (e, _) =>
+          Text(e.toString(), style: const TextStyle(color: Colors.white)),
       data: (finance) {
         final netbalance = finance.netBalance;
-        final income     = finance.totalIncome;
-        final expense    = finance.totalExpenses;
+        final income = finance.totalIncome;
+        final expense = finance.totalExpenses;
 
         return Container(
           margin: const EdgeInsets.all(16),
@@ -144,8 +141,14 @@ class BudgetCard extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _StatColumn(label: 'Income',   value: '$curSymbol$income'),
-                          _StatColumn(label: 'Expenses', value: '$curSymbol$expense'),
+                          _StatColumn(
+                            label: 'Income',
+                            value: '$curSymbol$income',
+                          ),
+                          _StatColumn(
+                            label: 'Expenses',
+                            value: '$curSymbol$expense',
+                          ),
                         ],
                       ),
                     ],

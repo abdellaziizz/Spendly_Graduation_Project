@@ -5,8 +5,8 @@ import 'package:spendly/features/main/providers/transactions_list_provider.dart'
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/Scan/Service/ocr_service.dart';
 import 'package:spendly/features/Scan/Service/receipt_parser.dart';
-import 'package:spendly/features/main/providers/transaction_provider.dart';
-import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/main/providers/transaction_notifier.dart';
+import 'package:spendly/features/main/models/transaction_model.dart';
 
 /// All possible states the receipt-scan flow can be in.
 sealed class ScanReceiptState {

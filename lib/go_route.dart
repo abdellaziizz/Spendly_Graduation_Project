@@ -13,7 +13,7 @@ import 'package:spendly/features/Report/Screens/report_screen.dart';
 import 'package:spendly/features/Profile/Screens/profile_screen.dart';
 import 'package:spendly/features/chatbot/Screens/chat_screen.dart';
 import 'package:spendly/features/authentication/Screens/Registeration_Screen.dart';
-import 'package:spendly/features/authentication/Screens/enter_email_Screen.dart';
+import 'package:spendly/features/authentication/Screens/forget_password_screen.dart';
 import 'package:spendly/features/authentication/Screens/ResetPassword_Screen.dart';
 import 'package:spendly/features/Scan/Screen/scan_receipt_screen.dart';
 import 'package:spendly/features/Scan/Screen/scan_result_screen.dart';

@@ -1,12 +1,12 @@
 /// A transaction created while the device was offline.
 /// Stored locally until the device comes back online, then synced to Supabase.
 class PendingTransaction {
-  final String localId;     // UUID, used to deduplicate
-  final String type;        // 'expense' | 'income'
+  final String localId; // UUID, used to deduplicate
+  final String type; // 'expense' | 'income'
   final double amount;
   final String title;
   final String description;
-  final String category;    // category name (not ID — ID resolved on sync)
+  final String category; // category name (not ID — ID resolved on sync)
   final String inputMethod; // 'manual' | 'voice'
   final DateTime createdAt;
 
@@ -22,15 +22,15 @@ class PendingTransaction {
   });
 
   Map<String, dynamic> toJson() => {
-        'localId': localId,
-        'type': type,
-        'amount': amount,
-        'title': title,
-        'description': description,
-        'category': category,
-        'inputMethod': inputMethod,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'localId': localId,
+    'type': type,
+    'amount': amount,
+    'title': title,
+    'description': description,
+    'category': category,
+    'inputMethod': inputMethod,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory PendingTransaction.fromJson(Map<String, dynamic> json) =>
       PendingTransaction(
@@ -45,8 +45,5 @@ class PendingTransaction {
       );
 
   /// Converts this pending transaction into a [TransactionModel] for
-  /// immediate display in the UI before syncing.
   /// Uses [localId] as the temporary id.
-  // ignore: unused_element
-  // (imported by transactions_list_provider)
 }

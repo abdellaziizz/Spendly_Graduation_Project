@@ -7,71 +7,124 @@ import 'package:spendly/features/main/models/parsed_transaction.dart';
 class VoiceIntentDetector {
   // ── English expense signals ────────────────────────────────────────────────
   static const _enExpense = [
-    'spent', 'spend', 'spending',
-    'paid', 'pay', 'paying',
-    'bought', 'buy', 'buying',
-    'purchased', 'purchase',
-    'cost', 'costs',
-    'charged', 'charge',
-    'expense', 'expenses',
-    'withdrew', 'withdrawal',
-    'fee', 'subscribed',
+    'spent',
+    'spend',
+    'spending',
+    'paid',
+    'pay',
+    'paying',
+    'bought',
+    'buy',
+    'buying',
+    'purchased',
+    'purchase',
+    'cost',
+    'costs',
+    'charged',
+    'charge',
+    'expense',
+    'expenses',
+    'withdrew',
+    'withdrawal',
+    'fee',
+    'subscribed',
   ];
 
   // ── English income signals ─────────────────────────────────────────────────
   static const _enIncome = [
-    'received', 'receive',
-    'got', 'gotten',
-    'earned', 'earn',
-    'salary', 'wage', 'wages',
+    'received',
+    'receive',
+    'got',
+    'gotten',
+    'earned',
+    'earn',
+    'salary',
+    'wage',
+    'wages',
     'income',
-    'deposited', 'deposit',
-    'collected', 'collect',
-    'gained', 'gain',
-    'bonus', 'allowance',
-    'freelance', 'freelancing',
-    'dividend', 'profit',
-    'refund', 'cashback',
+    'deposited',
+    'deposit',
+    'collected',
+    'collect',
+    'gained',
+    'gain',
+    'bonus',
+    'allowance',
+    'freelance',
+    'freelancing',
+    'dividend',
+    'profit',
+    'refund',
+    'cashback',
     'got paid',
   ];
 
   // ── Arabic expense signals ─────────────────────────────────────────────────
   static const _arExpense = [
-    'صرفت', 'صرف', 'اصرف',
-    'دفعت', 'دفع', 'ادفع',
-    'اشتريت', 'اشترى', 'اشتري',
-    'خرجت', 'خرج',
-    'كلفت', 'كلف',
-    'خصمت', 'خصم',
-    'سحبت', 'سحب',
-    'انفقت', 'انفق',
-    'مصاريف', 'مصروف',
+    'صرفت',
+    'صرف',
+    'اصرف',
+    'دفعت',
+    'دفع',
+    'ادفع',
+    'اشتريت',
+    'اشترى',
+    'اشتري',
+    'خرجت',
+    'خرج',
+    'كلفت',
+    'كلف',
+    'خصمت',
+    'خصم',
+    'سحبت',
+    'سحب',
+    'انفقت',
+    'انفق',
+    'مصاريف',
+    'مصروف',
     'خلصت',
   ];
 
   // ── Arabic income signals ──────────────────────────────────────────────────
   static const _arIncome = [
-    'استلمت', 'استلم',
-    'اخدت', 'اخذت', 'اخد', 'اخذ',
-    'جالي', 'جاء لي', 'جاءلي',
-    'ربحت', 'ربح',
-    'كسبت', 'كسب',
-    'حصلت', 'حصل',
-    'القبض', 'قبضت', 'قبض',
-    'مرتب', 'راتب',
+    'استلمت',
+    'استلم',
+    'اخدت',
+    'اخذت',
+    'اخد',
+    'اخذ',
+    'جالي',
+    'جاء لي',
+    'جاءلي',
+    'ربحت',
+    'ربح',
+    'كسبت',
+    'كسب',
+    'حصلت',
+    'حصل',
+    'القبض',
+    'قبضت',
+    'قبض',
+    'مرتب',
+    'راتب',
     'دخل',
-    'مكافأة', 'بونص', 'حافز',
+    'مكافأة',
+    'بونص',
+    'حافز',
     'فريلانس',
-    'وصلني', 'وصلتلي',
-    'رد فلوس', 'استرجعت',
+    'وصلني',
+    'وصلتلي',
+    'رد فلوس',
+    'استرجعت',
     'بدل',
-    'حولي', 'حولولي', 'اتحول',
+    'حولي',
+    'حولولي',
+    'اتحول',
   ];
 
   // ── Public API ─────────────────────────────────────────────────────────────
 
-  /// Returns the detected [TransactionIntent] for [text].
-  /// Defaults to [TransactionIntent.expense] when signals are absent or tied.
+  /// Returns the detected TransactionIntent for text.Defaults to TransactionIntent.expense
   static TransactionIntent detect(String text) {
     final lower = text.toLowerCase();
     int expenseScore = 0;
@@ -95,7 +148,7 @@ class VoiceIntentDetector {
     return TransactionIntent.expense;
   }
 
-  /// Returns true if [text] contains any explicit income keyword.
+  /// Returns true if [text] contains any explicit income keyword. Used in voice_transaction_parser.dart to help determine the intent of ambiguous transactions that could be either income or expense (e.g. "got a refund of $50" is likely an income, while "got a refund for $50" is likely an expense).
   static bool hasIncomeSignal(String text) {
     final lower = text.toLowerCase();
     for (final kw in _enIncome) {

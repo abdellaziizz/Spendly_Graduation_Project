@@ -1,6 +1,6 @@
 import 'package:spendly/features/Report/domain/models/day_spend.dart';
 import 'package:spendly/features/Report/domain/models/time_bucket.dart';
-import 'package:spendly/features/main/transaction_model.dart';
+import 'package:spendly/features/main/models/transaction_model.dart';
 
 List<double> buildMonthlyHistory(List<TransactionModel> transactions) {
   final monthlyTotals = <String, double>{};
