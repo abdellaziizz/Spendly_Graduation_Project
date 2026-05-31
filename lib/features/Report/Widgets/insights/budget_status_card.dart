@@ -25,13 +25,19 @@ class BudgetStatusCard extends ConsumerWidget {
     final formattedRemaining =
         '$curSymbol${remaining.abs().toStringAsFixed(0)}';
 
-    final cardBg   = isDark ? AppColors.darkSurface : Colors.white;
-    final titleClr = isDark ? AppColors.textPrimaryDark : const Color(0xFF1E1E24);
-    final bodyClr  = isDark ? AppColors.textSecondaryDark : const Color(0xFF4A4A52);
-    final labelClr = isDark ? AppColors.textSecondaryDark : const Color(0xFF7A7A85);
-    final badgeBg  = isDark
-        ? AppColors.goalsAccent.withValues(alpha: 0.2)
-        : const Color(0xFFE8E5FF);
+    final cardBg = isDark ? AppColors.darkSurface : Colors.white;
+    final titleClr = isDark
+        ? AppColors.textPrimaryDark
+        : const Color(0xFF1E1E24);
+    final bodyClr = isDark
+        ? AppColors.textSecondaryDark
+        : const Color(0xFF4A4A52);
+    final labelClr = isDark
+        ? AppColors.textSecondaryDark
+        : const Color(0xFF7A7A85);
+    final badgeBg = isDark
+        ? Color(0xFF0077b6).withValues(alpha: 0.2)
+        : const Color(0xFFebebeb);
     final dividerClr = isDark ? AppColors.dividerDark : const Color(0xFFD1CBD9);
 
     return Container(
@@ -52,7 +58,7 @@ class BudgetStatusCard extends ConsumerWidget {
                 children: [
                   const Icon(
                     Icons.auto_awesome,
-                    color: Color(0xFF4A3AFF),
+                    color: Color(0xFF0077b6),
                     size: 24,
                   ),
                   const SizedBox(width: 8),
@@ -67,8 +73,10 @@ class BudgetStatusCard extends ConsumerWidget {
                 ],
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: badgeBg,
                   borderRadius: BorderRadius.circular(20),
@@ -76,7 +84,7 @@ class BudgetStatusCard extends ConsumerWidget {
                 child: Text(
                   safe ? 'Budget OK' : 'Over Budget',
                   style: const TextStyle(
-                    color: Color(0xFF4A3AFF),
+                    color: Color(0xFF0077b6),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -97,16 +105,15 @@ class BudgetStatusCard extends ConsumerWidget {
               ),
               children: [
                 const TextSpan(
-                    text:
-                        "Based on your spending patterns, you're projected to end the month "),
+                  text:
+                      "Based on your spending patterns, you're projected to end the month ",
+                ),
                 TextSpan(
                   text: safe
                       ? '$formattedRemaining under budget'
                       : '$formattedRemaining over budget',
                   style: TextStyle(
-                    color: safe
-                        ? AppColors.success
-                        : AppColors.error,
+                    color: safe ? AppColors.success : AppColors.error,
                     fontWeight: FontWeight.w600,
                     fontSize: 20,
                   ),
@@ -124,8 +131,10 @@ class BudgetStatusCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Status',
-                          style: TextStyle(color: labelClr, fontSize: 14)),
+                      Text(
+                        'Status',
+                        style: TextStyle(color: labelClr, fontSize: 14),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         safe ? 'On Track' : 'At Risk',
@@ -138,14 +147,15 @@ class BudgetStatusCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                VerticalDivider(
-                    color: dividerClr, thickness: 1, width: 32),
+                VerticalDivider(color: dividerClr, thickness: 1, width: 32),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Forecast',
-                          style: TextStyle(color: labelClr, fontSize: 14)),
+                      Text(
+                        'Forecast',
+                        style: TextStyle(color: labelClr, fontSize: 14),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         '$formattedForecast / $formattedLimit',

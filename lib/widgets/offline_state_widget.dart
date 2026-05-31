@@ -59,7 +59,7 @@ class _OfflineStateWidgetState extends ConsumerState<OfflineStateWidget>
 
   @override
   Widget build(BuildContext context) {
-    final isOnline = ref.watch(isOnlineProvider).value ?? true;
+    final isOnline = ref.watch(isOnlineProvider);
 
     // Auto-pop overlay when reconnected (useful when embedded inside a page)
     if (isOnline) {

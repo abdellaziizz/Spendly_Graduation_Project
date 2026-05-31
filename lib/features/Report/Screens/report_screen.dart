@@ -54,7 +54,9 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
       categories: categories,
     );
 
-    final bg = context.isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
+    final bg = context.isDark
+        ? AppColors.backgroundDark
+        : AppColors.backgroundLight;
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
@@ -226,9 +228,11 @@ class _ReportScreenState extends ConsumerState<ReportScreen>
       await controller.savePdfAndRecord(bytes, freq);
 
       // Show preview screen where user can print or share
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => ReportPdfPreview(data: liveData, freq: freq),
-      ));
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ReportPdfPreview(data: liveData, freq: freq),
+        ),
+      );
     } catch (e) {
       setState(() {
         _reportError = 'PDF preview failed: $e';

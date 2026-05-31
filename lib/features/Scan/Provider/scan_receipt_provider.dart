@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
+import 'package:spendly/features/wallet/providers/category_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/Scan/Service/ocr_service.dart';
 import 'package:spendly/features/Scan/Service/receipt_parser.dart';
@@ -105,6 +106,8 @@ class ScanReceiptNotifier extends StateNotifier<ScanReceiptState> {
       _ref.read(transactionProvider.notifier).addTransaction(localModel);
       _ref.invalidate(transactionsListProvider);
       await _ref.read(mainFinanceProvider.notifier).refreshFinance();
+      // Refresh the Track tab so new spending amounts appear immediately.
+      await _ref.read(walletProvider.notifier).refresh();
       state = const ScanSaved();
     } catch (e) {
       state = ScanError('Failed to save: $e');

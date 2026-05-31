@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendly/core/config/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/go_route.dart';
 import 'package:spendly/theme/theme.dart';
 import 'package:spendly/theme/theme_provider.dart';
 import 'package:spendly/features/authentication/providers/deep_link_providers.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  
-  // On web, use hardcoded defaults in BackendApi
-
-  await Supabase.initialize(
-    url: 'https://bajjqhcqfmvsniszytsf.supabase.co',
-    anonKey: 'sb_publishable_i6MceD8i9QPiYviUu37dCg__O5B9Mzd',
-  );
+  await dotenv.load(fileName: ".env");
+  await Supabase.initialize(url: Env.supabaseUrl, anonKey: Env.supabaseAnonKey);
 
   runApp(const ProviderScope(child: MyApp()));
 }

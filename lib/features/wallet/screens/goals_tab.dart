@@ -24,15 +24,23 @@ class GoalsTab extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: goalsAsync.when(
-        loading: () =>  Skeletonizer(
+        loading: () => Skeletonizer(
           enabled: true,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               children: [
-                Container(height: 120, width: double.infinity, color: Colors.grey),
+                Container(
+                  height: 120,
+                  width: double.infinity,
+                  color: Colors.grey,
+                ),
                 SizedBox(height: 12),
-                Container(height: 120, width: double.infinity, color: Colors.grey),
+                Container(
+                  height: 120,
+                  width: double.infinity,
+                  color: Colors.grey,
+                ),
               ],
             ),
           ),
@@ -43,7 +51,11 @@ class GoalsTab extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                const Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Colors.redAccent,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Something went wrong',
@@ -74,7 +86,9 @@ class GoalsTab extends ConsumerWidget {
             if (goals.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: _EmptyGoalsState(onAdd: () => _openAddGoalSheet(context)),
+                child: _EmptyGoalsState(
+                  onAdd: () => _openAddGoalSheet(context),
+                ),
               )
             else
               SliverPadding(
@@ -89,9 +103,7 @@ class GoalsTab extends ConsumerWidget {
 
             // ── "Dreaming bigger?" promo banner ──
             if (goals.isNotEmpty)
-              SliverToBoxAdapter(
-                child: _DreamingBiggerBanner(),
-              ),
+              SliverToBoxAdapter(child: _DreamingBiggerBanner()),
 
             // ── Spacing before bottom button ──
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
@@ -118,7 +130,7 @@ class GoalsTab extends ConsumerWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3B38D0),
+                      backgroundColor: const Color(0xFF397BBD),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -145,13 +157,13 @@ class _DreamingBiggerBanner extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
-          colors: [Color(0xFF3B38D0), Color(0xFF6C63FF), Color(0xFF9B59B6)],
+          colors: [Color(0xFF397BBD), Color(0xFF009ffc), Color(0xFF4484BA)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3B38D0).withOpacity(0.35),
+            color: const Color(0xFF003566).withOpacity(0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -240,18 +252,14 @@ class _EmptyGoalsState extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1A1A2E),
+            color: Color(0xFFCCCCDD),
           ),
         ),
         const SizedBox(height: 8),
         const Text(
           'Set your first savings goal\nand start tracking your progress.',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-            height: 1.5,
-          ),
+          style: TextStyle(color: Colors.grey, fontSize: 14, height: 1.5),
         ),
       ],
     );

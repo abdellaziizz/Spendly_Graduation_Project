@@ -13,6 +13,7 @@ import 'package:spendly/theme/theme_extensions.dart';
 import 'package:spendly/features/Profile/Widget/toggle.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -20,16 +21,18 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final code = ref.watch(currencyProvider).valueOrNull?.code ?? 'USD';
     final c = allCurrencies.firstWhere(
-      (c) => c.code == code, 
-      orElse: () => allCurrencies.firstWhere((c) => c.code == 'USD')
+      (c) => c.code == code,
+      orElse: () => allCurrencies.firstWhere((c) => c.code == 'USD'),
     );
     final currencySubtitle = '${c.code} ${c.flag}';
     final userasync = ref.watch(profileNameProvider);
-return Scaffold(
-          appBar: AppBar(title: const Text('Profile')),
-          body: userasync.when (data:(user){final email    = user.email;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: userasync.when(
+        data: (user) {
+          final email = user.email;
           final fullname = user.fullName;
-            return SingleChildScrollView(
+          return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
@@ -87,10 +90,7 @@ return Scaffold(
                           color: context.onSurface,
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          'Mode',
-                          style: context.textTheme.titleSmall,
-                        ),
+                        Text('Mode', style: context.textTheme.titleSmall),
                         const Spacer(),
                         const Toggle(),
                       ],
@@ -106,133 +106,133 @@ return Scaffold(
                       } catch (e) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Logout failed: $e'),
-                            ),
+                            SnackBar(content: Text('Logout failed: $e')),
                           );
                         }
                       }
                     },
-                    child: ContainerWidget(
-                      icon: Icons.logout,
-                      title: 'Logout',
-                    ),
+                    child: ContainerWidget(icon: Icons.logout, title: 'Logout'),
                   ),
                 ],
               ),
             ),
-          );},  error: (e, _) => Center(
-        child: Text(
-          'Error loading profile: $e',
-          style: TextStyle(color: context.errorColor),
-        ),
-      ), loading: () => Skeletonizer(
-  enabled: true,
-  child: Scaffold(
-    appBar: AppBar(title: const Text('Profile')),
-    body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-
-                const SizedBox(height: 16),
- Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          height: 88,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Theme.of(context).colorScheme.surface,
-          ),
-          child: Row(
-            children: [
-             CircleAvatar(radius: 24),
-              const SizedBox(width: 10),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'fullname',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    'email',
-                    style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          );
+        },
+        error: (e, _) => Center(
+          child: Text(
+            'Error loading profile: $e',
+            style: TextStyle(color: context.errorColor),
           ),
         ),
-            // Fake containers
-            ContainerWidget(
-              icon: Icons.email,
-              title: 'Loading',
-              subtitle: 'loading@email.com',
-            ),
+        loading: () => Skeletonizer(
+          enabled: true,
+          child: Scaffold(
+            appBar: AppBar(title: const Text('Profile')),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
 
-            ContainerWidget(
-              icon: Icons.wallet_outlined,
-              title: 'Currency type',
-              subtitle: '',
-            ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      height: 88,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(radius: 24),
+                          const SizedBox(width: 10),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'fullname',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                'email',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Fake containers
+                    ContainerWidget(
+                      icon: Icons.email,
+                      title: 'Loading',
+                      subtitle: 'loading@email.com',
+                    ),
 
-            ContainerWidget(
-              icon: Icons.person_outline,
-              title: 'Name',
-              subtitle: 'Ahmed Abdelaziz',
-            ),
+                    ContainerWidget(
+                      icon: Icons.wallet_outlined,
+                      title: 'Currency type',
+                      subtitle: '',
+                    ),
 
-            ContainerWidget(
-              icon: Icons.info_outline_rounded,
-              title: 'Legal Information',
-            ),
+                    ContainerWidget(
+                      icon: Icons.person_outline,
+                      title: 'Name',
+                      subtitle: 'Ahmed Abdelaziz',
+                    ),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              height: 55,
-              child: Row(
-                children: const [
-                  Icon(Icons.brightness_6_outlined),
-                  SizedBox(width: 12),
-                  Text('Mode'),
-                  Spacer(),
-                  Switch(value: false, onChanged: null),
-                ],
+                    ContainerWidget(
+                      icon: Icons.info_outline_rounded,
+                      title: 'Legal Information',
+                    ),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      height: 55,
+                      child: Row(
+                        children: const [
+                          Icon(Icons.brightness_6_outlined),
+                          SizedBox(width: 12),
+                          Text('Mode'),
+                          Spacer(),
+                          Switch(value: false, onChanged: null),
+                        ],
+                      ),
+                    ),
+
+                    ContainerWidget(icon: Icons.logout, title: 'Logout'),
+                  ],
+                ),
               ),
             ),
-
-            ContainerWidget(
-              icon: Icons.logout,
-              title: 'Logout',
-            ),
-          ],
+          ),
         ),
       ),
-    ),
-  ),
-),),
-        );
-     
-    
+    );
   }
 
-  Future<void> _showEditNameDialog(BuildContext context, WidgetRef ref, String currentName) async {
+  Future<void> _showEditNameDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String currentName,
+  ) async {
     final controller = TextEditingController(text: currentName);
-    
+
     await showDialog(
       context: context,
       builder: (context) {
@@ -255,15 +255,16 @@ return Scaffold(
               onPressed: () async {
                 final newName = controller.text.trim();
                 if (newName.isEmpty) return;
-                
+
                 try {
                   final supabase = Supabase.instance.client;
                   final userId = supabase.auth.currentUser?.id;
                   if (userId != null) {
-                    await supabase.from('users').update({
-                      'full_name': newName
-                    }).eq('id', userId);
-                    
+                    await supabase
+                        .from('users')
+                        .update({'full_name': newName})
+                        .eq('id', userId);
+
                     ref.invalidate(profileNameProvider);
                     ref.invalidate(userInfoProvider);
                   }
@@ -274,7 +275,7 @@ return Scaffold(
                     );
                   }
                 }
-                
+
                 if (context.mounted) Navigator.pop(context);
               },
               child: const Text('Save'),

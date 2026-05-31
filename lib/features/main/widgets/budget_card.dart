@@ -40,9 +40,10 @@ class BudgetCard extends ConsumerWidget {
       error: (e, _) =>
           Text(e.toString(), style: const TextStyle(color: Colors.white)),
       data: (finance) {
-        final netbalance = finance.netBalance;
+        final netbalance = finance.remainingBudget;
         final income = finance.totalIncome;
         final expense = finance.totalExpenses;
+        final budget = finance.budget;
 
         return Container(
           margin: const EdgeInsets.all(16),
@@ -143,11 +144,11 @@ class BudgetCard extends ConsumerWidget {
                         children: [
                           _StatColumn(
                             label: 'Income',
-                            value: '$curSymbol$income',
+                            value: '$curSymbol${formatAmount(income)}',
                           ),
                           _StatColumn(
                             label: 'Expenses',
-                            value: '$curSymbol$expense',
+                            value: '$curSymbol${formatAmount(expense)}',
                           ),
                         ],
                       ),

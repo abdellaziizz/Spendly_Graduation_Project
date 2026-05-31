@@ -16,6 +16,7 @@ class SetBudgetSheet extends ConsumerStatefulWidget {
 
 class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
   late TextEditingController _amountController;
+  // Budget Suggestions in the same currency as the user's current balance
   final List<int> _suggestions = [1000, 2000, 3000, 4000, 5000];
 
   @override
@@ -31,10 +32,10 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
   }
 
   String formatAmount(int amount) => amount.toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (m) => '${m[1]},',
-      );
-
+    RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+    (m) => '${m[1]},',
+  );
+  // Setting the selected suggestion as the input value when tapped
   void _onSuggestionTap(int amount) =>
       setState(() => _amountController.text = formatAmount(amount));
 
@@ -45,8 +46,18 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
     );
     final curSymbol = ref.watch(currencySymbolProvider);
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     final currentMonth = months[DateTime.now().month - 1];
 
@@ -89,10 +100,7 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: Icon(
-                    Icons.close,
-                    color: context.subtitleColor,
-                  ),
+                  icon: Icon(Icons.close, color: context.subtitleColor),
                 ),
               ],
             ),
@@ -237,19 +245,10 @@ class _SetBudgetSheetState extends ConsumerState<SetBudgetSheet> {
                 if (amount <= 0) return;
 
                 final supabase = Supabase.instance.client;
-                final userId   = supabase.auth.currentUser?.id;
-                if (userId == null) return;
+                if (supabase.auth.currentUser?.id == null) return;
 
-                final now      = DateTime.now();
-                final monthStr =
-                    '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
-                await ref.read(mainFinanceProvider.notifier).refreshFinance();
-
-                await supabase.from('monthly_budgets').upsert({
-                  'users_id': userId,
-                  'budget_month': monthStr,
-                  'amount': amount,
-                }, onConflict: 'users_id,budget_month');
+                // setBudget() does the upsert AND refreshes state — one call, correct order
+                await ref.read(mainFinanceProvider.notifier).setBudget(amount);
 
                 if (context.mounted) Navigator.pop(context);
               },

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/services/connectivity/connectivity_provider.dart';
-import 'package:spendly/theme/colors.dart';
 
 /// A thin banner pinned at the top of the screen while the device is offline.
 /// Disappears automatically when internet is restored.
@@ -10,7 +9,7 @@ class OfflineBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isOnline = ref.watch(isOnlineProvider).value ?? true;
+    final isOnline = ref.watch(isOnlineProvider);
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 350),

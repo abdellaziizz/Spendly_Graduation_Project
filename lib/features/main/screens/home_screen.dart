@@ -10,7 +10,7 @@ import 'package:spendly/features/main/providers/transactions_list_provider.dart'
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'dart:async';
 
-import 'package:spendly/features/main/widgets/budget_Card.dart';
+import 'package:spendly/features/main/widgets/budget_card.dart';
 import 'package:spendly/features/main/widgets/headersection.dart';
 import 'package:spendly/features/main/widgets/transaction_list_view.dart';
 import 'package:spendly/features/main/widgets/voice_confirmation_bottom_sheet.dart';
@@ -193,7 +193,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final txAsync = ref.watch(transactionsListProvider);
-    final isOnline = ref.watch(connectivityServiceProvider).isOnline;
+    final isOnline = ref.isOnline;
 
     // Ensure the sync manager is active
     ref.watch(offlineSyncProvider);
@@ -340,7 +340,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                                       iconBgColor: CategoryUtils.getColor(
                                         tx.category,
                                       ).withValues(alpha: 0.1),
-                                      iconColor: CategoryUtils.getColor(tx.category),
+                                      iconColor: CategoryUtils.getColor(
+                                        tx.category,
+                                      ),
                                     ),
                                     onDelete: () async {
                                       if (!isOnline) {
@@ -487,19 +489,19 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         // Mic button
                         GestureDetector(
                           onTap: () {
-                            if (!isOnline) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Voice commands require an internet connection',
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
                             if (_isListening) {
                               _stopListening();
                             } else {
+                              if (!isOnline) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Voice commands require an internet connection',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
                               _startListening();
                             }
                           },
@@ -702,5 +704,4 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       ),
     );
   }
-
 }

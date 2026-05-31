@@ -16,9 +16,9 @@ class OfflineSyncManager extends Notifier<List<PendingTransaction>> {
     _loadQueue();
 
     // Watch connectivity — sync automatically when back online
-    ref.listen<AsyncValue<bool>>(isOnlineProvider, (prev, next) {
-      final wasOffline = !(prev?.value ?? true);
-      final isNowOnline = next.value ?? false;
+    ref.listen<bool>(isOnlineProvider, (prev, next) {
+      final wasOffline = !(prev ?? true);
+      final isNowOnline = next;
       if (wasOffline && isNowOnline) {
         syncPending();
       }

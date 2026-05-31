@@ -1,4 +1,5 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:spendly/core/config/env.dart';
 
 class GeminiService {
   late final GenerativeModel _model;
@@ -7,7 +8,7 @@ class GeminiService {
   GeminiService() {
     _model = GenerativeModel(
       model: 'gemini-3-flash-preview',
-      apiKey: '',
+      apiKey: Env.chatbotApiKey,
       generationConfig: GenerationConfig(
         temperature: 0.7,
         topK: 40,

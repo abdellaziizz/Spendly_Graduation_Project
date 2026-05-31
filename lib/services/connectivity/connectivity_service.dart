@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 /// Wraps `connectivity_plus` + `internet_connection_checker` into a single
@@ -28,9 +30,30 @@ class ConnectivityService {
     _init();
   }
 
+  Future<bool> _checkInternet() async {
+    try {
+      final hasInternet = await _checker.hasConnection;
+      if (hasInternet) return true;
+
+      if (kIsWeb) {
+        return false;
+      }
+
+      // Fallback: InternetConnectionChecker might fail on certain configurations
+      // (e.g. port 53 TCP pings are blocked by some ISP/routers/VPNs).
+      // We perform a standard DNS lookup using the OS default resolver.
+      final lookup = await InternetAddress.lookup('google.com').timeout(
+        const Duration(seconds: 3),
+      );
+      return lookup.isNotEmpty && lookup.first.rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
   void _init() async {
     // 1. Check current state immediately
-    _isOnline = await _checker.hasConnection;
+    _isOnline = await _checkInternet();
     _controller.add(_isOnline);
 
     // 2. React to adapter changes, then confirm with actual ping
@@ -39,7 +62,7 @@ class ConnectivityService {
       if (!hasAdapter) {
         _setOnline(false);
       } else {
-        final hasInternet = await _checker.hasConnection;
+        final hasInternet = await _checkInternet();
         _setOnline(hasInternet);
       }
     });
@@ -53,7 +76,7 @@ class ConnectivityService {
 
   /// Force a real connectivity check — called by "Try Again" button.
   Future<bool> checkNow() async {
-    final result = await _checker.hasConnection;
+    final result = await _checkInternet();
     _setOnline(result);
     return result;
   }

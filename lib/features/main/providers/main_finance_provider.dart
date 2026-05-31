@@ -15,6 +15,7 @@ class MainFinanceData {
     required this.totalExpenses,
     required this.netBalance,
   });
+  double get remainingBudget => budget + totalIncome - totalExpenses;
 }
 
 final mainFinanceProvider =
@@ -66,7 +67,11 @@ class MainFinanceNotifier extends AsyncNotifier<MainFinanceData> {
         );
       }
       return const MainFinanceData(
-          budget: 0, totalIncome: 0, totalExpenses: 0, netBalance: 0);
+        budget: 0,
+        totalIncome: 0,
+        totalExpenses: 0,
+        netBalance: 0,
+      );
     }
 
     try {
@@ -74,68 +79,72 @@ class MainFinanceNotifier extends AsyncNotifier<MainFinanceData> {
       final now = DateTime.now();
       final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
 
-    final budgetRes = await supabase
-        .from('monthly_budgets')
-        .select('amount')
-        .eq('users_id', userId)
-        .eq('budget_month', monthStr)
-        .maybeSingle();
+      final budgetRes = await supabase
+          .from('monthly_budgets')
+          .select('amount')
+          .eq('users_id', userId)
+          .eq('budget_month', monthStr)
+          .maybeSingle();
 
-    final budget =
-        double.tryParse(budgetRes?['amount']?.toString() ?? '0') ?? 0.0;
+      final budget =
+          double.tryParse(budgetRes?['amount']?.toString() ?? '0') ?? 0.0;
 
-    final totalsRes = await supabase
-        .from('v_monthly_totals')
-        .select('total_income, total_expenses')
-        .eq('users_id', userId)
-        .eq('spending_month', monthStr)
-        .maybeSingle();
+      final totalsRes = await supabase
+          .from('v_monthly_totals')
+          .select('total_income, total_expenses')
+          .eq('users_id', userId)
+          .eq('spending_month', monthStr)
+          .maybeSingle();
 
-    final totalIncome =
-        double.tryParse(totalsRes?['total_income']?.toString() ?? '0') ?? 0.0;
-    final totalExpenses =
-        double.tryParse(totalsRes?['total_expenses']?.toString() ?? '0') ?? 0.0;
+      final totalIncome =
+          double.tryParse(totalsRes?['total_income']?.toString() ?? '0') ?? 0.0;
+      final totalExpenses =
+          double.tryParse(totalsRes?['total_expenses']?.toString() ?? '0') ??
+          0.0;
 
-    final netBalance = budget - totalExpenses + totalIncome;
+      final netBalance = budget + totalIncome - totalExpenses;
+      final data = MainFinanceData(
+        budget: budget,
+        totalIncome: totalIncome,
+        totalExpenses: totalExpenses,
+        netBalance: netBalance,
+      );
 
-    final data = MainFinanceData(
-      budget: budget,
-      totalIncome: totalIncome,
-      totalExpenses: totalExpenses,
-      netBalance: netBalance,
-    );
+      // Save to cache
+      await cache.cacheFinanceData(data);
 
-    // Save to cache
-    await cache.cacheFinanceData(data);
-    
-    // Check if there are pending transactions to adjust the currently fetched totals
-    // Since pending transactions haven't been synced to backend yet.
-    final pendingQueue = await cache.getPendingQueue();
-    double netOffset = 0;
-    double incOffset = 0;
-    double expOffset = 0;
+      // Check if there are pending transactions to adjust the currently fetched totals
+      // Since pending transactions haven't been synced to backend yet.
+      final pendingQueue = await cache.getPendingQueue();
+      double netOffset = 0;
+      double incOffset = 0;
+      double expOffset = 0;
 
-    for (final p in pendingQueue) {
-      if (p.type == 'income') {
-        incOffset += p.amount;
-        netOffset += p.amount;
-      } else {
-        expOffset += p.amount;
-        netOffset -= p.amount;
+      for (final p in pendingQueue) {
+        if (p.type == 'income') {
+          incOffset += p.amount;
+          netOffset += p.amount;
+        } else {
+          expOffset += p.amount;
+          netOffset -= p.amount;
+        }
       }
-    }
 
-    return MainFinanceData(
-      budget: data.budget,
-      totalIncome: data.totalIncome + incOffset,
-      totalExpenses: data.totalExpenses + expOffset,
-      netBalance: data.netBalance + netOffset,
-    );
+      return MainFinanceData(
+        budget: data.budget,
+        totalIncome: data.totalIncome + incOffset,
+        totalExpenses: data.totalExpenses + expOffset,
+        netBalance: data.netBalance + netOffset,
+      );
     } catch (e) {
       final cached = await cache.getCachedFinanceData();
       if (cached != null) return cached;
       return const MainFinanceData(
-          budget: 0, totalIncome: 0, totalExpenses: 0, netBalance: 0);
+        budget: 0,
+        totalIncome: 0,
+        totalExpenses: 0,
+        netBalance: 0,
+      );
     }
   }
 
@@ -149,57 +158,9 @@ class MainFinanceNotifier extends AsyncNotifier<MainFinanceData> {
       'users_id': userId,
       'budget_month': monthStr,
       'amount': amount,
-    });
+    }, onConflict: 'users_id,budget_month');
 
     state = const AsyncLoading();
     state = AsyncData(await _fetchFinance());
   }
 }
-// final mainFinanceProvider = FutureProvider<MainFinanceData>((ref) async {
-//   final supabase = Supabase.instance.client;
-//   final userId = supabase.auth.currentUser!.id;
-//   // Current month as YYYY-MM-01
-//   final now = DateTime.now();
-//   final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
-
-//   // ── Query 1: monthly budget ──────────────────────────────────────────
-
-//   final budgetRes = await supabase
-//       .from('monthly_budgets')
-//       .select('amount')
-//       .eq('users_id', userId)
-//       .eq('budget_month', monthStr)
-//       .maybeSingle();
-
-//   final budget =
-//       double.tryParse(budgetRes?['amount']?.toString() ?? '0') ?? 0.0;
-
-//   // ── Query 2: monthly totals from view ───────────────────────────────
-
-//   final totalsRes = await supabase
-//       .from('v_monthly_totals')
-//       .select('total_income, total_expenses, net_balance')
-//       .eq('users_id', userId)
-//       .eq('spending_month', monthStr)
-//       .maybeSingle();
-
-//   final totalIncome =
-//       double.tryParse(totalsRes?['total_income']?.toString() ?? '0') ?? 0.0;
-//   final totalExpenses =
-//       double.tryParse(totalsRes?['total_expenses']?.toString() ?? '0') ?? 0.0;
-
-//   // Net balance rule from spec
-//   final double netBalance;
-//   if (totalIncome == 0 && totalExpenses == 0) {
-//     netBalance = budget;
-//   } else {
-//     netBalance = totalIncome - totalExpenses;
-//   }
-
-//   return MainFinanceData(
-//     budget: budget,
-//     totalIncome: totalIncome,
-//     totalExpenses: totalExpenses,
-//     netBalance: netBalance,
-//   );
-// });

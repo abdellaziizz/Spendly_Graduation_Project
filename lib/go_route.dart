@@ -64,9 +64,9 @@ final GoRouter router = GoRouter(
     final isNewUser = now.difference(createdAt).inSeconds < 30;
 
     // 🚀 FIRST LOGIN AFTER REGISTER → currency
-    if (isNewUser && currentPath != '/currency') {
-      return '/currency';
-    }
+    // if (isNewUser && currentPath != '/currency') {
+    //   return '/currency';
+    // }
 
     // Prevent going back to login/register
     if (isPublicRoute && currentPath != '/reset-password') {

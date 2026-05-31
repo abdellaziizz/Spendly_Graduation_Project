@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendly/features/main/Repository/category_repository.dart';
@@ -5,6 +6,7 @@ import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'package:spendly/features/authentication/providers/currency_provider.dart';
 import 'package:spendly/features/main/models/parsed_transaction.dart';
+import 'package:spendly/features/wallet/providers/category_provider.dart';
 import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/colors.dart';
 import 'package:spendly/theme/theme_extensions.dart';
@@ -62,8 +64,13 @@ class _VoiceConfirmationBottomSheetState
         });
       }
 
+      // Invalidate providers so all screens (including Track tab) rebuild
+      // reactively with the latest spending data.
       ref.invalidate(transactionsListProvider);
       ref.invalidate(mainFinanceProvider);
+      // walletProvider is a StateNotifierProvider — call refresh() instead of
+      // invalidate() to reload data without recreating the notifier.
+      unawaited(ref.read(walletProvider.notifier).refresh());
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -10,6 +10,7 @@ import 'package:spendly/theme/app_gradients.dart';
 import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/colors.dart';
 import 'package:spendly/theme/theme_extensions.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});

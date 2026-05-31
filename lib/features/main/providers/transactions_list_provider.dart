@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/main/models/transaction_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/services/cache/local_cache_service.dart';
 import 'package:spendly/services/connectivity/connectivity_provider.dart';
 

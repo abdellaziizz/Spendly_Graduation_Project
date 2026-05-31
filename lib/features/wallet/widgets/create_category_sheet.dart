@@ -16,16 +16,16 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
   final TextEditingController _limitController = TextEditingController();
   IconData? _selectedIcon;
 
-  final List<IconData> _availableIcons = [
-    Icons.shopping_bag,
-    Icons.restaurant,
-    Icons.directions_car,
-    Icons.flight,
-    Icons.fitness_center,
-    Icons.computer,
-    Icons.work,
-    Icons.movie,
-    Icons.account_balance_wallet,
+  final List<MapEntry<String, IconData>> _availableIcons = [
+    const MapEntry('shopping_bag', Icons.shopping_bag),
+    const MapEntry('restaurant', Icons.restaurant),
+    const MapEntry('directions_car', Icons.directions_car),
+    const MapEntry('flight', Icons.flight),
+    const MapEntry('fitness_center', Icons.fitness_center),
+    const MapEntry('computer', Icons.computer),
+    const MapEntry('work', Icons.work),
+    const MapEntry('movie', Icons.movie),
+    const MapEntry('account_balance_wallet', Icons.account_balance_wallet),
   ];
 
   @override
@@ -36,24 +36,17 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
   }
 
   Future<void> _createCategory() async {
-    if (_nameController.text.isEmpty ||
-        _limitController.text.isEmpty ||
-        _selectedIcon == null) {
+    if (_nameController.text.trim().isEmpty || _selectedIcon == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please fill all fields and select an icon'),
+          content: Text('Please enter a category name and select an icon'),
         ),
       );
       return;
     }
 
-    final double? limit = double.tryParse(_limitController.text);
-    if (limit == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid limit amount')),
-      );
-      return;
-    }
+    // Limit is optional — default to 0 (no cap) if the field is left blank.
+    final double limit = double.tryParse(_limitController.text.trim()) ?? 0.0;
 
     final newCategory = BudgetModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -66,11 +59,16 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
 
     try {
       await ref.read(walletProvider.notifier).addBudget(newCategory);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Category created successfully')),
+        );
+      }
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create category: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to create category: $e')));
     }
   }
 
@@ -194,9 +192,9 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                   ),
                   const SizedBox(height: 16.0),
 
-                  // Limit Input
+                  // Limit Input (optional)
                   Text(
-                    'Limit',
+                    'Limit (optional)',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Theme.of(
@@ -228,7 +226,6 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                   ),
                   const SizedBox(height: 24.0),
 
-                  // Select Icon Grid
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -239,15 +236,6 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withOpacity(0.8),
-                        ),
-                      ),
-                      Text(
-                        'Line Style',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.4),
                         ),
                       ),
                     ],
@@ -265,7 +253,8 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                         ),
                     itemCount: _availableIcons.length,
                     itemBuilder: (context, index) {
-                      final icon = _availableIcons[index];
+                      final entry = _availableIcons[index];
+                      final icon = entry.value;
                       final isSelected = _selectedIcon == icon;
                       return GestureDetector(
                         onTap: () {
@@ -316,7 +305,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
             child: ElevatedButton(
               onPressed: _createCategory,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigoAccent,
+                backgroundColor: Color(0xFF397BBD),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 shape: RoundedRectangleBorder(

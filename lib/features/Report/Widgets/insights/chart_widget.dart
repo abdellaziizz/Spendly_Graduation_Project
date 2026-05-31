@@ -12,20 +12,23 @@ class WeeklySpendingCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final chartData = ref.watch(weeklySpendingProvider);
-    final isDark    = context.isDark;
+    final isDark = context.isDark;
 
     final spots = chartData.spendingList
         .map((data) => FlSpot(data.x, data.amount))
         .toList();
 
     // ── Adaptive colours ──────────────────────────────────────────────────
-    const lineColor   = Color(0xFF4F46E5);
-    final cardBg      = isDark ? AppColors.darkSurface    : Colors.white;
-    final titleClr    = isDark ? AppColors.textPrimaryDark : const Color(0xFF1E2022);
+    const lineColor = Color(0xFF0077b6); // Indigo-600, visible in both modes
+    final cardBg = isDark ? AppColors.darkSurface : Colors.white;
+    final titleClr = isDark
+        ? AppColors.textPrimaryDark
+        : const Color(0xFF1E2022);
     // Inactive day label: readable in both modes
     final inactiveDay = isDark
-        ? AppColors.textSecondaryDark           // ~A0A0A0 — visible on dark bg
-        : const Color(0xFF8F9BB3);              // muted blue-grey on white
+        ? AppColors
+              .textSecondaryDark // ~A0A0A0 — visible on dark bg
+        : const Color(0xFF8F9BB3); // muted blue-grey on white
 
     return Container(
       padding: const EdgeInsets.all(24.0),
@@ -70,20 +73,25 @@ class WeeklySpendingCard extends ConsumerWidget {
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
                   rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 34,
                       interval: 1,
-                      getTitlesWidget: (value, meta) =>
-                          _bottomTitle(value, meta,
-                              chartData.highestSpendingDayIndex,
-                              inactiveDay),
+                      getTitlesWidget: (value, meta) => _bottomTitle(
+                        value,
+                        meta,
+                        chartData.highestSpendingDayIndex,
+                        inactiveDay,
+                      ),
                     ),
                   ),
                 ),
@@ -110,7 +118,9 @@ class WeeklySpendingCard extends ConsumerWidget {
                           );
                         }
                         return FlDotCirclePainter(
-                            radius: 0, color: Colors.transparent);
+                          radius: 0,
+                          color: Colors.transparent,
+                        );
                       },
                     ),
                     belowBarData: BarAreaData(
@@ -134,8 +144,12 @@ class WeeklySpendingCard extends ConsumerWidget {
     );
   }
 
-  Widget _bottomTitle(double value, TitleMeta meta, int peakIndex,
-      Color inactiveColor) {
+  Widget _bottomTitle(
+    double value,
+    TitleMeta meta,
+    int peakIndex,
+    Color inactiveColor,
+  ) {
     const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     final index = value.toInt();
     if (index < 0 || index >= weekdays.length) return const SizedBox.shrink();
@@ -150,7 +164,7 @@ class WeeklySpendingCard extends ConsumerWidget {
         style: TextStyle(
           fontSize: 14,
           fontWeight: isPeak ? FontWeight.w700 : FontWeight.w600,
-          color: isPeak ? const Color(0xFF4F46E5) : inactiveColor,
+          color: isPeak ? const Color(0xFF0077b6) : inactiveColor,
         ),
       ),
     );

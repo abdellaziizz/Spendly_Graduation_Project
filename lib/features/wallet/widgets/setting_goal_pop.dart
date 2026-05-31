@@ -18,9 +18,9 @@ class AddGoal extends ConsumerStatefulWidget {
 }
 
 class _AddGoalState extends ConsumerState<AddGoal> {
-  final _goalNameController      = TextEditingController();
-  final _targetAmountController  = TextEditingController();
-  final _deadlineDateController  = TextEditingController();
+  final _goalNameController = TextEditingController();
+  final _targetAmountController = TextEditingController();
+  final _deadlineDateController = TextEditingController();
   DateTime? _selectedDate;
   bool _isLoading = false;
 
@@ -51,7 +51,7 @@ class _AddGoalState extends ConsumerState<AddGoal> {
   }
 
   Future<void> _submit() async {
-    final name       = _goalNameController.text.trim();
+    final name = _goalNameController.text.trim();
     final amountText = _targetAmountController.text.trim();
 
     if (name.isEmpty || amountText.isEmpty) {
@@ -89,10 +89,7 @@ class _AddGoalState extends ConsumerState<AddGoal> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: context.errorColor,
-      ),
+      SnackBar(content: Text(message), backgroundColor: context.errorColor),
     );
   }
 
@@ -176,8 +173,9 @@ class _AddGoalState extends ConsumerState<AddGoal> {
             const SizedBox(height: 8),
             TextField(
               controller: _targetAmountController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
               ],
@@ -206,9 +204,10 @@ class _AddGoalState extends ConsumerState<AddGoal> {
             ElevatedButton(
               onPressed: _isLoading ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.goalsAccent,
-                disabledBackgroundColor:
-                    AppColors.goalsAccent.withValues(alpha: 0.5),
+                backgroundColor: Color(0xFF397BBD),
+                disabledBackgroundColor: AppColors.goalsAccent.withValues(
+                  alpha: 0.5,
+                ),
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 54),
                 shape: RoundedRectangleBorder(
@@ -240,9 +239,7 @@ class _AddGoalState extends ConsumerState<AddGoal> {
   }
 
   Widget _fieldLabel(BuildContext context, String text) => Text(
-        text,
-        style: context.textTheme.labelLarge?.copyWith(
-          color: context.subtitleColor,
-        ),
-      );
+    text,
+    style: context.textTheme.labelLarge?.copyWith(color: context.subtitleColor),
+  );
 }
