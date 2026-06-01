@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spendly/features/authentication/Screens/Login_Screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendly/features/onboarding/Providers/onboard_provider.dart';
+import 'package:spendly/features/onboarding/Providers/onboarding_state_provider.dart';
 import 'package:spendly/features/onboarding/widget/onboarding_page_widget.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -20,7 +21,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.dispose();
   }
 
-  void _onNext(int currentIndex) {
+  void _onNext(int currentIndex) async {
     if (currentIndex < 2) {
       _pageController.animateToPage(
         currentIndex + 1,
@@ -28,10 +29,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      // Navigate to Login screen
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
+      // Save onboarding completion
+      await ref.read(onboardingStateProvider.notifier).completeOnboarding();
+      if (mounted) {
+        context.go('/login');
+      }
     }
   }
 

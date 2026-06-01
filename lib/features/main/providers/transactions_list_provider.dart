@@ -3,6 +3,7 @@ import 'package:spendly/features/main/models/transaction_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/services/cache/local_cache_service.dart';
 import 'package:spendly/services/connectivity/connectivity_provider.dart';
+import 'package:spendly/core/categories/category_helpers.dart';
 
 class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
   @override
@@ -33,17 +34,42 @@ class TransactionsListNotifier extends AsyncNotifier<List<TransactionModel>> {
             .order('created_at', ascending: false);
 
         serverTx = (data as List).map((row) {
-          final categoryName =
+          final type = row['type'] as String;
+          var categoryName =
               (row['categories'] as Map<String, dynamic>?)?['name']
                   as String? ??
               '';
+          var description = row['description'] as String? ?? '';
+
+          if (type == 'income') {
+            // For income transactions, retrieve the category name from the serialized description column
+            if (description.contains(' | ')) {
+              final parts = description.split(' | ');
+              categoryName = parts[0];
+              description = parts.sublist(1).join(' | ');
+            } else if (description.isNotEmpty &&
+                CategoryHelpers.findByName(description).name != 'Other') {
+              categoryName = description;
+              description = '';
+            } else {
+              // Try matching the title to a known income category
+              final title = row['title'] as String? ?? '';
+              final canonicalTitle = CategoryHelpers.canonicalise(title, isExpense: false);
+              if (canonicalTitle != 'Other') {
+                categoryName = canonicalTitle;
+              } else {
+                categoryName = 'Other';
+              }
+            }
+          }
+
           return TransactionModel(
             id: row['id'] as String,
             title: row['title'] as String,
-            description: row['description'] as String? ?? '',
+            description: description,
             amount: double.parse(row['amount'].toString()),
             category: categoryName,
-            type: row['type'] as String,
+            type: type,
             dateTime: DateTime.parse(row['transaction_date'] as String),
           );
         }).toList();

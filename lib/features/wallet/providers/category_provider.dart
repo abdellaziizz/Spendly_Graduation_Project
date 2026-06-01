@@ -1,49 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendly/core/categories/category_helpers.dart';
 import 'package:spendly/features/wallet/models/budget_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Comprehensive icon map that covers every key produced by:
-///   - CreateCategorySheet (user-picked icons)
-///   - resolveOrCreateCategory in category_repository.dart
-///   - scan_receipt_provider._defaultIconFor
-/// Keys must match exactly what is stored in the `categories.icon` DB column.
-const Map<String, IconData> _categoryIconMap = {
-  // Keys used by CreateCategorySheet / user-picked icons
-  'shopping_bag': Icons.shopping_bag,
-  'restaurant': Icons.restaurant,
-  'directions_car': Icons.directions_car,
-  'flight': Icons.flight,
-  'fitness_center': Icons.fitness_center,
-  'computer': Icons.computer,
-  'work': Icons.work,
-  'movie': Icons.movie,
-  'account_balance_wallet': Icons.account_balance_wallet,
-  // Keys produced by resolveOrCreateCategory (category_repository.dart)
-  'category_rounded': Icons.category_rounded,
-  // Keys produced by scan_receipt_provider._defaultIconFor
-  'restaurant_rounded': Icons.restaurant_rounded,
-  'shopping_basket_rounded': Icons.shopping_basket_rounded,
-  'directions_car_rounded': Icons.directions_car_rounded,
-  'receipt_long_rounded': Icons.receipt_long_rounded,
-  'shopping_bag_rounded': Icons.shopping_bag_rounded,
-  'local_hospital_rounded': Icons.local_hospital_rounded,
-  'fitness_center_rounded': Icons.fitness_center_rounded,
-};
+// ─────────────────────────────────────────────────────────────────────────────
+// Icon resolution — now delegates to the centralized CategoryHelpers so there
+// is only ONE icon map in the whole app (category_constants.dart).
+// ─────────────────────────────────────────────────────────────────────────────
 
-/// Converts a stored icon key back to [IconData].
-/// Falls back to a generic category icon so we never silently lose data.
-IconData _iconForKey(String? iconKey) {
-  return _categoryIconMap[iconKey] ?? Icons.category_rounded;
-}
+IconData _iconForKey(String? iconKey) =>
+    CategoryHelpers.iconDataForKey(iconKey);
 
-/// Converts an [IconData] to its stored key string for persistence.
-String _iconKeyForIcon(IconData icon) {
-  for (final entry in _categoryIconMap.entries) {
-    if (entry.value == icon) return entry.key;
-  }
-  return 'account_balance_wallet';
-}
+String _iconKeyForIcon(IconData icon) =>
+    CategoryHelpers.iconKeyForData(icon);
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 final walletLoadingProvider = StateProvider<bool>((ref) => true);
 
@@ -125,6 +97,7 @@ class CategoryNotifier extends StateNotifier<List<BudgetModel>> {
         final id = c['id'] as String;
         final title = c['name'] as String? ?? '';
         final iconKey = c['icon'] as String?;
+        // Use centralized icon resolution
         final icon = _iconForKey(iconKey);
         final spent = spendMap[id] ?? 0.0;
         final limit = limitMap[id] ?? 0.0;
@@ -154,7 +127,7 @@ class CategoryNotifier extends StateNotifier<List<BudgetModel>> {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null) return;
 
-    // Persist the category row (name + icon key)
+    // Persist the category row (name + icon key from centralized system)
     final inserted = await supabase
         .from('categories')
         .insert({

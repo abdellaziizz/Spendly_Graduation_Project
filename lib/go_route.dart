@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendly/features/authentication/Screens/Login_Screen.dart';
+import 'package:spendly/features/onboarding/onboarding_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/features/Profile/Screens/legal_information_screen.dart';
 import 'package:spendly/features/authentication/Screens/currency_screen.dart';
@@ -28,6 +29,7 @@ final _profileNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'profile');
 
 /// Routes that do NOT require authentication.
 const _publicRoutes = <String>[
+  '/onboarding',
   '/login',
   '/register',
   '/forgot-password',
@@ -36,7 +38,7 @@ const _publicRoutes = <String>[
 
 final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/home',
+  initialLocation: '/onboarding',
 
   // ───────── REFRESH LISTENABLE ─────────
   // Re-evaluate redirect logic whenever the auth state changes
@@ -98,6 +100,11 @@ final GoRouter router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/reset-password',
       builder: (context, state) => const ResetPasswordScreen(),
+    ),
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
     ),
 
     // ───────── Bottom Navigation System ─────────

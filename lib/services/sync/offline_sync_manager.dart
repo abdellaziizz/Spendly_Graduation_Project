@@ -64,12 +64,18 @@ class OfflineSyncManager extends Notifier<List<PendingTransaction>> {
           );
         }
 
+        final description = isExpense
+            ? tx.description
+            : (tx.description.isEmpty
+                ? tx.category
+                : '${tx.category} | ${tx.description}');
+
         await supabase.from('transactions').insert({
           'users_id': userId,
           'type': tx.type,
           'amount': tx.amount,
           'title': tx.title,
-          'description': tx.description,
+          'description': description,
           'category_id': categoryId,
           'input_method': tx.inputMethod,
         });

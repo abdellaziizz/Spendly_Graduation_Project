@@ -1,3 +1,4 @@
+import 'package:spendly/core/categories/category_helpers.dart';
 import 'package:spendly/features/main/models/parsed_transaction.dart';
 import 'package:spendly/features/main/utils/voice_intent_detector.dart';
 
@@ -8,29 +9,31 @@ import 'package:spendly/features/main/utils/voice_intent_detector.dart';
 ///  2. Detect overall intent (expense / income) of the full sentence.
 ///  3. Split the sentence on conjunction words to find multiple transactions.
 ///  4. For each segment: extract amount, detect category, resolve intent.
-///  5. Return a [VoiceParseResult] containing one or more [ParsedTransaction]s.
+///  5. Return a [VoiceParseResult] with one or more [ParsedTransaction]s.
+///
+/// All category names produced here are guaranteed to exist in
+/// [kAllCategories] because they pass through [CategoryHelpers.canonicalise].
 class VoiceTransactionParser {
-  // ── Category keywords ──────────────────────────────────────────────────────
+  // ── Expense category keywords ─────────────────────────────────────────────
 
-  static const Map<String, List<String>> _enCategory = {
-    'Gym / Fitness': [
+  /// Maps raw detected names → canonical expense category keywords.
+  static const Map<String, List<String>> _enExpenseCategory = {
+    'Gym': [
       'gym', 'workout', 'fitness', 'membership', 'protein',
       'exercise', 'yoga', 'pilates',
     ],
-    'Food / Dining': [
+    'Food': [
       'dinner', 'lunch', 'restaurant', 'food', 'cafe', 'coffee',
       'burger', 'pizza', 'breakfast', 'meal', 'snack',
       'shawarma', 'sushi', 'kebab', 'takeaway', 'takeout',
+      'supermarket', 'groceries', 'grocery', 'market',
+      'walmart', 'store', 'milk', 'bread', 'vegetables', 'fruits',
     ],
     'Transportation': [
       'uber', 'taxi', 'fuel', 'gas', 'car', 'bus', 'train',
       'flight', 'ticket', 'careem', 'metro', 'transport', 'petrol',
     ],
-    'Groceries': [
-      'supermarket', 'groceries', 'grocery', 'market',
-      'walmart', 'store', 'milk', 'bread', 'vegetables', 'fruits',
-    ],
-    'Bills & Subscriptions': [
+    'Bills': [
       'bill', 'subscription', 'internet', 'netflix', 'spotify',
       'electricity', 'water', 'phone', 'mobile', 'utility',
     ],
@@ -48,36 +51,44 @@ class VoiceTransactionParser {
     ],
     'Entertainment': [
       'cinema', 'movie', 'concert', 'games', 'gaming',
-      'playstation', 'game', 'netflix', 'show',
+      'playstation', 'game', 'show',
     ],
+    'Travel': [
+      'hotel', 'resort', 'trip', 'vacation', 'travel', 'airbnb',
+    ],
+  };
+
+  /// Income category keywords (English).
+  static const Map<String, List<String>> _enIncomeCategory = {
     'Salary': ['salary', 'wage', 'paycheck', 'payslip', 'monthly pay'],
     'Freelance': ['freelance', 'freelancing', 'project', 'client', 'gig'],
     'Investment': ['dividend', 'profit', 'investment', 'stock', 'crypto'],
-    // Personal income sources — catches "got 2000 from dad / mom / friend"
-    'Personal Transfer': ['dad', 'mom', 'mother', 'father', 'friend', 'brother', 'sister', 'family'],
+    'Family': ['dad', 'mom', 'mother', 'father', 'friend', 'brother', 'sister', 'family'],
+    'Bonus': ['bonus', 'reward', 'incentive'],
+    'Refund': ['refund', 'cashback', 'return'],
+    'Business': ['business', 'revenue', 'sales'],
   };
 
-  static const Map<String, List<String>> _arCategory = {
-    'Gym / Fitness': [
+  // ── Arabic expense keywords ────────────────────────────────────────────────
+  static const Map<String, List<String>> _arExpenseCategory = {
+    'Gym': [
       'جيم', 'رياضة', 'تمرين', 'نادي', 'بروتين', 'صالة', 'لياقة', 'يوغا',
     ],
-    'Food / Dining': [
+    'Food': [
       'اكل', 'أكل', 'طعام', 'عشا', 'عشاء', 'غدا', 'غداء',
       'فطار', 'فطور', 'إفطار', 'مطعم', 'كافيه', 'قهوة',
       'بيتزا', 'برجر', 'وجبة', 'سندوتش', 'شاورما', 'كشري',
       'فول', 'طبخ', 'دليفري', 'توصيل', 'كافيتيريا',
+      'سوبر ماركت', 'سوبرماركت', 'بقالة', 'خضار', 'فاكهة', 'سوق',
+      'لبن', 'حليب', 'عيش', 'خبز', 'بيض', 'جبنة',
+      'زيت', 'رز', 'أرز', 'سكر',
     ],
     'Transportation': [
       'اوبر', 'أوبر', 'تاكسي', 'كريم', 'بنزين', 'وقود',
       'عربية', 'سيارة', 'باص', 'أتوبيس', 'قطر', 'قطار',
       'مترو', 'مواصلات', 'نقل', 'تذكرة', 'طيارة', 'طيران',
     ],
-    'Groceries': [
-      'سوبر ماركت', 'سوبرماركت', 'بقالة', 'خضار', 'فاكهة', 'سوق',
-      'لبن', 'حليب', 'عيش', 'خبز', 'بيض', 'جبنة',
-      'زيت', 'رز', 'أرز', 'سكر',
-    ],
-    'Bills & Subscriptions': [
+    'Bills': [
       'فاتورة', 'فواتير', 'اشتراك', 'نت', 'انترنت', 'إنترنت',
       'نتفلكس', 'كهرباء', 'مية', 'ماء', 'غاز',
       'تليفون', 'موبايل', 'شحن',
@@ -96,13 +107,20 @@ class VoiceTransactionParser {
     'Entertainment': [
       'سينما', 'فيلم', 'حفلة', 'العاب', 'بلايستيشن',
     ],
+    'Travel': [
+      'فندق', 'رحلة', 'سفر', 'منتجع',
+    ],
+  };
+
+  /// Arabic income keywords.
+  static const Map<String, List<String>> _arIncomeCategory = {
     'Salary': ['مرتب', 'راتب', 'القبض', 'اجر', 'أجر'],
     'Freelance': ['فريلانس', 'شغل حر', 'مشروع'],
     'Investment': ['ارباح', 'ربح', 'استثمار', 'اسهم', 'كريبتو'],
+    'Family': ['ابويا', 'بابا', 'ماما', 'اخو', 'اخت', 'عيلة', 'ابويه'],
   };
 
   // ── Arabic number words ────────────────────────────────────────────────────
-
   static const Map<String, double> _arNumbers = {
     'صفر': 0,
     'واحد': 1, 'واحده': 1, 'واحدة': 1,
@@ -146,14 +164,6 @@ class VoiceTransactionParser {
   };
 
   // ── Conjunction splitter ───────────────────────────────────────────────────
-
-  /// Splits the full utterance on conjunction words that introduce a NEW
-  /// transaction clause.
-  ///
-  /// Pattern notes:
-  ///  - Uses `\b` (word-boundary) on both sides so "band" is not matched.
-  ///  - Surrounding \s* (not \s+) tolerates tight punctuation or extra spaces.
-  ///  - Works even if ASR drops a leading space before "and".
   static final _splitPattern = RegExp(
     r'\s*\b(?:and|also|plus|then|و|وكمان|وبرضو|وكذلك|كمان)\b\s*',
     caseSensitive: false,
@@ -167,27 +177,21 @@ class VoiceTransactionParser {
       return VoiceParseResult(transactions: [], rawText: text);
     }
 
-    // 1. Normalise Arabic-Indic numerals
     final norm = _normalise(text);
-
-    // 2. Detect overall intent for the whole sentence (fallback for segments)
     final overallIntent = VoiceIntentDetector.detect(norm);
 
-    // 3. Split into segments on conjunction words
     final segments = norm
         .split(_splitPattern)
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
 
-    // 4. Parse each segment
     final transactions = <ParsedTransaction>[];
     for (final seg in segments) {
       final tx = _parseSegment(seg, overallIntent: overallIntent);
       if (tx != null) transactions.add(tx);
     }
 
-    // 5. Fallback: parse whole text as one transaction
     if (transactions.isEmpty) {
       final tx = _parseSegment(norm, overallIntent: overallIntent);
       if (tx != null) transactions.add(tx);
@@ -211,13 +215,9 @@ class VoiceTransactionParser {
     String segment, {
     required TransactionIntent overallIntent,
   }) {
-    // Amount
     final amount = _extractAmount(segment);
 
-    // Category
-    final category = _detectCategory(segment);
-
-    // Intent — prefer explicit local signal, else use whole-sentence intent
+    // Determine intent first so we can pick the right category list
     final TransactionIntent intent;
     if (VoiceIntentDetector.hasIncomeSignal(segment)) {
       intent = TransactionIntent.income;
@@ -227,18 +227,18 @@ class VoiceTransactionParser {
       intent = overallIntent;
     }
 
-    // Guard: discard a segment that has NO meaningful content.
-    // A segment is meaningful when it has a non-zero amount OR at least one
-    // explicit intent signal (e.g. "got 2000" has both; "i got" has signal
-    // but zero amount — keep it so the user sees it in the dialog rather
-    // than silently dropping it).
+    // Detect category from the correct type-specific keyword list,
+    // then canonicalise it to a guaranteed-valid category name.
+    final rawCategory = _detectCategory(segment, intent);
+    final isExpense = intent != TransactionIntent.income;
+    final category = CategoryHelpers.canonicalise(rawCategory, isExpense: isExpense);
+
     final hasSignal = intent != TransactionIntent.unknown ||
         VoiceIntentDetector.hasIncomeSignal(segment) ||
         VoiceIntentDetector.hasExpenseSignal(segment);
     if (amount == 0.0 && !hasSignal) return null;
 
-    // Title
-    final title = _buildTitle(category, segment);
+    final title = _buildTitle(category, rawCategory, segment, isExpense);
 
     return ParsedTransaction(
       title: title,
@@ -249,8 +249,6 @@ class VoiceTransactionParser {
     );
   }
 
-  /// Extracts the largest numeric amount from [text].
-  /// Tries Western digits first, then Arabic number words.
   static double _extractAmount(String text) {
     double maxDigit = 0.0;
     final digitRx = RegExp(r'\b(\d+[.,]?\d*)\b');
@@ -265,7 +263,7 @@ class VoiceTransactionParser {
       final v = _arNumbers[w];
       if (v == null) continue;
       if (v >= 100 && wordAmt > 0 && wordAmt < 10) {
-        wordAmt = wordAmt * v; // e.g. "تلاتة آلاف" = 3 * 1000
+        wordAmt = wordAmt * v;
       } else {
         wordAmt += v;
       }
@@ -274,35 +272,60 @@ class VoiceTransactionParser {
     return maxDigit > wordAmt ? maxDigit : wordAmt;
   }
 
-  /// Detects category by matching Arabic then English keywords.
-  static String _detectCategory(String segment) {
-    // Arabic first (longer / more specific matches take priority)
-    for (final entry in _arCategory.entries) {
+  /// Detects raw category by checking type-appropriate keyword maps.
+  /// Returns a string that may be a legacy name — callers must canonicalise.
+  static String _detectCategory(String segment, TransactionIntent intent) {
+    final isIncome = intent == TransactionIntent.income;
+
+    // For income: check income keyword maps
+    if (isIncome) {
+      // Arabic first
+      for (final entry in _arIncomeCategory.entries) {
+        for (final kw in entry.value) {
+          if (segment.contains(kw)) return entry.key;
+        }
+      }
+      final lower = segment.toLowerCase();
+      for (final entry in _enIncomeCategory.entries) {
+        for (final kw in entry.value) {
+          if (lower.contains(kw)) return entry.key;
+        }
+      }
+      return 'Other'; // income Other
+    }
+
+    // For expense (or unknown): check expense keyword maps
+    for (final entry in _arExpenseCategory.entries) {
       for (final kw in entry.value) {
         if (segment.contains(kw)) return entry.key;
       }
     }
-    // English
     final lower = segment.toLowerCase();
-    for (final entry in _enCategory.entries) {
+    for (final entry in _enExpenseCategory.entries) {
       for (final kw in entry.value) {
         if (lower.contains(kw)) return entry.key;
       }
     }
-    return 'Other';
+    return 'Other'; // expense Other
   }
 
   /// Builds a human-readable title from the detected category / segment.
-  static String _buildTitle(String category, String segment) {
-    if (category != 'Other') {
-      // Try to use the exact matched English keyword as a capitalised title
+  static String _buildTitle(
+    String canonicalCategory,
+    String rawCategory,
+    String segment,
+    bool isExpense,
+  ) {
+    if (canonicalCategory != 'Other') {
+      // Try to find the triggering English keyword for a more natural title
       final lower = segment.toLowerCase();
-      for (final kw in (_enCategory[category] ?? [])) {
+      final keywordMap = isExpense ? _enExpenseCategory : _enIncomeCategory;
+      for (final kw in (keywordMap[rawCategory] ?? keywordMap[canonicalCategory] ?? [])) {
         if (lower.contains(kw)) {
           return kw[0].toUpperCase() + kw.substring(1);
         }
       }
-      return category;
+      return canonicalCategory;
     }
     // Fallback: first two words, max 20 chars
     final words = segment.trim().split(RegExp(r'\s+'));

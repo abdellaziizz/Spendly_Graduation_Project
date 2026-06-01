@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:spendly/core/categories/category_helpers.dart';
+import 'package:spendly/core/categories/category_model.dart';
 import 'package:spendly/features/main/Repository/category_repository.dart';
 import 'package:spendly/features/main/models/transaction_model.dart';
 import 'package:spendly/features/main/providers/main_finance_provider.dart';
 import 'package:spendly/features/main/providers/transactions_list_provider.dart';
 import 'package:spendly/features/wallet/providers/category_provider.dart';
-import 'package:spendly/features/wallet/models/budget_model.dart';
 import 'package:spendly/theme/app_radius.dart';
 import 'package:spendly/theme/colors.dart';
 import 'package:spendly/theme/theme_extensions.dart';
@@ -34,42 +35,22 @@ class _AddTransactionBottomSheetState
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  static const List<Map<String, dynamic>> _fallbackCategories = [
-    {'name': 'Groceries', 'icon': Icons.shopping_basket_outlined},
-    {'name': 'Transport', 'icon': Icons.directions_car_outlined},
-    {'name': 'Dining Out', 'icon': Icons.restaurant_outlined},
-    {'name': 'Health', 'icon': Icons.health_and_safety_outlined},
-    {'name': 'Laptop', 'icon': Icons.laptop_mac_outlined},
-    {'name': 'Beach', 'icon': Icons.beach_access_outlined},
-    {'name': 'Home', 'icon': Icons.home_outlined},
-    {'name': 'Flight', 'icon': Icons.flight_outlined},
-    {'name': 'Gift', 'icon': Icons.card_giftcard_outlined},
-    {'name': 'Date', 'icon': Icons.favorite_outline},
-    {'name': 'Phone', 'icon': Icons.smartphone_outlined},
-    {'name': 'School', 'icon': Icons.school_outlined},
-  ];
+  /// Returns the correct category list based on the selected transaction type.
+  /// When Expense is selected → expense categories only.
+  /// When Income is selected → income categories only.
+  List<AppCategory> get _currentCategories {
+    return _selectedType == 0
+        ? CategoryHelpers.expenseCategories
+        : CategoryHelpers.incomeCategories;
+  }
 
-  List<Map<String, dynamic>> _categoryOptions(
-    List<BudgetModel> walletCategories,
-  ) {
-    final options = walletCategories
-        .map(
-          (budget) => <String, dynamic>{
-            'name': budget.title,
-            'icon': budget.icon,
-          },
-        )
-        .toList();
-
-    if (options.isEmpty)
-      return List<Map<String, dynamic>>.from(_fallbackCategories);
-
-    if (_selectedCategory != null &&
-        !options.any((c) => c['name'] == _selectedCategory)) {
-      options.add({'name': _selectedCategory, 'icon': Icons.category_outlined});
+  /// Ensures _selectedCategory is always valid for the current type.
+  void _resetCategoryForType() {
+    final categories = _currentCategories;
+    final exists = categories.any((c) => c.name == _selectedCategory);
+    if (!exists) {
+      _selectedCategory = categories.first.name;
     }
-
-    return options;
   }
 
   @override
@@ -78,10 +59,15 @@ class _AddTransactionBottomSheetState
     if (widget.transactionToEdit != null) {
       final tx = widget.transactionToEdit!;
       _selectedType = tx.type == 'expense' ? 0 : 1;
-      _selectedCategory = tx.category.isNotEmpty ? tx.category : null;
-      _amountController.text = tx.amount.toString();
-      _titleController.text = tx.title;
-      _descriptionController.text = tx.description;
+      // Canonicalise the stored category name to a known value
+      final canonical = CategoryHelpers.canonicalise(
+        tx.category.isNotEmpty ? tx.category : 'Other',
+        isExpense: tx.type == 'expense',
+      );
+      _selectedCategory = canonical;
+    } else {
+      // Default to first expense category
+      _selectedCategory = CategoryHelpers.expenseCategories.first.name;
     }
   }
 
@@ -95,8 +81,7 @@ class _AddTransactionBottomSheetState
 
   void _confirm() async {
     if (_titleController.text.trim().isEmpty ||
-        _amountController.text.trim().isEmpty)
-      return;
+        _amountController.text.trim().isEmpty) { return; }
 
     final double amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
     if (amount <= 0) return;
@@ -106,19 +91,19 @@ class _AddTransactionBottomSheetState
     if (userId == null) return;
 
     final isExpense = _selectedType == 0;
+
+    // Ensure a valid category is selected from the correct type list
+    _resetCategoryForType();
+    final categoryName = _selectedCategory ?? _currentCategories.first.name;
+
     String? categoryId;
-
-    final categoryOptions = _categoryOptions(ref.read(walletProvider));
-
     if (isExpense) {
-      _selectedCategory ??= categoryOptions.first['name'] as String;
+      // Only expense transactions get a category_id (per existing schema)
       categoryId = await resolveOrCreateCategory(
         supabase,
         userId,
-        _selectedCategory!,
+        categoryName,
       );
-    } else if (_selectedCategory == null) {
-      _selectedCategory = categoryOptions.first['name'] as String;
     }
 
     final dataMap = {
@@ -126,7 +111,11 @@ class _AddTransactionBottomSheetState
       'type': isExpense ? 'expense' : 'income',
       'amount': amount,
       'title': _titleController.text.trim(),
-      'description': _descriptionController.text.trim(),
+      'description': isExpense
+          ? _descriptionController.text.trim()
+          : (_descriptionController.text.trim().isEmpty
+              ? categoryName
+              : '$categoryName | ${_descriptionController.text.trim()}'),
       'category_id': categoryId,
       'input_method': 'manual',
     };
@@ -142,8 +131,7 @@ class _AddTransactionBottomSheetState
 
     if (mounted) Navigator.pop(context);
 
-    // Refresh all data providers in parallel. walletProvider must be refreshed
-    // so the Track tab immediately reflects the new spending amounts.
+    // Refresh all data providers in parallel.
     unawaited(ref.read(transactionsListProvider.notifier).refresh());
     unawaited(ref.read(mainFinanceProvider.notifier).refreshFinance());
     unawaited(ref.read(walletProvider.notifier).refresh());
@@ -152,11 +140,12 @@ class _AddTransactionBottomSheetState
   @override
   Widget build(BuildContext context) {
     final curSymbol = ref.watch(currencySymbolProvider);
-    final walletCategories = ref.watch(walletProvider);
-    final categoryOptions = _categoryOptions(walletCategories);
     final amountColor = _selectedType == 0
         ? AppColors.expense
         : AppColors.income;
+
+    // Get the filtered category list for the currently selected type
+    final categories = _currentCategories;
 
     return Container(
       padding: EdgeInsets.only(
@@ -309,11 +298,8 @@ class _AddTransactionBottomSheetState
                 curve: Curves.easeInToLinear,
                 onValueChanged: (v) => setState(() {
                   _selectedType = v;
-                  if (_selectedType == 0 &&
-                      _selectedCategory == null &&
-                      categoryOptions.isNotEmpty) {
-                    _selectedCategory = categoryOptions.first['name'] as String;
-                  }
+                  // Reset to first category of the new type when toggling
+                  _selectedCategory = _currentCategories.first.name;
                 }),
               ),
             ),
@@ -331,84 +317,76 @@ class _AddTransactionBottomSheetState
             const SizedBox(height: 20),
 
             // ── Category chips ────────────────────────────────────────────
+            // The list automatically switches between expense and income
+            // categories when the toggle changes.
             Text('Category', style: context.textTheme.labelLarge),
             const SizedBox(height: 12),
-            if (categoryOptions.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Text(
-                  'Add wallet categories first so they appear here.',
-                  style: TextStyle(color: context.subtitleColor),
+            SizedBox(
+              height: 120,
+              child: GridView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  mainAxisExtent: 130,
                 ),
-              )
-            else
-              SizedBox(
-                height: 120,
-                child: GridView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categoryOptions.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    mainAxisExtent: 130,
-                  ),
-                  itemBuilder: (context, index) {
-                    final cat = categoryOptions[index];
-                    final isSelected = _selectedCategory == cat['name'];
+                itemBuilder: (context, index) {
+                  final cat = categories[index];
+                  final isSelected = _selectedCategory == cat.name;
 
-                    return GestureDetector(
-                      onTap: () =>
-                          setState(() => _selectedCategory = cat['name']),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedCategory = cat.name),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? context.colors.primary.withValues(alpha: 0.1)
+                            : context.colors.surfaceContainerHighest,
+                        borderRadius: AppRadius.fullBorderRadius,
+                        border: Border.all(
                           color: isSelected
-                              ? context.colors.primary.withValues(alpha: 0.1)
-                              : context.colors.surfaceContainerHighest,
-                          borderRadius: AppRadius.fullBorderRadius,
-                          border: Border.all(
-                            color: isSelected
-                                ? context.colors.primary
-                                : Colors.transparent,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              cat['icon'] as IconData,
-                              size: 18,
-                              color: isSelected
-                                  ? context.colors.primary
-                                  : context.subtitleColor,
-                            ),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                cat['name'],
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected
-                                      ? context.colors.primary
-                                      : context.subtitleColor,
-                                ),
-                              ),
-                            ),
-                          ],
+                              ? context.colors.primary
+                              : Colors.transparent,
+                          width: 1.5,
                         ),
                       ),
-                    );
-                  },
-                ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            cat.icon,
+                            size: 18,
+                            color: isSelected
+                                ? context.colors.primary
+                                : context.subtitleColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              cat.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isSelected
+                                    ? context.colors.primary
+                                    : context.subtitleColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
+            ),
             const SizedBox(height: 20),
 
             // ── Description ───────────────────────────────────────────────

@@ -53,12 +53,18 @@ class _VoiceConfirmationBottomSheetState
           );
         }
 
+        final description = isExpense
+            ? tx.description
+            : (tx.description.isEmpty
+                ? tx.category
+                : '${tx.category} | ${tx.description}');
+
         await supabase.from('transactions').insert({
           'users_id': userId,
           'type': tx.intentString,
           'amount': tx.amount > 0 ? tx.amount : 1.0,
           'title': tx.title.isNotEmpty ? tx.title : 'Voice Transaction',
-          'description': tx.description,
+          'description': description,
           'category_id': categoryId,
           'input_method': 'voice',
         });

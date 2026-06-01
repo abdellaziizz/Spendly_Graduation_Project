@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spendly/core/config/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:spendly/go_route.dart';
@@ -7,14 +8,25 @@ import 'package:spendly/theme/theme.dart';
 import 'package:spendly/theme/theme_provider.dart';
 import 'package:spendly/features/authentication/providers/deep_link_providers.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:spendly/features/onboarding/Providers/onboarding_state_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Load environment variables from the .env file
   await dotenv.load(fileName: ".env");
   await Supabase.initialize(url: Env.supabaseUrl, anonKey: Env.supabaseAnonKey);
+  
+  // Initialize SharedPreferences before the app runs
+  final sharedPrefs = await SharedPreferences.getInstance();
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPrefs),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -32,10 +44,10 @@ class _MyAppState extends ConsumerState<MyApp> {
     ref.read(deepLinkServiceProvider).initialize();
   }
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeProvider);
+
     return MaterialApp.router(
       themeMode: themeMode,
       theme: AppTheme.lightTheme,

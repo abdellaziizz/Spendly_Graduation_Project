@@ -43,8 +43,8 @@ class OnboardingPageWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               child: Image.asset(
                 imagePath,
-                height: 250,
-                width: 250,
+                height: 350,
+                width: 350,
                 fit: BoxFit.cover,
               ),
             ),
@@ -61,9 +61,12 @@ class OnboardingPageWidget extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: titlePart1,
-                    style: TextStyle(color: context.colors.primaryContainer != Colors.transparent
-                        ? context.colors.onPrimaryContainer
-                        : context.colors.onSurface),
+                    style: TextStyle(
+                      color:
+                          context.colors.primaryContainer != Colors.transparent
+                          ? context.colors.onPrimaryContainer
+                          : context.colors.onSurface,
+                    ),
                   ),
                   const TextSpan(text: ' '),
                   TextSpan(
